@@ -1,5 +1,6 @@
-import Button from "./Button";
-import { InputField } from "./InputField";
+import { Link } from "react-router-dom";
+import Button from "../components/Button";
+import { InputField } from "../components/InputField";
 
 export function RegisterPage() {
 	return (
@@ -18,6 +19,13 @@ export function RegisterPage() {
 
 					<Button>Submit</Button>
 				</form>
+
+				<p className="text-center text-sm text-gray-500 mt-6">
+					Already have an account?{" "}
+					<Link to="/login" className="font-medium text-red-500 hover:text-red-600">
+						Log in
+					</Link>
+				</p>
 			</div>
 		</main>
 	);

@@ -1,5 +1,6 @@
-import Button from "./Button";
-import { InputField } from "./InputField";
+import { Link } from "react-router-dom";
+import Button from "../components/Button";
+import { InputField } from "../components/InputField";
 
 export function LoginPage() {
 	return (
@@ -20,9 +21,9 @@ export function LoginPage() {
 
 				<p className="text-center text-sm text-gray-500 mt-6">
 					Don't have an account?{" "}
-					<a href="/register" className="font-medium text-red-500 hover:text-red-600">
+					<Link to="/register" className="font-medium text-red-500 hover:text-red-600">
 						Sign up
-					</a>
+					</Link>
 				</p>
 			</div>
 		</main>
