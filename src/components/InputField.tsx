@@ -4,8 +4,7 @@ type Variant = "default" | "email" | "password";
 
 type InputFieldProps = {
 	variant?: Variant;
-} & ComponentProps<"label"> &
-	ComponentProps<"input">;
+} & ComponentProps<"input">;
 
 export function InputField({ ...props }: InputFieldProps) {
 	/* ========================================================================= */
@@ -20,6 +19,7 @@ export function InputField({ ...props }: InputFieldProps) {
 				</label>
 
 				<input
+					required
 					id="email"
 					type="email"
 					className="w-full rounded-lg border border-gray-300 px-3 py-2
@@ -42,6 +42,7 @@ export function InputField({ ...props }: InputFieldProps) {
 				</label>
 
 				<input
+					required
 					id="password"
 					type="password"
 					className="w-full rounded-lg border border-gray-300 px-3 py-2
@@ -62,6 +63,7 @@ export function InputField({ ...props }: InputFieldProps) {
 			</label>
 
 			<input
+				required
 				id="input"
 				type="text"
 				className="w-full rounded-lg border border-gray-300 px-3 py-2
