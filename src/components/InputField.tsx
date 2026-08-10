@@ -1,9 +1,9 @@
 import type { ComponentProps } from "react";
 
-type Variant = "default" | "email" | "password";
+type Variant = "firstName" | "lastName" | "email" | "password";
 
 type InputFieldProps = {
-	variant?: Variant;
+	variant: Variant;
 } & ComponentProps<"input">;
 
 export function InputField({ ...props }: InputFieldProps) {
@@ -19,6 +19,9 @@ export function InputField({ ...props }: InputFieldProps) {
 				</label>
 
 				<input
+					//cannot use {...props} because input tags cannot have children
+					onChange={props.onChange}
+					autoComplete="email"
 					required
 					id="email"
 					type="email"
@@ -42,7 +45,10 @@ export function InputField({ ...props }: InputFieldProps) {
 				</label>
 
 				<input
+					//cannot use {...props} because input tags cannot have children
+					onChange={props.onChange}
 					required
+					autoComplete={props.autoComplete ?? "new-password"}
 					id="password"
 					type="password"
 					className="w-full rounded-lg border border-gray-300 px-3 py-2
@@ -58,13 +64,16 @@ export function InputField({ ...props }: InputFieldProps) {
 	/* ========================================================================= */
 	return (
 		<div>
-			<label htmlFor="input" className="block text-sm font-medium text-gray-700 mb-1">
+			<label htmlFor={props.variant} className="block text-sm font-medium text-gray-700 mb-1">
 				{props.children}
 			</label>
 
 			<input
+				//cannot use {...props} because input tags cannot have children
+				onChange={props.onChange}
 				required
-				id="input"
+				// uses the variant as the unique id
+				id={props.variant}
 				type="text"
 				className="w-full rounded-lg border border-gray-300 px-3 py-2
                          focus:outline-none focus:ring-2 focus:ring-red-400

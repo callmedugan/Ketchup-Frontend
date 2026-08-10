@@ -29,8 +29,8 @@ export function LoginPage() {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					email,
-					password,
+					email: email,
+					password: password,
 				}),
 			});
 
@@ -42,6 +42,7 @@ export function LoginPage() {
 				return;
 			}
 
+			//success
 			console.log("Logged in:", data);
 
 			// TODO: handle storing the JWT and redirecting later.
@@ -59,8 +60,8 @@ export function LoginPage() {
 
 				<form onSubmit={handleSubmit} className="space-y-5">
 					{/* use state to set email and password for submit button to use */}
-					<InputField variant="email" onChange={(e) => setEmail(e.currentTarget.value)} />
-					<InputField variant="password" onChange={(e) => setPassword(e.currentTarget.value)} />
+					<InputField variant="email" onChange={(e) => setEmail(e.target.value)} />
+					<InputField variant="password" onChange={(e) => setPassword(e.target.value)} />
 
 					{/* if error, display the text here */}
 					{error && (
