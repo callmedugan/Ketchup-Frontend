@@ -1,17 +1,17 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { isTokenValid } from "../utils/authUtils";
 
 export function ProtectedRoute() {
-	//const { isAuthenticated, isLoading } = useAuth();
+	//used to pass in previous page
 	const location = useLocation();
-	//testing
-	const { isAuthenticated } = useAuth();
-
-	// Prevent flash of login screen while checking auth tokens
-	// if (isLoading) {
-	// 	return <LoadingIndicator variant="Loading" />;
-	// }
+	const { isAuthenticated, token } = useAuth();
 
 	// Redirect to login, saving the attempted URL in state for post-login redirection
-	return isAuthenticated ? <Outlet /> : <Navigate to="/login" state={{ from: location }} replace />;
+	if (!isAuthenticated || !isTokenValid(token)) {
+		return <Navigate to="/login" state={{ from: location }} replace />;
+	}
+
+	//finally return outlet
+	return <Outlet />;
 }

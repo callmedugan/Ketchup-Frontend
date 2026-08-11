@@ -19,7 +19,7 @@ export function LoginPage() {
 	const [isLoading, setIsLoading] = useState(false);
 
 	//auth
-	const { login, token, isAuthenticated } = useAuth();
+	const { login, token, isAuthenticated, authFetch } = useAuth();
 
 	// Retrieve original path or fallback to home
 	const location = useLocation();
@@ -46,11 +46,12 @@ export function LoginPage() {
 		setError("");
 		setIsLoading(true);
 
+		//need to scope here
 		const jwt = token;
 
 		//try to connect to backend
 		try {
-			const response = await fetch("http://localhost:8080/auth/login", {
+			const response = await authFetch("http://localhost:8080/auth/login", {
 				method: "POST",
 				headers: {
 					Authorization: `Bearer ${jwt}`,
