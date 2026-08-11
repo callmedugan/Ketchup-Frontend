@@ -4,6 +4,7 @@ import { InputField } from "../components/InputField";
 import { useEffect, useState, type SubmitEvent } from "react";
 import Logo from "../components/Logo";
 import { LoadingIndicator } from "../components/LoadingIndicator";
+import { useAuth } from "../contexts/AuthContext";
 
 export function LoginPage() {
 	//for routing
@@ -16,7 +17,9 @@ export function LoginPage() {
 	//error and loading state for server await and response
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
-	const [wasSuccessful, setWasSuccessful] = useState(false);
+
+	//auth
+	const { login, token, isAuthenticated } = useAuth();
 
 	// Retrieve original path or fallback to home
 	const location = useLocation();
@@ -24,16 +27,16 @@ export function LoginPage() {
 
 	//useeffect for waiting after success before routing to login page
 	useEffect(() => {
-		if (!wasSuccessful) return;
+		if (!isAuthenticated) return;
 
-		// Wait 5 seconds, then route to the login page or previous page before being routed back to login
+		// Wait 3 seconds, then route to the login page or previous page before being routed back to login
 		const timer = setTimeout(() => {
 			navigate(redirectPath, { replace: true }); // Use replace to clear login from history
-		}, 5000);
+		}, 3000);
 
 		// Clean up the timer if the component unmounts early
 		return () => clearTimeout(timer);
-	}, [wasSuccessful, navigate]);
+	}, [isAuthenticated, navigate]);
 
 	//handler for submit button
 	async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
@@ -43,11 +46,14 @@ export function LoginPage() {
 		setError("");
 		setIsLoading(true);
 
+		const jwt = token;
+
 		//try to connect to backend
 		try {
 			const response = await fetch("http://localhost:8080/auth/login", {
 				method: "POST",
 				headers: {
+					Authorization: `Bearer ${jwt}`,
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
@@ -59,16 +65,15 @@ export function LoginPage() {
 			//response
 			const data = await response.json();
 
+			//error
 			if (!response.ok) {
 				setError(data.error ?? "Unable to log in.");
 				return;
 			}
 
 			//success
-			//route to login page by setting successful to true
-			setWasSuccessful(true);
-
-			// TODO: handle storing the JWT and redirecting later.
+			const token = data?.token;
+			if (token != undefined) login(token);
 		} catch {
 			setError("Could not connect to the server.");
 		} finally {
@@ -81,7 +86,7 @@ export function LoginPage() {
 			<div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
 				<Logo />
 
-				{wasSuccessful ? (
+				{isAuthenticated ? (
 					<LoadingIndicator variant="Login" />
 				) : (
 					<>

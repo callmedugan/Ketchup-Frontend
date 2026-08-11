@@ -1,4 +1,5 @@
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AuthProvider } from "./contexts/AuthContext";
 import { ErrorPage } from "./pages/Error";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
@@ -7,18 +8,20 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 export default function App() {
 	return (
-		<BrowserRouter>
-			<Routes>
-				{/* Public Routes */}
-				<Route path="/login" element={<LoginPage />} />
-				<Route path="/register" element={<RegisterPage />} />
-				<Route path="/*" element={<ErrorPage />} />
+		<AuthProvider>
+			<BrowserRouter>
+				<Routes>
+					{/* Public Routes */}
+					<Route path="/login" element={<LoginPage />} />
+					<Route path="/register" element={<RegisterPage />} />
+					<Route path="/*" element={<ErrorPage />} />
 
-				{/* Protected Routes Wrapper */}
-				<Route element={<ProtectedRoute />}>
-					<Route path="/" element={<HomePage />} />
-				</Route>
-			</Routes>
-		</BrowserRouter>
+					{/* Protected Routes Wrapper */}
+					<Route element={<ProtectedRoute />}>
+						<Route path="/" element={<HomePage />} />
+					</Route>
+				</Routes>
+			</BrowserRouter>
+		</AuthProvider>
 	);
 }
