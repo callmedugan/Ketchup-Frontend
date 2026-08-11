@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import { InputField } from "../components/InputField";
-import { useEffect, useState, type SubmitEvent } from "react";
+import { useRef, useState, type SubmitEvent } from "react";
 import Logo from "../components/Logo";
 import { LoadingIndicator } from "../components/LoadingIndicator";
 import { useAuth } from "../contexts/AuthContext";
@@ -10,9 +10,9 @@ export function LoginPage() {
 	//for routing
 	const navigate = useNavigate();
 
-	//email and password state for submit button
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
+	//email and password refs for submit button
+	const emailRef = useRef<HTMLInputElement>(null);
+	const passwordRef = useRef<HTMLInputElement>(null);
 
 	//error and loading state for server await and response
 	const [error, setError] = useState("");
@@ -25,18 +25,9 @@ export function LoginPage() {
 	const location = useLocation();
 	const redirectPath = location.state?.from?.pathname || "/";
 
-	//useeffect for waiting after success before routing to login page
-	useEffect(() => {
-		if (!isAuthenticated) return;
-
-		// Wait 3 seconds, then route to the login page or previous page before being routed back to login
-		const timer = setTimeout(() => {
-			navigate(redirectPath, { replace: true }); // Use replace to clear login from history
-		}, 3000);
-
-		// Clean up the timer if the component unmounts early
-		return () => clearTimeout(timer);
-	}, [isAuthenticated, navigate]);
+	/* ========================================================================= */
+	//                        submit handler
+	/* ========================================================================= */
 
 	//handler for submit button
 	async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
@@ -46,20 +37,17 @@ export function LoginPage() {
 		setError("");
 		setIsLoading(true);
 
-		//need to scope here
-		const jwt = token;
-
 		//try to connect to backend
 		try {
 			const response = await authFetch("http://localhost:8080/auth/login", {
 				method: "POST",
 				headers: {
-					Authorization: `Bearer ${jwt}`,
+					Authorization: `Bearer ${token}`,
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					email: email,
-					password: password,
+					email: emailRef.current?.value,
+					password: passwordRef.current?.value,
 				}),
 			});
 
@@ -73,14 +61,20 @@ export function LoginPage() {
 			}
 
 			//success
-			const token = data?.token;
-			if (token != undefined) login(token);
+			const newToken = data?.token;
+			if (newToken != undefined) {
+				login(newToken);
+				navigate(redirectPath, { replace: true });
+			}
 		} catch {
 			setError("Could not connect to the server.");
 		} finally {
 			setIsLoading(false);
 		}
 	}
+	/* ========================================================================= */
+	//                        return
+	/* ========================================================================= */
 
 	return (
 		<main className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
@@ -93,8 +87,8 @@ export function LoginPage() {
 					<>
 						<form onSubmit={handleSubmit} className="space-y-5">
 							{/* use state to set email and password for submit button to use */}
-							<InputField variant="email" onChange={(e) => setEmail(e.target.value)} />
-							<InputField variant="password" onChange={(e) => setPassword(e.target.value)} />
+							<InputField variant="email" ref={emailRef} />
+							<InputField variant="password" ref={passwordRef} />
 
 							{/* if error, display the text here */}
 							{error && (

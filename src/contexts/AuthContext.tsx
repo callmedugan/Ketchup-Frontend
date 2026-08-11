@@ -9,6 +9,7 @@ type AuthContextType = {
 	token: string | null;
 	login: (newToken: string) => void;
 	logout: () => void;
+	manualLogout: () => Promise<void>;
 	isAuthenticated: boolean;
 	authFetch: (url: string, options?: RequestInit) => Promise<Response>;
 };
@@ -24,20 +25,21 @@ type AuthProviderProps = {
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+	//declare first
+	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
 	// use the function version of use state to immediately set and check if the token is valid on start or refresh
 	const [token, setToken] = useState<string | null>(() => {
 		const savedToken = localStorage.getItem("token");
-
-		return isTokenValid(savedToken) ? savedToken : null;
+		setIsAuthenticated(isTokenValid(savedToken));
+		//always want to save the token we have since we use that to look up the refresh token
+		return savedToken;
 	});
 
-	// any time token is modified update local storage
+	// any time token is modified update local storage and set authenticated
 	useEffect(() => {
-		if (token) {
-			localStorage.setItem("token", token);
-		} else {
-			localStorage.removeItem("token");
-		}
+		if (token) localStorage.setItem("token", token);
+		setIsAuthenticated(isTokenValid(token));
 	}, [token]);
 
 	function login(newToken: string) {
@@ -48,12 +50,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		setToken(null);
 	}
 
+	async function manualLogout() {
+		//try to hit the logout endpoint
+		const response = await fetch("http://localhost:8080/auth/logout", {
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${token}`,
+				"Content-Type": "application/json",
+			},
+		});
+
+		//error
+		if (!response.ok) {
+			throw new Error("User was not logged in or failed to logout");
+		}
+
+		//success
+		logout();
+	}
+
 	// fetch wrapper for auth calls
-	async function authFetch(
-		url: string,
-		options: RequestInit = {},
-		isRetry = false,
-	): Promise<Response> {
+	async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
 		// Create standard headers object
 		const headers = new Headers(options.headers);
 
@@ -68,44 +85,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		const response = await fetch(url, { ...options, headers });
 
 		// token rejected by backend
-		if (response.status === 401 && !isRetry) {
-			//re scope
-			const jwt = token;
-			//try to hit the refresh endpoint
-			try {
-				const refresh = await authFetch(
-					"http://localhost:8080/auth/refresh",
-					{
-						method: "POST",
-						headers: {
-							Authorization: `Bearer ${jwt}`,
-							"Content-Type": "application/json",
-						},
-					},
-					false, //isRetry
-				);
-				//response
-				const data = await refresh.json();
-
-				//success
-				const token = data?.token;
-				if (token != undefined) {
-					login(token);
-					console.log("refreshed token");
-				} else {
-					logout();
-					throw new Error("Session expired. Please log in again.");
-				}
-			} catch {
-				throw new Error("Could not connect to the server.");
-			}
+		if (response.status === 401) {
+			logout();
+			throw new Error("Session expired. Please log in again.");
 		}
 
 		return response;
 	}
 
 	return (
-		<AuthContext.Provider value={{ token, login, logout, isAuthenticated: !!token, authFetch }}>
+		<AuthContext.Provider
+			value={{ token, login, logout, isAuthenticated, authFetch, manualLogout }}
+		>
 			{children}
 		</AuthContext.Provider>
 	);

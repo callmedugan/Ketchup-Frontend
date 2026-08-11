@@ -20,6 +20,7 @@ export function InputField({ ...props }: InputFieldProps) {
 
 				<input
 					//cannot use {...props} because input tags cannot have children
+					ref={props.ref}
 					onChange={props.onChange}
 					autoComplete="email"
 					required
@@ -46,6 +47,7 @@ export function InputField({ ...props }: InputFieldProps) {
 
 				<input
 					//cannot use {...props} because input tags cannot have children
+					ref={props.ref}
 					onChange={props.onChange}
 					required
 					autoComplete={props.autoComplete ?? "new-password"}
@@ -70,6 +72,7 @@ export function InputField({ ...props }: InputFieldProps) {
 
 			<input
 				//cannot use {...props} because input tags cannot have children
+				ref={props.ref}
 				onChange={props.onChange}
 				required
 				// uses the variant as the unique id

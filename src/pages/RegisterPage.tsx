@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import { InputField } from "../components/InputField";
 import Logo from "../components/Logo";
-import { useEffect, useState, type SubmitEvent } from "react";
+import { useEffect, useRef, useState, type SubmitEvent } from "react";
 import { LoadingIndicator } from "../components/LoadingIndicator";
 
 export function RegisterPage() {
@@ -10,10 +10,10 @@ export function RegisterPage() {
 	const navigate = useNavigate();
 
 	//states for various fields
-	const [firstName, setFirstName] = useState("");
-	const [lastName, setLastName] = useState("");
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
+	const firstNameRef = useRef<HTMLInputElement>(null);
+	const lastNameRef = useRef<HTMLInputElement>(null);
+	const emailRef = useRef<HTMLInputElement>(null);
+	const passwordRef = useRef<HTMLInputElement>(null);
 
 	//error and loading state for server await and response
 	const [error, setError] = useState("");
@@ -49,9 +49,9 @@ export function RegisterPage() {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					name: `${firstName} ${lastName}`,
-					email: email,
-					password: password,
+					name: `${firstNameRef.current?.value} ${lastNameRef.current?.value}`,
+					email: emailRef.current?.value,
+					password: passwordRef.current?.value,
 				}),
 			});
 
@@ -82,22 +82,18 @@ export function RegisterPage() {
 				) : (
 					<>
 						<form onSubmit={handleSubmit} className="space-y-5">
-							<InputField variant="firstName" onChange={(e) => setFirstName(e.target.value)}>
+							<InputField variant="firstName" ref={firstNameRef}>
 								First Name
 							</InputField>
-							<InputField variant="lastName" onChange={(e) => setLastName(e.target.value)}>
+							<InputField variant="lastName" ref={lastNameRef}>
 								Last Name
 							</InputField>
-							<InputField
-								variant="email"
-								placeholder=""
-								onChange={(e) => setEmail(e.target.value)}
-							/>
+							<InputField variant="email" placeholder="" ref={emailRef} />
 							<InputField
 								variant="password"
 								autoComplete="new-password"
 								placeholder=""
-								onChange={(e) => setPassword(e.target.value)}
+								ref={passwordRef}
 							/>
 
 							{/* if error, display the text here */}
