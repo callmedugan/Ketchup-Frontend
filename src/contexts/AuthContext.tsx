@@ -1,12 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { isTokenValid } from "../utils/authUtils";
-
-export type User = {
-	id: string;
-	firstName: string;
-	lastName: string;
-	email: string;
-};
+import { getUserFromParsedJson, type User } from "../utils/types";
 
 /* ========================================================================= */
 //                        context
@@ -35,14 +29,28 @@ type AuthProviderProps = {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
 	//declare first
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-	const [user, setUser] = useState<User | null>(null);
 
 	// use the function version of use state to immediately set and check if the token is valid on start or refresh
+	const [user, setUser] = useState<User | null>(() => {
+		const savedUser = localStorage.getItem("user");
+		//gotta parse the user before passing to obj converter
+		if (savedUser != null) {
+			const parse = JSON.parse(savedUser);
+			return getUserFromParsedJson(parse) ?? null;
+		}
+		return null;
+	});
 	const [token, setToken] = useState<string | null>(() => {
 		const savedToken = localStorage.getItem("token");
 		setIsAuthenticated(isTokenValid(savedToken));
 		return savedToken;
 	});
+
+	// any time user is modified save the string to local storage
+	useEffect(() => {
+		if (user) localStorage.setItem("user", JSON.stringify(user));
+		else localStorage.removeItem("user");
+	}, [user]);
 
 	// any time token is modified update local storage and set isAuthenticated
 	useEffect(() => {

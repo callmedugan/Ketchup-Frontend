@@ -4,7 +4,8 @@ import { InputField } from "../components/InputField";
 import { useRef, useState, type SubmitEvent } from "react";
 import Logo from "../components/Logo";
 import { LoadingIndicator } from "../components/LoadingIndicator";
-import { useAuth, type User } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
+import { getUserFromParsedJson } from "../utils/types";
 
 export function LoginPage() {
 	//for routing
@@ -60,26 +61,12 @@ export function LoginPage() {
 				return;
 			}
 
-			//checks
-			if (
-				!data ||
-				typeof data?.token !== "string" ||
-				typeof data?.name !== "string" ||
-				typeof data?.email !== "string" ||
-				typeof data?.id !== "string"
-			) {
-				setError("Failed to get user info from server");
+			//convert to user obj
+			const newUser = getUserFromParsedJson(data);
+			if (newUser == undefined) {
+				setError("User data received from the server is not valid.");
 				return;
 			}
-
-			const [first, last] = data.name.split(" ");
-
-			const newUser: User = {
-				id: data.id,
-				firstName: first,
-				lastName: last,
-				email: data.email,
-			};
 
 			//success
 			const newToken = data.token;
