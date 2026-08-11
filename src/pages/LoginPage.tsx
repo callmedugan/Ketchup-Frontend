@@ -15,7 +15,7 @@ export function LoginPage() {
 	//error and loading state for server await and response
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
-	const [wasSuccessful, setWasSuccessful] = useState(true);
+	const [wasSuccessful, setWasSuccessful] = useState(false);
 
 	//useeffect for waiting after success before routing to login page
 	useEffect(() => {
