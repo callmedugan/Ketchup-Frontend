@@ -17,12 +17,12 @@ export function HomePage() {
 	/* ========================================================================= */
 
 	const [schedules, setSchedules] = useState<Schedule[]>([]);
-	const addSchedule = (newSchedule: Schedule) => {
-		setSchedules((prevItems) => [...prevItems, newSchedule]);
-	};
-	const deleteSchedule = (idToDelete: string) => {
-		setSchedules((prevItems) => prevItems.filter((item) => item.id !== idToDelete));
-	};
+	// const addSchedule = (newSchedule: Schedule) => {
+	// 	setSchedules((prevItems) => [...prevItems, newSchedule]);
+	// };
+	// const deleteSchedule = (idToDelete: string) => {
+	// 	setSchedules((prevItems) => prevItems.filter((item) => item.id !== idToDelete));
+	// };
 
 	/* ========================================================================= */
 	//                        useEffect when component mounts
