@@ -2,9 +2,12 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import { InputField } from "../components/InputField";
 import Logo from "../components/Logo";
-import { useState, type SubmitEvent } from "react";
+import { useEffect, useState, type SubmitEvent } from "react";
 
 export function RegisterPage() {
+	//for routing
+	const navigate = useNavigate();
+
 	//states for various fields
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
@@ -14,12 +17,23 @@ export function RegisterPage() {
 	//error and loading state for server await and response
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const [wasSuccessful, setWasSuccessful] = useState(true);
+
+	//useeffect for waiting after success before routing to login page
+	useEffect(() => {
+		if (!wasSuccessful) return;
+
+		// Wait 5 seconds, then route to the login page
+		const timer = setTimeout(() => {
+			navigate("/login");
+		}, 5000);
+
+		// Clean up the timer if the component unmounts early
+		return () => clearTimeout(timer);
+	}, [wasSuccessful, navigate]);
 
 	//handler for submit button
 	async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-		//for routing
-		//const navigate = useNavigate();
-
 		event.preventDefault();
 
 		//set states
@@ -48,17 +62,8 @@ export function RegisterPage() {
 				return;
 			}
 
-			//success
-			console.log("Created user:", data);
-
-			//reset fields
-			setFirstName("");
-			setLastName("");
-			setEmail("");
-			setPassword("");
-
-			//route to login page
-			//navigate("/login");
+			//route to login page by setting successful to true
+			setWasSuccessful(true);
 		} catch {
 			setError("Could not connect to the server.");
 		} finally {
@@ -71,40 +76,59 @@ export function RegisterPage() {
 			<div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
 				<Logo />
 
-				<form onSubmit={handleSubmit} className="space-y-5">
-					<InputField variant="firstName" onChange={(e) => setFirstName(e.target.value)}>
-						First Name
-					</InputField>
-					<InputField variant="lastName" onChange={(e) => setLastName(e.target.value)}>
-						Last Name
-					</InputField>
-					<InputField variant="email" placeholder="" onChange={(e) => setEmail(e.target.value)} />
-					<InputField
-						variant="password"
-						autoComplete="new-password"
-						placeholder=""
-						onChange={(e) => setPassword(e.target.value)}
-					/>
-
-					{/* if error, display the text here */}
-					{error && (
-						<p role="alert" style={{ color: "crimson", margin: 0 }}>
-							{error}
+				{wasSuccessful ? (
+					<>
+						<p className="block text-center text-sm font-medium text-gray-700 mb-1">
+							Account creation successful!
+							<br />
+							Now redirecting to login page...
 						</p>
-					)}
+						<div className="flex items-center justify-center p-8">
+							<div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+						</div>
+					</>
+				) : (
+					<>
+						<form onSubmit={handleSubmit} className="space-y-5">
+							<InputField variant="firstName" onChange={(e) => setFirstName(e.target.value)}>
+								First Name
+							</InputField>
+							<InputField variant="lastName" onChange={(e) => setLastName(e.target.value)}>
+								Last Name
+							</InputField>
+							<InputField
+								variant="email"
+								placeholder=""
+								onChange={(e) => setEmail(e.target.value)}
+							/>
+							<InputField
+								variant="password"
+								autoComplete="new-password"
+								placeholder=""
+								onChange={(e) => setPassword(e.target.value)}
+							/>
 
-					{/* while waiting for resp disable the button */}
-					<Button disabled={isLoading}>
-						{isLoading ? "Creating account..." : "Create account"}
-					</Button>
-				</form>
+							{/* if error, display the text here */}
+							{error && (
+								<p role="alert" style={{ color: "crimson", margin: 0, textAlign: "center" }}>
+									{error}
+								</p>
+							)}
 
-				<p className="text-center text-sm text-gray-500 mt-6">
-					Already have an account?{" "}
-					<Link to="/login" className="font-medium text-red-500 hover:text-red-600">
-						Log in
-					</Link>
-				</p>
+							{/* while waiting for resp disable the button */}
+							<Button disabled={isLoading}>
+								{isLoading ? "Creating account..." : "Create account"}
+							</Button>
+						</form>
+
+						<p className="text-center text-sm text-gray-500 mt-6">
+							Already have an account?{" "}
+							<Link to="/login" className="font-medium text-red-500 hover:text-red-600">
+								Log in
+							</Link>
+						</p>
+					</>
+				)}
 			</div>
 		</main>
 	);
