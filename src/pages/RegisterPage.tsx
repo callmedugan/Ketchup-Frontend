@@ -3,6 +3,7 @@ import Button from "../components/Button";
 import { InputField } from "../components/InputField";
 import Logo from "../components/Logo";
 import { useEffect, useState, type SubmitEvent } from "react";
+import { LoadingIndicator } from "../components/LoadingIndicator";
 
 export function RegisterPage() {
 	//for routing
@@ -77,16 +78,7 @@ export function RegisterPage() {
 				<Logo />
 
 				{wasSuccessful ? (
-					<>
-						<p className="block text-center text-sm font-medium text-gray-700 mb-1">
-							Account creation successful!
-							<br />
-							Now redirecting to login page...
-						</p>
-						<div className="flex items-center justify-center p-8">
-							<div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-						</div>
-					</>
+					<LoadingIndicator variant="Register" />
 				) : (
 					<>
 						<form onSubmit={handleSubmit} className="space-y-5">

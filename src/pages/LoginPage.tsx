@@ -1,8 +1,9 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import { InputField } from "../components/InputField";
 import { useEffect, useState, type SubmitEvent } from "react";
 import Logo from "../components/Logo";
+import { LoadingIndicator } from "../components/LoadingIndicator";
 
 export function LoginPage() {
 	//for routing
@@ -17,13 +18,17 @@ export function LoginPage() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [wasSuccessful, setWasSuccessful] = useState(false);
 
+	// Retrieve original path or fallback to home
+	const location = useLocation();
+	const redirectPath = location.state?.from?.pathname || "/";
+
 	//useeffect for waiting after success before routing to login page
 	useEffect(() => {
 		if (!wasSuccessful) return;
 
-		// Wait 5 seconds, then route to the login page
+		// Wait 5 seconds, then route to the login page or previous page before being routed back to login
 		const timer = setTimeout(() => {
-			navigate("/home");
+			navigate(redirectPath, { replace: true }); // Use replace to clear login from history
 		}, 5000);
 
 		// Clean up the timer if the component unmounts early
@@ -77,16 +82,7 @@ export function LoginPage() {
 				<Logo />
 
 				{wasSuccessful ? (
-					<>
-						<p className="block text-center text-sm font-medium text-gray-700 mb-1">
-							Login successful!
-							<br />
-							Now redirecting to home page...
-						</p>
-						<div className="flex items-center justify-center p-8">
-							<div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-						</div>
-					</>
+					<LoadingIndicator variant="Login" />
 				) : (
 					<>
 						<form onSubmit={handleSubmit} className="space-y-5">

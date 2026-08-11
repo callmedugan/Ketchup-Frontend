@@ -1,33 +1,24 @@
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ErrorPage } from "./pages/Error";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-
-const router = createBrowserRouter([
-	//setting default to login
-	{
-		path: "/",
-		element: <LoginPage />,
-	},
-	{
-		path: "/home",
-		element: <HomePage />,
-	},
-	{
-		path: "/login",
-		element: <LoginPage />,
-	},
-	{
-		path: "/register",
-		element: <RegisterPage />,
-	},
-	{
-		path: "/*",
-		element: <ErrorPage />,
-	},
-]);
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 export default function App() {
-	return <RouterProvider router={router} />;
+	return (
+		<BrowserRouter>
+			<Routes>
+				{/* Public Routes */}
+				<Route path="/login" element={<LoginPage />} />
+				<Route path="/register" element={<RegisterPage />} />
+				<Route path="/*" element={<ErrorPage />} />
+
+				{/* Protected Routes Wrapper */}
+				<Route element={<ProtectedRoute />}>
+					<Route path="/" element={<HomePage />} />
+				</Route>
+			</Routes>
+		</BrowserRouter>
+	);
 }
