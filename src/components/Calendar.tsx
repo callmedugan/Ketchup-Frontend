@@ -6,7 +6,7 @@ type CalendarProps = {
 	schedules: Schedule[];
 } & ComponentProps<"li">;
 
-export default function Calendar({ schedules, ...props }: CalendarProps) {
+export default function Calendar({ schedules }: CalendarProps) {
 	//offset for showing different weeks
 	const [weekOffset, setWeekOffset] = useState(0);
 
@@ -25,7 +25,21 @@ export default function Calendar({ schedules, ...props }: CalendarProps) {
 		//this is just the main outside container
 		return (
 			<div className="mt-8 mb-8 overflow-hidden rounded-2xl border border-black-400 shadow-sm ring-1 ring-gray-300">
+				<button
+					onClick={() => setWeekOffset((prev) => prev - 1)}
+					className="flex h-8 w-full items-center justify-center border-b 
+					border-slate-500 bg-indigo-200 text-gray-500 transition hover:bg-indigo-300 hover:text-gray-700"
+				>
+					↑
+				</button>
 				<div>{showDayRows(weekDays)}</div>
+				<button
+					onClick={() => setWeekOffset((prev) => prev + 1)}
+					className="flex h-8 w-full items-center justify-center border-t 
+					border-slate-500 bg-indigo-200 text-gray-500 transition hover:bg-indigo-300 hover:text-gray-700"
+				>
+					↓
+				</button>
 			</div>
 		);
 	}
@@ -33,11 +47,21 @@ export default function Calendar({ schedules, ...props }: CalendarProps) {
 	function showDayRows(dates: Date[]) {
 		return (
 			<>
+				{/* month row*/}
+				<div className="flex min-h-8 items-center justify-center border-b border-slate-500 bg-indigo-200 px-4">
+					{dates.length > 0 && (
+						<span className="text-lg font-semibold text-slate-700">
+							{format(dates[0], "MMMM yyyy")}
+						</span>
+					)}
+				</div>
+
+				{/* day rows */}
 				{dates.map((day) => (
 					<div
 						key={day.toISOString()}
 						className={`
-						flex min-h-24 border-b border-slate-500 last:border-b-0 bg-slate-100
+						flex min-h-24 border-b border-slate-500 last:border-b-0 bg-slate-100 
 					`}
 					>
 						{showDayHeader(day)}
