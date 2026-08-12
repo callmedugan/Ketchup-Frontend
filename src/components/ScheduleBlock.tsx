@@ -2,7 +2,7 @@ import type { ComponentProps } from "react";
 import type { Schedule } from "../utils/types";
 
 type ButtonProps = {
-	schedule: Schedule;
+	schedule?: Schedule;
 } & ComponentProps<"li">;
 
 export default function ScheduleBlock({ schedule, ...props }: ButtonProps) {
@@ -18,7 +18,14 @@ export default function ScheduleBlock({ schedule, ...props }: ButtonProps) {
                        text-center
                        "
 		>
-			{new Date(schedule.startTime).toDateString()}
+			{showContent()}
 		</li>
 	);
+
+	function showContent() {
+		if (schedule == undefined) {
+			return <>{props.children}</>;
+		}
+		return <>{new Date(schedule.startTime).toDateString()}</>;
+	}
 }

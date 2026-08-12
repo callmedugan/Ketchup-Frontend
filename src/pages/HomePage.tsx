@@ -4,7 +4,7 @@ import Logo from "../components/Logo";
 import { useAuth } from "../contexts/AuthContext";
 import { LoadingIndicator } from "../components/LoadingIndicator";
 import { getScheduleFromParsedJson, type Schedule } from "../utils/types";
-import ScheduleBlock from "../components/ScheduleBlock";
+import Calendar from "../components/Calendar";
 
 export function HomePage() {
 	const [loading, setLoading] = useState(true);
@@ -57,11 +57,9 @@ export function HomePage() {
 	/* ========================================================================= */
 
 	return (
-		<main className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-			<div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+		<main className="min-h-screen bg-gray-50 px-6 py-8">
+			<div className="mx-auto w-full max-w-7xl rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
 				<Logo />
-				<p className="text-center block text-lg font-medium text-gray-700 mb-5">Home</p>
-
 				{getContent()}
 			</div>
 		</main>
@@ -80,20 +78,17 @@ export function HomePage() {
 		//default
 		return (
 			<>
-				<p className="block text-center text-sm font-medium text-gray-700 mb-1">
-					{user && (
-						<>
-							<br />
+				{/* greet user */}
+				{user && (
+					<div className="mb-8 text-center">
+						<h1 className="text-2xl font-semibold text-gray-900">
 							Hello, {user.name.split(" ")[0]}!
-						</>
-					)}
-				</p>
+						</h1>
+					</div>
+				)}
 
-				<ul className="my-5">
-					{schedules.map((s) => (
-						<ScheduleBlock key={s.id} schedule={s} />
-					))}
-				</ul>
+				{/* show calendar */}
+				<Calendar schedules={schedules} />
 
 				<Button onClick={manualLogout}>Log Out</Button>
 			</>
