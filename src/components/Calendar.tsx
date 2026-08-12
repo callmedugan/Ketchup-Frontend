@@ -1,20 +1,19 @@
 import { useState, type ComponentProps, type JSX } from "react";
-import type { Schedule } from "../utils/types";
+import { type Schedule } from "../utils/types";
 import { addDays, addWeeks, format, isSameDay, startOfWeek } from "date-fns";
-import ScheduleBlock from "./ScheduleBlock";
 
-type ButtonProps = {
+type CalendarProps = {
 	schedules: Schedule[];
 } & ComponentProps<"li">;
 
-export default function Calendar({ schedules, ...props }: ButtonProps) {
+export default function Calendar({ schedules, ...props }: CalendarProps) {
 	//offset for showing different weeks
 	const [weekOffset, setWeekOffset] = useState(0);
 
 	//return
-	return <>{showCalendarContainer()}</>;
+	return <>{showOutsideContainer()}</>;
 
-	function showCalendarContainer() {
+	function showOutsideContainer() {
 		// create week date array
 		const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), { weekStartsOn: 0 });
 		const weekDays: Date[] = [];
@@ -23,42 +22,43 @@ export default function Calendar({ schedules, ...props }: ButtonProps) {
 			weekDays.push(addDays(weekStart, i));
 		}
 
+		//this is just the main outside container
 		return (
-			<div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
-				<div>{showDaysContainer(weekDays)}</div>
+			<div className="mt-8 mb-8 overflow-hidden rounded-2xl border border-black-400 shadow-sm ring-1 ring-gray-300">
+				<div>{showDayRows(weekDays)}</div>
 			</div>
 		);
 	}
 
-	function showDaysContainer(dates: Date[]) {
+	function showDayRows(dates: Date[]) {
 		return (
 			<>
-				{dates.map((day, index) => (
+				{dates.map((day) => (
 					<div
 						key={day.toISOString()}
 						className={`
-						flex min-h-24 border-b border-slate-200 last:border-b-0 bg-white
+						flex min-h-24 border-b border-slate-500 last:border-b-0 bg-slate-100
 					`}
 					>
-						{showDayHeader(day, index)}
-						<div className="flex flex-1 items-center">{showAvailableBlock(day)}</div>
+						{showDayHeader(day)}
+						<div className="flex flex-1 items-center p-1.5 gap-1.5">{showAvailableBlock(day)}</div>
 					</div>
 				))}
 			</>
 		);
 	}
 
-	function showDayHeader(day: Date, index: number) {
+	function showDayHeader(day: Date) {
 		return (
 			<div
 				className={`
 				flex w-1/7 shrink-0 flex-col items-center justify-center
-				border-r p-4 border-slate-200
+				border-r p-4 border-slate-500 bg-indigo-200
 			`}
 			>
-				<div className="text-sm font-medium uppercase tracking-wide">{format(day, "EEE")}</div>
+				<div className="text-med font-medium uppercase tracking-wide">{format(day, "EEE")}</div>
 
-				<div className="mt-1 text-2xl font-bold">{format(day, "d")}</div>
+				<div className="mt-1 text-3xl font-bold">{format(day, "d")}</div>
 			</div>
 		);
 	}
@@ -71,16 +71,31 @@ export default function Calendar({ schedules, ...props }: ButtonProps) {
 			if (isSameDay(s.startTime, day)) {
 				result.push(
 					<div
-						//unique key
 						key={`${s.id}-${day.toISOString()}-${s.startTime}`}
-						className="flex items-center gap-1 p-2"
+						className="relative w-full h-full cursor-pointer overflow-hidden
+							rounded-xl border border-slate-500 bg-sky-700 p-4 transition 
+							hover:bg-sky-800 shadow-sm ring-1 ring-gray-300"
 					>
-						<div className="cursor-pointer rounded-xl border border-red-200 bg-red-50 p-4 transition hover:bg-red-100">
-							<div className="font-semibold text-red-700">Available</div>
+						<div className="font-semibold text-white">Available</div>
 
-							<div className="mt-1 text-sm text-red-600">
-								{format(s.startTime, "p")} - {format(s.endTime, "p")}
-							</div>
+						<div className="mt-1 text-sm font-medium text-red-50">
+							{format(s.startTime, "p")} - {format(s.endTime, "p")}
+						</div>
+
+						{/* Emoji sidebar */}
+						<div
+							className="absolute right-0 top-0 flex h-full w-12
+							flex-col pl-1 justify-center gap-1  
+							border-l border-slate-500  bg-sky-200"
+						>
+							<span className="text-2xl">{availabilityStatus.interested}</span>
+							<span className="text-2xl">{availabilityStatus.matched}</span>
+							<span className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-med text-white">
+								3
+							</span>
+							<span className="absolute right-2 top-12 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-med text-white">
+								1
+							</span>
 						</div>
 					</div>,
 				);
@@ -89,3 +104,8 @@ export default function Calendar({ schedules, ...props }: ButtonProps) {
 		return result;
 	}
 }
+
+const availabilityStatus = {
+	interested: "👋",
+	matched: "🤝",
+};

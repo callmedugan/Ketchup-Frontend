@@ -57,8 +57,8 @@ export function HomePage() {
 	/* ========================================================================= */
 
 	return (
-		<main className="min-h-screen bg-gray-50 px-6 py-8">
-			<div className="mx-auto w-full max-w-7xl rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
+		<main className="min-h-screen bg-slate-200 px-6 py-8">
+			<div className="mx-auto w-full max-w-7xl rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-300">
 				<Logo />
 				{getContent()}
 			</div>
