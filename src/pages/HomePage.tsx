@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Button from "../components/Button";
 import Logo from "../components/Logo";
 import { useAuth } from "../contexts/AuthContext";
 import { LoadingIndicator } from "../components/LoadingIndicator";
@@ -53,45 +52,90 @@ export function HomePage() {
 	}, [user]);
 
 	/* ========================================================================= */
-	//                        content
+	//                        page
 	/* ========================================================================= */
 
 	return (
-		<main className="min-h-screen bg-slate-200 px-6 py-8">
-			<div className="mx-auto w-full max-w-7xl rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-300">
-				<Logo />
+		<main className="min-h-screen bg-gray-100 px-4 py-6 sm:px-6 lg:px-8">
+			<div className="mx-auto w-full max-w-7xl overflow-hidden rounded-2xl bg-white shadow-lg">
+				{/* ============================================================= */}
+				{/* Header */}
+				{/* ============================================================= */}
+
+				<header className="flex items-center justify-between border-b border-gray-200 px-6 py-5 sm:px-8">
+					<div>
+						<Logo showTagLine={false} />
+					</div>
+
+					<button
+						onClick={manualLogout}
+						className="rounded-lg px-4 py-2 text-sm font-medium text-gray-500 transition hover:bg-gray-100 hover:text-red-600"
+					>
+						Log out
+					</button>
+				</header>
+
+				{/* ============================================================= */}
+				{/* Page content */}
+				{/* ============================================================= */}
+
 				{getContent()}
 			</div>
 		</main>
 	);
 
 	function getContent() {
-		//error
+		// error
 		if (error)
 			return (
-				<p role="alert" style={{ color: "crimson", margin: 0, textAlign: "center" }}>
-					{error}
-				</p>
+				<div className="flex min-h-96 items-center justify-center px-6">
+					<div className="text-center">
+						<h2 className="text-lg font-semibold text-gray-900">Something went wrong</h2>
+
+						<p role="alert" className="mt-2 text-sm text-red-600">
+							{error}
+						</p>
+					</div>
+				</div>
 			);
-		//loading
-		if (loading) return <LoadingIndicator variant="Loading" />;
+
+		// loading
+		if (loading)
+			return (
+				<div className="flex min-h-96 items-center justify-center">
+					<LoadingIndicator variant="Loading" />
+				</div>
+			);
+
 		//default
 		return (
-			<>
-				{/* greet user */}
-				{user && (
-					<div className="mb-8 text-center">
-						<h1 className="text-2xl font-semibold text-gray-900">
-							Hello, {user.name.split(" ")[0]}!
-						</h1>
+			<div className="px-6 py-6 sm:px-8 sm:py-8">
+				{/* ========================================================= */}
+				{/* Dashboard heading */}
+				{/* ========================================================= */}
+
+				<div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+					<div>
+						<p className="text-sm font-medium text-gray-500">Your schedule</p>
+
+						{user && (
+							<h1 className="mt-1 text-2xl font-semibold text-gray-900">
+								Hello, {user.name.split(" ")[0]}!
+							</h1>
+						)}
 					</div>
-				)}
+				</div>
 
-				{/* show calendar */}
-				<Calendar schedules={schedules} />
+				{/* ========================================================= */}
+				{/* Calendar card */}
+				{/* ========================================================= */}
 
-				<Button onClick={manualLogout}>Log Out</Button>
-			</>
+				<section className="overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
+					<div className="p-3 sm:p-4">
+						<Calendar schedules={schedules} />
+					</div>
+				</section>
+			</div>
 		);
 	}
 }

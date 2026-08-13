@@ -31,6 +31,7 @@ function isScheduleArray(obj: any): obj is Schedule[] {
 	return false;
 }
 
+//only use internally, does not convert dates from the json string
 function isSchedule(obj: any): obj is Schedule {
 	return (
 		obj !== null &&
@@ -55,13 +56,30 @@ function isSchedule(obj: any): obj is Schedule {
 //returns array with schedule objs or obj
 export const getScheduleFromParsedJson = (parsedData: string): Schedule[] | undefined => {
 	try {
-		if (isScheduleArray(parsedData)) return parsedData;
-		if (isSchedule(parsedData)) return [parsedData];
+		if (isScheduleArray(parsedData)) {
+			const result = [];
+			for (const p of parsedData) result.push(setDates(p));
+			return result;
+		}
+		if (isSchedule(parsedData)) {
+			return [setDates(parsedData)];
+		}
 		return undefined;
 	} catch (e) {
 		console.error("Invalid data.");
 	}
 };
+
+//used to build the dates. technically not safe but date was parsed when checking if schedule
+function setDates(s: Schedule): Schedule {
+	return {
+		...s,
+		startTime: new Date(s.startTime),
+		endTime: new Date(s.endTime),
+		createdAt: new Date(s.createdAt),
+		updatedAt: new Date(s.updatedAt),
+	};
+}
 
 /* ========================================================================= */
 //                        User

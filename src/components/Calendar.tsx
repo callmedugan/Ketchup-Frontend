@@ -1,135 +1,190 @@
-import { useState, type ComponentProps, type JSX } from "react";
-import { type Schedule } from "../utils/types";
-import { addDays, addWeeks, format, isSameDay, startOfWeek } from "date-fns";
+import { useMemo, useState } from "react";
+import { addDays, addWeeks, format, set, startOfWeek } from "date-fns";
+import type { Schedule } from "../utils/types";
 
 type CalendarProps = {
 	schedules: Schedule[];
-} & ComponentProps<"li">;
+};
 
 export default function Calendar({ schedules }: CalendarProps) {
-	//offset for showing different weeks
 	const [weekOffset, setWeekOffset] = useState(0);
 
-	//return
-	return <>{showOutsideContainer()}</>;
+	const currentSchedules = useMemo(buildSchedulesForWeek, [weekOffset, schedules]);
 
-	function showOutsideContainer() {
-		// create week date array
-		const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), { weekStartsOn: 0 });
-		const weekDays: Date[] = [];
+	const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), { weekStartsOn: 0 });
 
-		for (let i = 0; i < 7; i++) {
-			weekDays.push(addDays(weekStart, i));
-		}
+	const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
-		//this is just the main outside container
-		return (
-			<div className="mt-8 mb-8 overflow-hidden rounded-2xl border border-black-400 shadow-sm ring-1 ring-gray-300">
-				<button
-					onClick={() => setWeekOffset((prev) => prev - 1)}
-					className="flex h-8 w-full items-center justify-center border-b 
-					border-slate-500 bg-indigo-200 text-gray-500 transition hover:bg-indigo-300 hover:text-gray-700"
-				>
-					↑
-				</button>
-				<div>{showDayRows(weekDays)}</div>
-				<button
-					onClick={() => setWeekOffset((prev) => prev + 1)}
-					className="flex h-8 w-full items-center justify-center border-t 
-					border-slate-500 bg-indigo-200 text-gray-500 transition hover:bg-indigo-300 hover:text-gray-700"
-				>
-					↓
-				</button>
-			</div>
-		);
-	}
+	return (
+		<div className="w-full">
+			<div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+				{/* Date navigation */}
+				<div className="flex min-h-16 items-center justify-between border-b border-stone-200 bg-linear-to-r from-stone-50 via-white to-stone-50 px-3 sm:px-5">
+					{/* Previous week */}
+					<button
+						type="button"
+						onClick={() => setWeekOffset((prev) => prev - 1)}
+						className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 shadow-sm transition hover:border-stone-300 hover:bg-stone-100 hover:text-stone-800 active:scale-95"
+						aria-label="Previous week"
+					>
+						<span className="text-xl leading-none">‹</span>
+					</button>
 
-	function showDayRows(dates: Date[]) {
-		return (
-			<>
-				{/* month row*/}
-				<div className="flex min-h-8 items-center justify-center border-b border-slate-500 bg-indigo-200 px-4">
-					{dates.length > 0 && (
-						<span className="text-lg font-semibold text-slate-700">
-							{format(dates[0], "MMMM yyyy")}
-						</span>
-					)}
+					{/* Center section */}
+					<div className="flex min-w-0 w-70 items-center justify-center gap-3 sm:w-100">
+						{/* Date */}
+						<h2 className="whitespace-nowrap text-center text-sm font-semibold tracking-tight text-stone-800 sm:text-lg">
+							{format(weekDays[0], "MMMM")}
+						</h2>
+
+						{/* Today */}
+						<button
+							type="button"
+							onClick={() => setWeekOffset(0)}
+							disabled={weekOffset === 0}
+							className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm transition ${
+								weekOffset === 0
+									? "cursor-default bg-stone-200 text-stone-400"
+									: "bg-red-500 text-white hover:bg-red-600 hover:shadow active:scale-95"
+							}`}
+						>
+							This week
+						</button>
+					</div>
+
+					{/* Next week */}
+					<button
+						type="button"
+						onClick={() => setWeekOffset((prev) => prev + 1)}
+						className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 shadow-sm transition hover:border-stone-300 hover:bg-stone-100 hover:text-stone-800 active:scale-95"
+						aria-label="Next week"
+					>
+						<span className="text-xl leading-none">›</span>
+					</button>
 				</div>
 
-				{/* day rows */}
-				{dates.map((day) => (
-					<div
-						key={day.toISOString()}
-						className={`
-						flex min-h-24 border-b border-slate-500 last:border-b-0 bg-slate-100 
-					`}
-					>
-						{showDayHeader(day)}
-						<div className="flex flex-1 items-center p-1.5 gap-1.5">{showAvailableBlock(day)}</div>
-					</div>
-				))}
-			</>
-		);
+				{/* Days */}
+				<div className="grid grid-cols-7">
+					{weekDays.map((day, index) => {
+						const isToday = format(day, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
+
+						const daySchedules = currentSchedules.filter(
+							(schedule) =>
+								schedule.startTime.getFullYear() === day.getFullYear() &&
+								schedule.startTime.getMonth() === day.getMonth() &&
+								schedule.startTime.getDate() === day.getDate(),
+						);
+						return (
+							<div
+								key={day.toISOString()}
+								className={`min-h-72 min-w-0 border-r border-stone-200 last:border-r-0 ${index % 2 === 0 ? "bg-white" : "bg-stone-50/70"}`}
+							>
+								{/* Day header */}
+								<div className="border-b border-stone-200 px-2 py-3 text-center">
+									<div className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 sm:text-xs">
+										{format(day, "EEE")}
+									</div>
+
+									<div
+										className={`mx-auto mt-1 flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${isToday ? "bg-red-500 text-white shadow-sm" : "text-stone-700"}`}
+									>
+										{format(day, "d")}
+									</div>
+								</div>
+
+								{/* Availability */}
+								<div className="flex flex-col gap-3 p-3">
+									{daySchedules.map((schedule) => showStickyNote(schedule))}
+								</div>
+							</div>
+						);
+					})}
+				</div>
+			</div>
+		</div>
+	);
+
+	function buildSchedulesForWeek() {
+		const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), { weekStartsOn: 0 });
+
+		const weekSchedules: Schedule[] = [];
+
+		for (const schedule of schedules) {
+			if (schedule.repeatType === "once") {
+				// Only include one-time schedules that fall within this week
+				const scheduleDate = format(schedule.startTime, "yyyy-MM-dd");
+
+				const weekDates = Array.from({ length: 7 }, (_, i) =>
+					format(addDays(weekStart, i), "yyyy-MM-dd"),
+				);
+
+				if (weekDates.includes(scheduleDate)) {
+					weekSchedules.push(schedule);
+				}
+			}
+
+			if (schedule.repeatType === "daily") {
+				// Create a copy for each day
+				for (let i = 0; i < 7; i++) {
+					const day = addDays(weekStart, i);
+
+					weekSchedules.push({
+						...schedule,
+						startTime: set(day, {
+							hours: schedule.startTime.getHours(),
+							minutes: schedule.startTime.getMinutes(),
+							seconds: schedule.startTime.getSeconds(),
+							milliseconds: schedule.startTime.getMilliseconds(),
+						}),
+						endTime: set(day, {
+							hours: schedule.endTime.getHours(),
+							minutes: schedule.endTime.getMinutes(),
+							seconds: schedule.endTime.getSeconds(),
+							milliseconds: schedule.endTime.getMilliseconds(),
+						}),
+					});
+				}
+			}
+
+			if (schedule.repeatType === "weekly") {
+				for (let i = 0; i < 7; i++) {
+					const day = addDays(weekStart, i);
+
+					if (day.getDay() === schedule.startTime.getDay()) {
+						weekSchedules.push({
+							...schedule,
+							startTime: set(day, {
+								hours: schedule.startTime.getHours(),
+								minutes: schedule.startTime.getMinutes(),
+								seconds: schedule.startTime.getSeconds(),
+								milliseconds: schedule.startTime.getMilliseconds(),
+							}),
+							endTime: set(day, {
+								hours: schedule.endTime.getHours(),
+								minutes: schedule.endTime.getMinutes(),
+								seconds: schedule.endTime.getSeconds(),
+								milliseconds: schedule.endTime.getMilliseconds(),
+							}),
+						});
+					}
+				}
+			}
+		}
+		return weekSchedules;
 	}
 
-	function showDayHeader(day: Date) {
+	function showStickyNote(schedule: Schedule) {
 		return (
-			<div
-				className={`
-				flex w-1/7 shrink-0 flex-col items-center justify-center
-				border-r p-4 border-slate-500 bg-indigo-200
-			`}
-			>
-				<div className="text-med font-medium uppercase tracking-wide">{format(day, "EEE")}</div>
+			<div className="relative min-w-0 max-w-full -rotate-1 overflow-hidden rounded-sm border border-amber-200 bg-amber-100 px-2 py-2 shadow-[2px_3px_6px_rgba(0,0,0,0.12)] transition duration-150 hover:-translate-y-0.5 hover:rotate-0 hover:shadow-[3px_5px_8px_rgba(0,0,0,0.15)]">
+				{/* Folded corner */}
+				<div className="absolute right-0 top-0 h-4 w-4 bg-amber-200 [clip-path:polygon(0_0,100%_0,100%_100%)]" />
 
-				<div className="mt-1 text-3xl font-bold">{format(day, "d")}</div>
+				<div className="truncate text-xs font-semibold text-amber-950">Available</div>
+
+				<div className="mt-0.5 truncate text-xs text-amber-800">
+					{format(schedule.startTime, "p")} - {format(schedule.endTime, "p")}
+				</div>
 			</div>
 		);
 	}
-
-	function showAvailableBlock(day: Date) {
-		//loop through schedule and see if any blocks are on this day and build a list of block items
-		const result: JSX.Element[] = [];
-
-		for (const s of schedules) {
-			if (isSameDay(s.startTime, day)) {
-				result.push(
-					<div
-						key={`${s.id}-${day.toISOString()}-${s.startTime}`}
-						className="relative w-full h-full cursor-pointer overflow-hidden
-							rounded-xl border border-slate-500 bg-sky-700 p-4 transition 
-							hover:bg-sky-800 shadow-sm ring-1 ring-gray-300"
-					>
-						<div className="font-semibold text-white">Available</div>
-
-						<div className="mt-1 text-sm font-medium text-red-50">
-							{format(s.startTime, "p")} - {format(s.endTime, "p")}
-						</div>
-
-						{/* Emoji sidebar */}
-						<div
-							className="absolute right-0 top-0 flex h-full w-12
-							flex-col pl-1 justify-center gap-1  
-							border-l border-slate-500  bg-sky-200"
-						>
-							<span className="text-2xl">{availabilityStatus.interested}</span>
-							<span className="text-2xl">{availabilityStatus.matched}</span>
-							<span className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-med text-white">
-								3
-							</span>
-							<span className="absolute right-2 top-12 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-med text-white">
-								1
-							</span>
-						</div>
-					</div>,
-				);
-			}
-		}
-		return result;
-	}
 }
-
-const availabilityStatus = {
-	interested: "👋",
-	matched: "🤝",
-};
