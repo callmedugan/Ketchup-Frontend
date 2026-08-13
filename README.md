@@ -1,34 +1,9 @@
-# React + TypeScript + Vite
+<img width="3300" height="1770" alt="image" src="https://github.com/user-attachments/assets/fdf29db1-9fe1-4091-ad84-e1d3a65d5d00" />
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+About Ketchup
 
-Currently, two official plugins are available:
+Ketchup is a scheduling and availability app designed to make planning time with friends easier. Users can create schedules, add friends, and compare availability to quickly find times when everyone is free.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The goal is to take the back-and-forth out of making plans by giving you a simple visual way to see when your schedules line up.
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
-# Ketchup-Frontend
-# Ketchup-Frontend
+Built with: TypeScript, React, Node.js, Express, PostgreSQL, Drizzle ORM, and Tailwind CSS.
