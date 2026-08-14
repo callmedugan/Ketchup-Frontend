@@ -24,7 +24,7 @@ export function LoginPage() {
 
 	// Retrieve original path or fallback to home
 	const location = useLocation();
-	const redirectPath = location.state?.from?.pathname || "/";
+	const redirectPath = location.state?.from?.pathname || "/home";
 
 	useEffect(() => {
 		if (isAuthenticated) navigate(redirectPath, { replace: true });
@@ -144,7 +144,7 @@ export function LoginPage() {
 
 				{/* Small brand footer */}
 				<p className="mt-5 text-center text-xs font-medium text-[#f7e9d7]/80">
-					The secret sauce to making plans.
+					Powered by React · TypeScript · Node.js
 				</p>
 			</div>
 		</main>

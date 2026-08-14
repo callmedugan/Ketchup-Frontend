@@ -58,11 +58,11 @@ export const getScheduleFromParsedJson = (parsedData: string): Schedule[] | unde
 	try {
 		if (isScheduleArray(parsedData)) {
 			const result = [];
-			for (const p of parsedData) result.push(setDates(p));
+			for (const p of parsedData) result.push(setScheduleDates(p));
 			return result;
 		}
 		if (isSchedule(parsedData)) {
-			return [setDates(parsedData)];
+			return [setScheduleDates(parsedData)];
 		}
 		return undefined;
 	} catch (e) {
@@ -71,13 +71,84 @@ export const getScheduleFromParsedJson = (parsedData: string): Schedule[] | unde
 };
 
 //used to build the dates. technically not safe but date was parsed when checking if schedule
-function setDates(s: Schedule): Schedule {
+function setScheduleDates(s: Schedule): Schedule {
 	return {
 		...s,
 		startTime: new Date(s.startTime),
 		endTime: new Date(s.endTime),
 		createdAt: new Date(s.createdAt),
 		updatedAt: new Date(s.updatedAt),
+	};
+}
+
+/* ========================================================================= */
+//                        friends
+/* ========================================================================= */
+
+export type FriendStatusType = "requested" | "accepted" | "blocked";
+export type Friend = {
+	userId: string;
+	name: string;
+	updatedAt: Date;
+	status: FriendStatusType;
+};
+
+function isValidFriendStatus(obj: any): obj is FriendStatusType {
+	if (!obj || typeof obj !== "string") return false;
+
+	if (obj === "requested" || obj === "accepted" || obj === "blocked") return true;
+
+	return false;
+}
+
+function isFriendArray(obj: any): obj is Friend[] {
+	if (Array.isArray(obj)) {
+		for (const item of obj) {
+			if (!isFriend(item)) return false;
+		}
+		return true;
+	}
+	return false;
+}
+
+//only use internally, does not convert dates from the json string
+function isFriend(obj: any): obj is Friend {
+	return (
+		obj !== null &&
+		typeof obj === "object" &&
+		//strings
+		typeof obj?.userId === "string" &&
+		typeof obj?.name === "string" &&
+		//dates
+		typeof obj?.updatedAt === "string" &&
+		!isNaN(Date.parse(obj?.updatedAt)) &&
+		//reapeat
+		isValidFriendStatus(obj?.status)
+	);
+}
+
+//returns array with schedule objs or obj
+export const getFriendsFromParsedJson = (parsedData: string): Friend[] | undefined => {
+	try {
+		if (isFriendArray(parsedData)) {
+			const result = [];
+			for (const p of parsedData) result.push(setFriendDates(p));
+			return result;
+		}
+		if (isFriend(parsedData)) {
+			return [setFriendDates(parsedData)];
+		}
+		return undefined;
+	} catch (e) {
+		console.error("Invalid data.");
+	}
+};
+
+//used to build the dates. technically not safe but date was parsed when checking if schedule
+function setFriendDates(f: Friend): Friend {
+	return {
+		...f,
+		updatedAt: new Date(f.updatedAt),
 	};
 }
 

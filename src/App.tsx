@@ -1,6 +1,7 @@
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ErrorPage } from "./pages/Error";
+import { FriendsPage } from "./pages/FriendsPage";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
@@ -18,7 +19,8 @@ export default function App() {
 
 					{/* Protected Routes Wrapper */}
 					<Route element={<ProtectedRoute />}>
-						<Route path="/" element={<HomePage />} />
+						<Route path="/home" element={<HomePage />} />
+						<Route path="/friends" element={<FriendsPage />} />
 					</Route>
 				</Routes>
 			</BrowserRouter>

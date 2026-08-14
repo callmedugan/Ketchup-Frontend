@@ -1,9 +1,9 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import Logo from "./Logo";
 
 export default function NavBar() {
 	return (
-		<nav className="min-h-screen w-56 shrink-0 border-r border-stone-900/30 bg-[#292522] px-4 py-6 text-stone-100 shadow-[4px_0_15px_rgba(40,20,10,0.15)]">
+		<nav className="min-h-screen w-56 shrink-0 border-r border-[#4a4038] bg-[#463b33] px-4 py-6 text-stone-100 shadow-[4px_0_15px_rgba(40,20,10,0.15)]">
 			<div className="flex h-full flex-col">
 				{/* ========================================================= */}
 				{/* Logo */}
@@ -18,26 +18,44 @@ export default function NavBar() {
 				{/* ========================================================= */}
 
 				<nav className="flex flex-col gap-1.5">
-					<Link
-						to="/"
-						className="rounded-xl bg-[#f7f1e5]/10 px-4 py-3 text-sm font-semibold text-[#f7f1e5] transition hover:bg-[#f7f1e5]/15"
+					<NavLink
+						to="/home"
+						className={({ isActive }) =>
+							`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+								isActive
+									? "bg-[#f3d6d1] text-[#a63c32]"
+									: "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
+							}`
+						}
 					>
-						Calendar
-					</Link>
+						Home
+					</NavLink>
 
-					<Link
-						to="/"
-						className="rounded-xl px-4 py-3 text-sm font-medium text-stone-400 transition hover:bg-[#f7f1e5]/10 hover:text-[#f7f1e5]"
+					<NavLink
+						to="/friends"
+						className={({ isActive }) =>
+							`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+								isActive
+									? "bg-[#f3d6d1] text-[#a63c32]"
+									: "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
+							}`
+						}
 					>
 						Friends
-					</Link>
+					</NavLink>
 
-					<Link
+					<NavLink
 						to="/"
-						className="rounded-xl px-4 py-3 text-sm font-medium text-stone-400 transition hover:bg-[#f7f1e5]/10 hover:text-[#f7f1e5]"
+						className={({ isActive }) =>
+							`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+								isActive
+									? "bg-[#f3d6d1] text-[#a63c32]"
+									: "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
+							}`
+						}
 					>
 						Profile
-					</Link>
+					</NavLink>
 				</nav>
 
 				{/* ========================================================= */}
@@ -45,9 +63,11 @@ export default function NavBar() {
 				{/* ========================================================= */}
 
 				<div className="mt-auto px-2 text-xs text-stone-500">
-					<p>Ketchup</p>
-
-					<p className="mt-1">The secret sauce to making plans.</p>
+					<p className="mt-1">
+						Powered by
+						<br />
+						React · TypeScript · Node.js
+					</p>
 				</div>
 			</div>
 		</nav>
