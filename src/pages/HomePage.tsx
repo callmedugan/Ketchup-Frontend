@@ -1,50 +1,44 @@
 import { useEffect, useState } from "react";
-import Logo from "../components/Logo";
 import { useAuth } from "../contexts/AuthContext";
 import { LoadingIndicator } from "../components/LoadingIndicator";
 import { getScheduleFromParsedJson, type Schedule } from "../utils/types";
 import Calendar from "../components/Calendar";
+import NavBar from "../components/NavBar";
 
 export function HomePage() {
 	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState(null);
+	const [error, setError] = useState<string | null>(null);
 
-	const { manualLogout, user, authFetch } = useAuth();
+	const { user, authFetch } = useAuth();
 
 	/* ========================================================================= */
 	//                        schedules
 	/* ========================================================================= */
 
 	const [schedules, setSchedules] = useState<Schedule[]>([]);
-	// const addSchedule = (newSchedule: Schedule) => {
-	// 	setSchedules((prevItems) => [...prevItems, newSchedule]);
-	// };
-	// const deleteSchedule = (idToDelete: string) => {
-	// 	setSchedules((prevItems) => prevItems.filter((item) => item.id !== idToDelete));
-	// };
 
 	/* ========================================================================= */
 	//                        useEffect when component mounts
 	/* ========================================================================= */
 
 	useEffect(() => {
-		//console.log("Current user state:", user);
 		if (!user) return;
 
-		authFetch(`http://localhost:8080/api/schedules/${user?.id}`)
+		authFetch(`http://localhost:8080/api/schedules/${user.id}`)
 			.then((response) => {
 				if (!response.ok) throw new Error("Could not connect to server");
 				return response.json();
 			})
-			//success
 			.then((data) => {
-				//convert to array and assign to schedule state
 				const scheduleData = getScheduleFromParsedJson(data);
-				if (scheduleData == null) throw new Error("Schedule data invalid");
+
+				if (scheduleData == null) {
+					throw new Error("Schedule data invalid");
+				}
+
 				setSchedules(scheduleData);
 				setLoading(false);
 			})
-			//error
 			.catch((err) => {
 				setError(err.message);
 				setLoading(false);
@@ -56,41 +50,29 @@ export function HomePage() {
 	/* ========================================================================= */
 
 	return (
-		<main className="min-h-screen bg-gray-100 px-4 py-6 sm:px-6 lg:px-8">
-			<div className="mx-auto w-full max-w-7xl overflow-hidden rounded-2xl bg-white shadow-lg">
-				{/* ============================================================= */}
-				{/* Header */}
-				{/* ============================================================= */}
+		<div className="flex min-h-screen bg-[#b8794f] bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12)_0_1px,transparent_1px),radial-gradient(circle_at_80%_70%,rgba(80,40,20,0.12)_0_1px,transparent_1px)] bg-size[11px_11px,17px_17px]">
+			<NavBar />
 
-				<header className="flex items-center justify-between border-b border-gray-200 px-6 py-5 sm:px-8">
-					<div>
-						<Logo showTagLine={false} />
-					</div>
-
-					<button
-						onClick={manualLogout}
-						className="rounded-lg px-4 py-2 text-sm font-medium text-gray-500 transition hover:bg-gray-100 hover:text-red-600"
-					>
-						Log out
-					</button>
-				</header>
-
-				{/* ============================================================= */}
-				{/* Page content */}
-				{/* ============================================================= */}
-
+			<main className="m-5 flex-1 overflow-hidden rounded-3xl border border-stone-300/70 bg-[#f7f1e5] shadow-[0_10px_30px_rgba(60,30,15,0.18)] lg:m-7">
 				{getContent()}
-			</div>
-		</main>
+			</main>
+		</div>
 	);
 
 	function getContent() {
-		// error
-		if (error)
+		/* --------------------------------------------------------------------- */
+		// Error
+		/* --------------------------------------------------------------------- */
+
+		if (error) {
 			return (
 				<div className="flex min-h-96 items-center justify-center px-6">
 					<div className="text-center">
-						<h2 className="text-lg font-semibold text-gray-900">Something went wrong</h2>
+						<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
+							!
+						</div>
+
+						<h2 className="mt-4 text-lg font-bold text-stone-900">Something went wrong</h2>
 
 						<p role="alert" className="mt-2 text-sm text-red-600">
 							{error}
@@ -98,42 +80,46 @@ export function HomePage() {
 					</div>
 				</div>
 			);
+		}
 
-		// loading
-		if (loading)
+		/* --------------------------------------------------------------------- */
+		// Loading
+		/* --------------------------------------------------------------------- */
+
+		if (loading) {
 			return (
 				<div className="flex min-h-96 items-center justify-center">
 					<LoadingIndicator variant="Loading" />
 				</div>
 			);
+		}
 
-		//default
+		/* --------------------------------------------------------------------- */
+		// Default
+		/* --------------------------------------------------------------------- */
+
 		return (
-			<div className="px-6 py-6 sm:px-8 sm:py-8">
-				{/* ========================================================= */}
+			<div className="px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-9">
 				{/* Dashboard heading */}
-				{/* ========================================================= */}
+				<div className="mb-7">
+					<p className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
+						Your calendar
+					</p>
 
-				<div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-					<div>
-						<p className="text-sm font-medium text-gray-500">Your schedule</p>
+					{user && (
+						<h1 className="mt-1 text-3xl font-bold tracking-tight text-stone-900">
+							Hello, {user.name.split(" ")[0]}!
+						</h1>
+					)}
 
-						{user && (
-							<h1 className="mt-1 text-2xl font-semibold text-gray-900">
-								Hello, {user.name.split(" ")[0]}!
-							</h1>
-						)}
-					</div>
+					<p className="mt-1 text-sm text-stone-500">
+						Here&apos;s when you&apos;re available this week.
+					</p>
 				</div>
 
-				{/* ========================================================= */}
-				{/* Calendar card */}
-				{/* ========================================================= */}
-
-				<section className="overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
-					<div className="p-3 sm:p-4">
-						<Calendar schedules={schedules} />
-					</div>
+				{/* Calendar */}
+				<section className="overflow-hidden rounded-2xl border border-stone-300/80 bg-white shadow-[0_4px_15px_rgba(60,30,15,0.08)]">
+					<Calendar schedules={schedules} />
 				</section>
 			</div>
 		);

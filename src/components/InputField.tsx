@@ -26,9 +26,10 @@ export function InputField({ ...props }: InputFieldProps) {
 					required
 					id="email"
 					type="email"
-					className="w-full rounded-lg border border-gray-300 px-3 py-2
-                         focus:outline-none focus:ring-2 focus:ring-red-400
-                         focus:border-transparent"
+					className="w-full rounded-xl border border-stone-300 bg-[#fffdf8] px-4 py-3 text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-[#d94b3d] focus:ring-2 focus:ring-[#d94b3d]/15"
+					// className="w-full rounded-lg border border-gray-300 px-3 py-2
+					//      focus:outline-none focus:ring-2 focus:ring-red-400
+					//      focus:border-transparent"
 					placeholder={props.placeholder ?? "you@example.com"}
 				/>
 			</div>

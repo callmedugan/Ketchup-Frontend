@@ -1,44 +1,45 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import { InputField } from "../components/InputField";
-import { useRef, useState, type SubmitEvent } from "react";
+import { useEffect, useRef, useState, type SubmitEvent } from "react";
 import Logo from "../components/Logo";
 import { LoadingIndicator } from "../components/LoadingIndicator";
 import { useAuth } from "../contexts/AuthContext";
 import { getUserFromParsedJson } from "../utils/types";
 
 export function LoginPage() {
-	//for routing
+	// for routing
 	const navigate = useNavigate();
 
-	//email and password refs for submit button
+	// email and password refs for submit button
 	const emailRef = useRef<HTMLInputElement>(null);
 	const passwordRef = useRef<HTMLInputElement>(null);
 
-	//error and loading state for server await and response
+	// error and loading state for server await and response
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 
-	//auth
+	// auth
 	const { login, token, isAuthenticated, authFetch } = useAuth();
 
 	// Retrieve original path or fallback to home
 	const location = useLocation();
 	const redirectPath = location.state?.from?.pathname || "/";
 
+	useEffect(() => {
+		if (isAuthenticated) navigate(redirectPath, { replace: true });
+	}, []);
+
 	/* ========================================================================= */
 	//                        submit handler
 	/* ========================================================================= */
 
-	//handler for submit button
 	async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
 
-		//set states
 		setError("");
 		setIsLoading(true);
 
-		//try to connect to backend
 		try {
 			const response = await authFetch("http://localhost:8080/auth/login", {
 				method: "POST",
@@ -52,24 +53,22 @@ export function LoginPage() {
 				}),
 			});
 
-			//response
 			const data = await response.json();
 
-			//error
 			if (!response.ok) {
 				setError(data.error ?? "Unable to log in.");
 				return;
 			}
 
-			//convert to user obj
 			const newUser = getUserFromParsedJson(data);
+
 			if (newUser == undefined) {
 				setError("User data received from the server is not valid.");
 				return;
 			}
 
-			//success
 			const newToken = data.token;
+
 			if (newToken != undefined) {
 				login(newToken, newUser);
 				navigate(redirectPath, { replace: true });
@@ -80,44 +79,73 @@ export function LoginPage() {
 			setIsLoading(false);
 		}
 	}
+
 	/* ========================================================================= */
 	//                        return
 	/* ========================================================================= */
 
 	return (
-		<main className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-			<div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-				<Logo showTagLine={true} />
+		<main className="flex min-h-screen items-center justify-center bg-[#b8794f] bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12)_0_1px,transparent_1px),radial-gradient(circle_at_80%_70%,rgba(80,40,20,0.12)_0_1px,transparent_1px)] bg-size[11px_11px,17px_17px] px-4 py-8">
+			<div className="w-full max-w-md">
+				{/* Paper card */}
+				<div className="rounded-3xl border border-stone-300/70 bg-[#f7f1e5] p-7 shadow-[0_12px_35px_rgba(60,30,15,0.22)] sm:p-9">
+					{/* Logo */}
+					<div className="mb-8">
+						<Logo showTagLine={true} />
+					</div>
 
-				{isAuthenticated ? (
-					<LoadingIndicator variant="Login" />
-				) : (
-					<>
-						<form onSubmit={handleSubmit} className="space-y-5">
-							{/* use state to set email and password for submit button to use */}
-							<InputField variant="email" ref={emailRef} />
-							<InputField variant="password" ref={passwordRef} />
+					{isAuthenticated ? (
+						<div className="py-8">
+							<LoadingIndicator variant="Login" />
+						</div>
+					) : (
+						<>
+							{/* Heading */}
+							<div className="mb-6">
+								<h1 className="mt-1 text-2xl font-bold tracking-tight text-center text-stone-500">
+									Log in
+								</h1>
+							</div>
 
-							{/* if error, display the text here */}
-							{error && (
-								<p role="alert" style={{ color: "crimson", margin: 0, textAlign: "center" }}>
-									{error}
-								</p>
-							)}
+							<form onSubmit={handleSubmit} className="space-y-5">
+								<InputField variant="email" ref={emailRef} />
+								<InputField variant="password" ref={passwordRef} />
 
-							{/* while waiting for resp disable the button */}
-							<Button disabled={isLoading}>{isLoading ? "Logging in..." : "Log in"}</Button>
-						</form>
+								{error && (
+									<div
+										role="alert"
+										className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"
+									>
+										{error}
+									</div>
+								)}
 
-						{/* link to register page */}
-						<p className="text-center text-sm text-gray-500 mt-6">
-							Don't have an account?{" "}
-							<Link to="/register" className="font-medium text-red-500 hover:text-red-600">
-								Sign up
-							</Link>
-						</p>
-					</>
-				)}
+								<Button disabled={isLoading}>{isLoading ? "Logging in..." : "Log in"}</Button>
+							</form>
+
+							<div className="my-6 flex items-center gap-3">
+								<div className="h-px flex-1 bg-stone-200" />
+								<span className="text-xs text-stone-400">OR</span>
+								<div className="h-px flex-1 bg-stone-200" />
+							</div>
+
+							<p className="text-center text-sm text-stone-500">
+								Don&apos;t have an account?{" "}
+								<Link
+									to="/register"
+									className="font-bold text-[#d94b3d] transition hover:text-[#c94034]"
+								>
+									Sign up
+								</Link>
+							</p>
+						</>
+					)}
+				</div>
+
+				{/* Small brand footer */}
+				<p className="mt-5 text-center text-xs font-medium text-[#f7e9d7]/80">
+					The secret sauce to making plans.
+				</p>
 			</div>
 		</main>
 	);
