@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import Logo from "./Logo";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function NavBar() {
 	const [isOpen, setIsOpen] = useState(false);
+
+	const { logout } = useAuth();
 
 	const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 		`rounded-lg px-3 py-2 text-sm font-semibold transition ${
@@ -35,13 +38,26 @@ export default function NavBar() {
 						</NavLink>
 					</nav>
 
-					{/* Bottom branding */}
-					<div className="mt-auto px-2 text-xs text-stone-400">
-						<p className="mt-1">
-							Powered by
-							<br />
-							React · TypeScript · Node.js
-						</p>
+					<div className="mt-auto">
+						{/* Account actions */}
+						<div className="border-t border-[#5a4d43] pt-3">
+							<button
+								type="button"
+								onClick={logout}
+								className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-stone-300 transition hover:bg-white/10 hover:text-white"
+							>
+								Log out
+							</button>
+						</div>
+
+						{/* Branding */}
+						<div className="mt-4 px-2 text-xs text-stone-400">
+							<p>
+								Powered by
+								<br />
+								React · TypeScript · Node.js
+							</p>
+						</div>
 					</div>
 				</div>
 			</nav>
@@ -99,12 +115,26 @@ export default function NavBar() {
 							</NavLink>
 						</nav>
 
-						<div className="mt-4 border-t border-[#5a4d43] px-3 pt-4 text-xs text-stone-400">
-							<p>
-								Powered by
-								<br />
-								React · TypeScript · Node.js
-							</p>
+						<div className="mt-auto">
+							{/* Account actions */}
+							<div className="border-t border-[#5a4d43] pt-3">
+								<button
+									type="button"
+									onClick={logout}
+									className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-stone-300 transition hover:bg-white/10 hover:text-white"
+								>
+									Log out
+								</button>
+							</div>
+
+							{/* Branding */}
+							<div className="mt-4 px-2 text-xs text-stone-400">
+								<p>
+									Powered by
+									<br />
+									React · TypeScript · Node.js
+								</p>
+							</div>
 						</div>
 					</div>
 				)}

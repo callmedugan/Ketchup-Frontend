@@ -22,12 +22,12 @@ export default function Calendar({ schedules }: CalendarProps) {
 				{/* Date navigation */}
 				{/* ========================================================= */}
 
-				<div className="flex min-h-20 items-center justify-between border-b border-stone-200 bg-[#fffdf8] px-3 sm:px-5">
+				<div className="flex min-h-20 items-center justify-between border-b border-[#7f2f29] bg-[#943b32] px-3 sm:px-5">
 					{/* Previous week */}
 					<button
 						type="button"
 						onClick={() => setWeekOffset((prev) => prev - 1)}
-						className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 active:scale-95"
+						className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-[#fff3d6] transition hover:bg-white/20 hover:text-white active:scale-95"
 						aria-label="Previous week"
 					>
 						<span className="mb-1 text-xl leading-none">‹</span>
@@ -35,7 +35,7 @@ export default function Calendar({ schedules }: CalendarProps) {
 
 					{/* Center */}
 					<div className="flex min-w-0 items-center justify-center gap-3">
-						<h2 className="whitespace-nowrap text-2xl font-bold tracking-tight text-stone-800 sm:text-3xl">
+						<h2 className="whitespace-nowrap text-2xl font-bold tracking-tight text-[#fff3d6] sm:text-3xl">
 							{format(weekDays[0], "MMMM yyyy")}
 						</h2>
 
@@ -45,8 +45,8 @@ export default function Calendar({ schedules }: CalendarProps) {
 							disabled={weekOffset === 0}
 							className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition ${
 								weekOffset === 0
-									? "cursor-default bg-stone-100 text-stone-400"
-									: "bg-[#d94b3d] text-white shadow-sm hover:bg-[#c94034] active:scale-95"
+									? "cursor-default bg-white/10 text-white/40"
+									: "bg-[#fff3d6] text-[#943b32] shadow-sm hover:bg-white active:scale-95"
 							}`}
 						>
 							This week
@@ -57,7 +57,7 @@ export default function Calendar({ schedules }: CalendarProps) {
 					<button
 						type="button"
 						onClick={() => setWeekOffset((prev) => prev + 1)}
-						className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 active:scale-95"
+						className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-[#fff3d6] transition hover:bg-white/20 hover:text-white active:scale-95"
 						aria-label="Next week"
 					>
 						<span className="mb-1 text-xl leading-none">›</span>
@@ -87,8 +87,8 @@ export default function Calendar({ schedules }: CalendarProps) {
 								}`}
 							>
 								{/* Day header */}
-								<div className="border-b border-stone-200/80 px-2 py-3 text-center">
-									<div className="text-[10px] font-bold uppercase tracking-[0.15em] text-stone-400 sm:text-xs">
+								<div className="border-b border-stone-200/80 bg-[#f3e4d7] px-2 py-3 text-center">
+									<div className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#8b6259] sm:text-xs">
 										{format(day, "EEE")}
 									</div>
 
@@ -114,7 +114,9 @@ export default function Calendar({ schedules }: CalendarProps) {
 	);
 
 	function buildSchedulesForWeek() {
-		const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), { weekStartsOn: 0 });
+		const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), {
+			weekStartsOn: 0,
+		});
 
 		const weekSchedules: Schedule[] = [];
 
