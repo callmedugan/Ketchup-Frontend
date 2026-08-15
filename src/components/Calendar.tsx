@@ -200,10 +200,21 @@ export default function Calendar({ schedules }: CalendarProps) {
 	}
 
 	function showStickyNote(schedule: Schedule) {
+		const hasPassed = schedule.endTime < new Date();
+
 		return (
 			<div
 				key={`${schedule.id}-${schedule.startTime.toISOString()}`}
-				className="relative min-w-0 max-w-full -rotate-1 overflow-hidden rounded-sm border border-[#e7d49b] bg-[#fff3bd] px-3 py-2.5 shadow-[2px_3px_6px_rgba(0,0,0,0.12)] transition duration-150 hover:-translate-y-0.5 hover:rotate-0 hover:shadow-[3px_5px_8px_rgba(0,0,0,0.15)]"
+				className={`
+				relative min-w-0 max-w-full -rotate-1 overflow-hidden
+				rounded-sm border border-[#e7d49b] bg-[#fff3bd]
+				px-3 py-2.5
+				shadow-[2px_3px_6px_rgba(0,0,0,0.12)]
+				transition duration-150
+				hover:-translate-y-0.5 hover:rotate-0
+				hover:shadow-[3px_5px_8px_rgba(0,0,0,0.15)]
+				${hasPassed ? "opacity-50" : "opacity-100"}
+			`}
 			>
 				{/* Folded corner */}
 				<div className="absolute right-0 top-0 h-4 w-4 bg-[#eadb9e] [clip-path:polygon(0_0,100%_0,100%_100%)]" />

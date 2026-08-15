@@ -24,7 +24,7 @@ export function FriendsPage() {
 	useEffect(() => {
 		if (!user) return;
 
-		authFetch("http://localhost:8080/api/friends/")
+		authFetch(import.meta.env.VITE_API_URL + "/api/friends/")
 			.then((response) => {
 				if (!response.ok) throw new Error("Could not connect to server");
 				return response.json();
