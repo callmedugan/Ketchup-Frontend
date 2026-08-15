@@ -1,75 +1,114 @@
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import Logo from "./Logo";
 
 export default function NavBar() {
+	const [isOpen, setIsOpen] = useState(false);
+
+	const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+		`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+			isActive ? "bg-[#f3d6d1] text-[#a63c32]" : "text-stone-200 hover:bg-white/10 hover:text-white"
+		}`;
+
 	return (
-		<nav className="min-h-screen w-56 shrink-0 border-r border-[#4a4038] bg-[#463b33] px-4 py-6 text-stone-100 shadow-[4px_0_15px_rgba(40,20,10,0.15)]">
-			<div className="flex h-full flex-col">
-				{/* ========================================================= */}
-				{/* Logo */}
-				{/* ========================================================= */}
+		<>
+			{/* Desktop Sidebar */}
+			<nav className="hidden min-h-screen w-56 shrink-0 border-r border-[#4a4038] bg-[#463b33] px-4 py-6 text-stone-100 shadow-[4px_0_15px_rgba(40,20,10,0.15)] md:block">
+				<div className="flex h-full flex-col">
+					{/* Logo */}
+					<div className="mb-10 px-2">
+						<Logo showTagLine={false} />
+					</div>
 
-				<div className="mb-10 px-2">
+					{/* Navigation */}
+					<nav className="flex flex-col gap-1.5">
+						<NavLink to="/home" className={navLinkClass}>
+							Home
+						</NavLink>
+
+						<NavLink to="/friends" className={navLinkClass}>
+							Friends
+						</NavLink>
+
+						<NavLink to="/profile" className={navLinkClass}>
+							Profile
+						</NavLink>
+					</nav>
+
+					{/* Bottom branding */}
+					<div className="mt-auto px-2 text-xs text-stone-400">
+						<p className="mt-1">
+							Powered by
+							<br />
+							React · TypeScript · Node.js
+						</p>
+					</div>
+				</div>
+			</nav>
+
+			{/* Mobile Navbar */}
+			<nav className="border-b border-[#4a4038] bg-[#463b33] text-stone-100 shadow-[0_3px_10px_rgba(40,20,10,0.15)] md:hidden">
+				<div className="flex h-16 items-center justify-between px-4">
 					<Logo showTagLine={false} />
+
+					<button
+						type="button"
+						onClick={() => setIsOpen(!isOpen)}
+						className="rounded-lg p-2 text-stone-200 transition hover:bg-white/10 hover:text-white"
+						aria-label="Toggle navigation"
+						aria-expanded={isOpen}
+					>
+						{isOpen ? (
+							<svg
+								className="h-6 w-6"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="2"
+							>
+								<path d="M6 6l12 12M18 6L6 18" />
+							</svg>
+						) : (
+							<svg
+								className="h-6 w-6"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="2"
+							>
+								<path d="M4 6h16M4 12h16M4 18h16" />
+							</svg>
+						)}
+					</button>
 				</div>
 
-				{/* ========================================================= */}
-				{/* Navigation */}
-				{/* ========================================================= */}
+				{/* Mobile menu */}
+				{isOpen && (
+					<div className="border-t border-[#5a4d43] px-4 py-3">
+						<nav className="flex flex-col gap-1.5">
+							<NavLink to="/home" className={navLinkClass} onClick={() => setIsOpen(false)}>
+								Home
+							</NavLink>
 
-				<nav className="flex flex-col gap-1.5">
-					<NavLink
-						to="/home"
-						className={({ isActive }) =>
-							`rounded-lg px-3 py-2 text-sm font-semibold transition ${
-								isActive
-									? "bg-[#f3d6d1] text-[#a63c32]"
-									: "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
-							}`
-						}
-					>
-						Home
-					</NavLink>
+							<NavLink to="/friends" className={navLinkClass} onClick={() => setIsOpen(false)}>
+								Friends
+							</NavLink>
 
-					<NavLink
-						to="/friends"
-						className={({ isActive }) =>
-							`rounded-lg px-3 py-2 text-sm font-semibold transition ${
-								isActive
-									? "bg-[#f3d6d1] text-[#a63c32]"
-									: "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
-							}`
-						}
-					>
-						Friends
-					</NavLink>
+							<NavLink to="/profile" className={navLinkClass} onClick={() => setIsOpen(false)}>
+								Profile
+							</NavLink>
+						</nav>
 
-					<NavLink
-						to="/"
-						className={({ isActive }) =>
-							`rounded-lg px-3 py-2 text-sm font-semibold transition ${
-								isActive
-									? "bg-[#f3d6d1] text-[#a63c32]"
-									: "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
-							}`
-						}
-					>
-						Profile
-					</NavLink>
-				</nav>
-
-				{/* ========================================================= */}
-				{/* Bottom branding */}
-				{/* ========================================================= */}
-
-				<div className="mt-auto px-2 text-xs text-stone-500">
-					<p className="mt-1">
-						Powered by
-						<br />
-						React · TypeScript · Node.js
-					</p>
-				</div>
-			</div>
-		</nav>
+						<div className="mt-4 border-t border-[#5a4d43] px-3 pt-4 text-xs text-stone-400">
+							<p>
+								Powered by
+								<br />
+								React · TypeScript · Node.js
+							</p>
+						</div>
+					</div>
+				)}
+			</nav>
+		</>
 	);
 }

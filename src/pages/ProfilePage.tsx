@@ -1,49 +1,14 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { LoadingIndicator } from "../components/LoadingIndicator";
-import { getFriendsFromParsedJson, type Friend } from "../utils/types";
 import NavBar from "../components/NavBar";
-import FriendsList from "../components/FriendsList";
+import Profile from "../components/Profile";
 
-export function FriendsPage() {
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+export function ProfilePage() {
+	const [loading] = useState(false);
+	const [error] = useState<string | null>(null);
 
-	const { user, authFetch } = useAuth();
-
-	/* ========================================================================= */
-	//                        schedules
-	/* ========================================================================= */
-
-	const [friends, setFriends] = useState<Friend[]>([]);
-
-	/* ========================================================================= */
-	//                        useEffect when component mounts
-	/* ========================================================================= */
-
-	useEffect(() => {
-		if (!user) return;
-
-		authFetch("http://localhost:8080/api/friends/")
-			.then((response) => {
-				if (!response.ok) throw new Error("Could not connect to server");
-				return response.json();
-			})
-			.then((data) => {
-				const friendData = getFriendsFromParsedJson(data);
-
-				if (friendData == null) {
-					throw new Error("Friend data invalid");
-				}
-
-				setFriends(friendData);
-				setLoading(false);
-			})
-			.catch((err) => {
-				setError(err.message);
-				setLoading(false);
-			});
-	}, [user]);
+	const { user } = useAuth();
 
 	/* ========================================================================= */
 	//                        page
@@ -103,7 +68,7 @@ export function FriendsPage() {
 				{/* Page heading */}
 				<div className="mb-7">
 					<p className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-						Your friends
+						Your profile
 					</p>
 
 					{user && (
@@ -112,11 +77,14 @@ export function FriendsPage() {
 						</h1>
 					)}
 
-					<p className="mt-1 text-sm text-stone-500">See who's available and make some plans.</p>
+					<p className="mt-1 text-sm text-stone-500">
+						Manage your profile and let your friends know when you're free.
+					</p>
 				</div>
 
-				{/* Friends */}
-				<FriendsList friends={friends} />
+				{/* Profile */}
+				<div className="mx-auto max-w-3xl">{/* Profile content goes here */}</div>
+				<Profile user={user!} />
 			</div>
 		);
 	}
