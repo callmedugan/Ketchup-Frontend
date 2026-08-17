@@ -1,7 +1,4 @@
-/* ========================================================================= */
-//                        schedules
-/* ========================================================================= */
-
+//#region schedules
 export type ScheduleRepeatType = "once" | "daily" | "weekly";
 export type Schedule = {
 	id: string;
@@ -33,6 +30,11 @@ function isScheduleArray(obj: any): obj is Schedule[] {
 
 //only use internally, does not convert dates from the json string
 function isSchedule(obj: any): obj is Schedule {
+	return _isSchedule(obj);
+}
+
+//used also in friendSchedules type
+function _isSchedule(obj: any) {
 	return (
 		obj !== null &&
 		typeof obj === "object" &&
@@ -80,11 +82,9 @@ function setScheduleDates(s: Schedule): Schedule {
 		updatedAt: new Date(s.updatedAt),
 	};
 }
+//#endregion
 
-/* ========================================================================= */
-//                        friends
-/* ========================================================================= */
-
+//#region friends
 export type FriendStatusType = "requested" | "accepted" | "blocked";
 export type Friend = {
 	userId: string;
@@ -151,11 +151,64 @@ function setFriendDates(f: Friend): Friend {
 		updatedAt: new Date(f.updatedAt),
 	};
 }
+//#endregion
 
-/* ========================================================================= */
-//                        User
-/* ========================================================================= */
+//#region friend schedules
+export type FriendSchedule = {
+	friendId: string;
+	friendName: string;
+} & Schedule;
 
+function isFriendScheduleArray(obj: any): obj is FriendSchedule[] {
+	if (Array.isArray(obj)) {
+		for (const item of obj) {
+			if (!isFriendSchedule(item)) return false;
+		}
+		return true;
+	}
+	return false;
+}
+
+//only use internally, does not convert dates from the json string
+function isFriendSchedule(obj: any): obj is FriendSchedule {
+	return (
+		_isSchedule(obj) &&
+		//strings
+		typeof obj?.friendId === "string" &&
+		typeof obj?.friendName === "string"
+	);
+}
+
+//returns array with schedule objs or obj
+export const getFriendSchedulesFromParsedJson = (
+	parsedData: string,
+): FriendSchedule[] | undefined => {
+	try {
+		if (isFriendScheduleArray(parsedData)) {
+			const result = [];
+			for (const p of parsedData) result.push(setFriendScheduleDates(p));
+			return result;
+		}
+		if (isFriendSchedule(parsedData)) {
+			return [setFriendScheduleDates(parsedData)];
+		}
+		return undefined;
+	} catch (e) {
+		console.error("Invalid data.");
+	}
+};
+
+//used to build the dates. technically not safe but date was parsed when checking if schedule
+function setFriendScheduleDates(s: FriendSchedule): FriendSchedule {
+	return {
+		...s,
+		createdAt: new Date(s.createdAt),
+		updatedAt: new Date(s.updatedAt),
+	};
+}
+//#endregion
+
+//#region user
 export type User = {
 	id: string;
 	name: string;
@@ -180,3 +233,4 @@ export const getUserFromParsedJson = (parsedData: string): User | undefined => {
 		console.error("Invalid data.");
 	}
 };
+//#endregion

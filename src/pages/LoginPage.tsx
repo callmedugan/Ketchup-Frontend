@@ -41,7 +41,7 @@ export function LoginPage() {
 		setIsLoading(true);
 
 		try {
-			const response = await authFetch("http://localhost:8080/auth/login", {
+			const response = await authFetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
 				method: "POST",
 				headers: {
 					Authorization: `Bearer ${token}`,

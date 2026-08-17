@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { LoadingIndicator } from "../components/LoadingIndicator";
 import { getScheduleFromParsedJson, type Schedule } from "../utils/types";
-import Calendar from "../components/Calendar";
+import Calendar from "../components/calendar/Calendar";
 import NavBar from "../components/NavBar";
 import AddAvailabilityModal from "../components/AddAvailabilityModal";
 
@@ -155,7 +155,7 @@ export function HomePage() {
 
 				{/* Calendar */}
 				<section className="overflow-hidden rounded-2xl border border-stone-300/80 bg-white shadow-[0_4px_15px_rgba(60,30,15,0.08)]">
-					<Calendar schedules={schedules} />
+					<Calendar schedules={schedules} onDeleted={handleScheduleDeleted} />
 				</section>
 			</div>
 		);
@@ -198,5 +198,10 @@ export function HomePage() {
 				}}
 			/>
 		);
+	}
+
+	//removes schedule when deleted
+	function handleScheduleDeleted(scheduleId: string) {
+		setSchedules((prev) => prev.filter((schedule) => schedule.id !== scheduleId));
 	}
 }

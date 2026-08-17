@@ -1,19 +1,69 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { addDays, addWeeks, format, set, startOfWeek } from "date-fns";
-import type { Schedule } from "../utils/types";
+import {
+	getFriendSchedulesFromParsedJson,
+	type FriendSchedule,
+	type Schedule,
+} from "../../utils/types";
+import StickyNote from "./StickyNote";
+import { useAuth } from "../../contexts/AuthContext";
+import { LoadingIndicator } from "../LoadingIndicator";
 
 type CalendarProps = {
 	schedules: Schedule[];
+	onDeleted: (ScheduleId: string) => void;
 };
 
-export default function Calendar({ schedules }: CalendarProps) {
+export default function Calendar({ schedules, onDeleted }: CalendarProps) {
+	//standard
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+	//others
 	const [weekOffset, setWeekOffset] = useState(0);
-
 	const currentSchedules = useMemo(buildSchedulesForWeek, [weekOffset, schedules]);
-
 	const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), { weekStartsOn: 0 });
-
 	const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+	//store fetch req
+	const [friendSchedules, setFriendSchedules] = useState<FriendSchedule[]>([]);
+
+	const { user, authFetch } = useAuth();
+
+	/* ========================================================================= */
+	// useEffect when component mounts
+	/* ========================================================================= */
+
+	useEffect(() => {
+		fetchFriendSchedules();
+	}, [user]);
+
+	function fetchFriendSchedules() {
+		if (!user) return;
+
+		//add start and end query params
+		const params = new URLSearchParams({
+			start: weekStart.toDateString(),
+			end: addWeeks(weekStart, 1).toDateString(),
+		});
+
+		authFetch(`${import.meta.env.VITE_API_URL}/api/friends/overlap?${params}`)
+			.then((response) => {
+				if (!response.ok) throw new Error("Could not connect to server");
+
+				return response.json();
+			})
+			.then((data) => {
+				const scheduleData = getFriendSchedulesFromParsedJson(data);
+
+				if (scheduleData == null) throw new Error("Schedule data invalid");
+
+				setFriendSchedules(scheduleData);
+				setLoading(false);
+			})
+			.catch((err) => {
+				setError(err.message);
+				setLoading(false);
+			});
+	}
 
 	return (
 		<div className="w-full">
@@ -103,11 +153,20 @@ export default function Calendar({ schedules }: CalendarProps) {
 
 								{/* Availability */}
 								<div className="flex flex-col gap-3 p-3">
-									{daySchedules.map((schedule) => showStickyNote(schedule))}
+									{daySchedules.map((schedule) => (
+										<StickyNote
+											key={schedule.id}
+											schedule={schedule}
+											allFriendSchedules={friendSchedules}
+											onDeleted={onDeleted}
+										/>
+									))}
 								</div>
 							</div>
 						);
 					})}
+					{showLoading()}
+					{showError()}
 				</div>
 			</div>
 		</div>
@@ -199,32 +258,26 @@ export default function Calendar({ schedules }: CalendarProps) {
 		return weekSchedules;
 	}
 
-	function showStickyNote(schedule: Schedule) {
-		const hasPassed = schedule.endTime < new Date();
-
-		return (
-			<div
-				key={`${schedule.id}-${schedule.startTime.toISOString()}`}
-				className={`
-				relative min-w-0 max-w-full -rotate-1 overflow-hidden
-				rounded-sm border border-[#e7d49b] bg-[#fff3bd]
-				px-3 py-2.5
-				shadow-[2px_3px_6px_rgba(0,0,0,0.12)]
-				transition duration-150
-				hover:-translate-y-0.5 hover:rotate-0
-				hover:shadow-[3px_5px_8px_rgba(0,0,0,0.15)]
-				${hasPassed ? "opacity-50" : "opacity-100"}
-			`}
-			>
-				{/* Folded corner */}
-				<div className="absolute right-0 top-0 h-4 w-4 bg-[#eadb9e] [clip-path:polygon(0_0,100%_0,100%_100%)]" />
-
-				<div className="truncate text-xs font-bold text-[#66531c]">Available</div>
-
-				<div className="mt-0.5 truncate text-xs text-[#806b2a]">
-					{format(schedule.startTime, "p")} - {format(schedule.endTime, "p")}
-				</div>
-			</div>
-		);
+	function showLoading() {
+		if (loading) {
+			return (
+				<>
+					<div className="flex min-h-96 items-center justify-center">
+						<LoadingIndicator variant="Loading" />
+					</div>
+				</>
+			);
+		}
+	}
+	function showError() {
+		if (error) {
+			return (
+				<>
+					<div role="alert" className="mt-3  px-4 py-3 text-center text-sm text-red-700">
+						{error}
+					</div>
+				</>
+			);
+		}
 	}
 }
