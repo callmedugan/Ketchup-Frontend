@@ -24,7 +24,7 @@ export function LoginPage() {
 
 	// Retrieve original path or fallback to home
 	const location = useLocation();
-	const redirectPath = location.state?.from?.pathname || "/home";
+	const redirectPath = location.state?.from?.pathname || "/calendar";
 
 	useEffect(() => {
 		if (isAuthenticated) navigate(redirectPath, { replace: true });
@@ -102,9 +102,7 @@ export function LoginPage() {
 						<>
 							{/* Heading */}
 							<div className="mb-6">
-								<h1 className="mt-1 text-2xl font-bold tracking-tight text-center text-stone-500">
-									Log in
-								</h1>
+								<h1 className="mt-1 text-2xl font-bold tracking-tight text-center text-stone-500">Log in</h1>
 							</div>
 
 							<form onSubmit={handleSubmit} className="space-y-5">
@@ -112,10 +110,7 @@ export function LoginPage() {
 								<InputField variant="password" ref={passwordRef} />
 
 								{error && (
-									<div
-										role="alert"
-										className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"
-									>
+									<div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700">
 										{error}
 									</div>
 								)}
@@ -131,10 +126,7 @@ export function LoginPage() {
 
 							<p className="text-center text-sm text-stone-500">
 								Don&apos;t have an account?{" "}
-								<Link
-									to="/register"
-									className="font-bold text-[#d94b3d] transition hover:text-[#c94034]"
-								>
+								<Link to="/register" className="font-bold text-[#d94b3d] transition hover:text-[#c94034]">
 									Sign up
 								</Link>
 							</p>
@@ -143,9 +135,7 @@ export function LoginPage() {
 				</div>
 
 				{/* Small brand footer */}
-				<p className="mt-5 text-center text-xs font-medium text-[#f7e9d7]/80">
-					Powered by React · TypeScript · Node.js
-				</p>
+				<p className="mt-5 text-center text-xs font-medium text-[#f7e9d7]/80">Powered by React · TypeScript · Node.js</p>
 			</div>
 		</main>
 	);

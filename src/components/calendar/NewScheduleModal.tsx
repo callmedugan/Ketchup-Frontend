@@ -1,7 +1,7 @@
 import { useState, type SubmitEvent } from "react";
-import type { ScheduleRepeatType } from "../utils/types";
+import type { ScheduleRepeatType } from "../../utils/types";
 
-type AddAvailabilityModalProps = {
+type NewScheduleModalProps = {
 	onClose: () => void;
 	onSubmit: (schedule: {
 		date: string;
@@ -13,15 +13,16 @@ type AddAvailabilityModalProps = {
 	initialDate?: string;
 };
 
-export default function AddAvailabilityModal({
+export default function NewScheduleModal({
 	onClose,
 	onSubmit,
 	initialDate = "",
-}: AddAvailabilityModalProps) {
+}: NewScheduleModalProps) {
 	const [date, setDate] = useState(initialDate);
 	const [startTime, setStartTime] = useState("18:00");
 	const [endTime, setEndTime] = useState("21:00");
 	const [repeatType, setRepeatType] = useState<ScheduleRepeatType>("once");
+	const [allDay, setAllDay] = useState(false);
 
 	const [error, setError] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,10 +36,13 @@ export default function AddAvailabilityModal({
 
 		setError(null);
 
-		const scheduleStart = new Date(`${date}T${startTime}`);
-		const scheduleEnd = new Date(`${date}T${endTime}`);
+		const submitStartTime = allDay ? "00:00" : startTime;
+		const submitEndTime = allDay ? "23:59" : endTime;
 
-		if (scheduleEnd <= scheduleStart) {
+		const scheduleStart = new Date(`${date}T${submitStartTime}`);
+		const scheduleEnd = new Date(`${date}T${submitEndTime}`);
+
+		if (!allDay && scheduleEnd <= scheduleStart) {
 			setError("End time must be after start time.");
 			return;
 		}
@@ -48,8 +52,8 @@ export default function AddAvailabilityModal({
 
 			await onSubmit({
 				date,
-				startTime,
-				endTime,
+				startTime: submitStartTime,
+				endTime: submitEndTime,
 				repeatType,
 			});
 
@@ -62,6 +66,7 @@ export default function AddAvailabilityModal({
 	}
 
 	function setPreset(start: string, end: string) {
+		setAllDay(false);
 		setStartTime(start);
 		setEndTime(end);
 	}
@@ -129,8 +134,32 @@ export default function AddAvailabilityModal({
 							</div>
 						</div>
 
+						{/* All day */}
+						<div className="mb-4 flex items-center justify-between rounded-xl border border-stone-200 bg-white px-4 py-3">
+							<div>
+								<p className="text-sm font-bold text-stone-800">All day</p>
+
+								<p className="text-xs text-stone-500">Available for the entire day</p>
+							</div>
+
+							<button
+								type="button"
+								onClick={() => setAllDay((prev) => !prev)}
+								aria-pressed={allDay}
+								className={`relative h-6 w-11 shrink-0 rounded-full transition ${
+									allDay ? "bg-[#943b32]" : "bg-stone-300"
+								}`}
+							>
+								<span
+									className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${
+										allDay ? "left-6" : "left-1"
+									}`}
+								/>
+							</button>
+						</div>
+
 						{/* Quick select */}
-						<div>
+						<div className={allDay ? "pointer-events-none opacity-40" : ""}>
 							<p className="mb-2 text-xs font-bold uppercase tracking-wide text-stone-500">
 								Quick select
 							</p>
@@ -145,7 +174,7 @@ export default function AddAvailabilityModal({
 						</div>
 
 						{/* Custom time */}
-						<div>
+						<div className="mt-4">
 							<div className="grid grid-cols-2 gap-4">
 								<div>
 									<label
@@ -159,10 +188,11 @@ export default function AddAvailabilityModal({
 										id="availability-start"
 										type="time"
 										step={900}
-										required
+										required={!allDay}
+										disabled={allDay}
 										value={startTime}
 										onChange={(event) => setStartTime(event.target.value)}
-										className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-800 outline-none transition focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20"
+										className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-800 outline-none transition focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-400"
 									/>
 								</div>
 
@@ -178,10 +208,11 @@ export default function AddAvailabilityModal({
 										id="availability-end"
 										type="time"
 										step={900}
-										required
+										required={!allDay}
+										disabled={allDay}
 										value={endTime}
 										onChange={(event) => setEndTime(event.target.value)}
-										className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-800 outline-none transition focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20"
+										className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-800 outline-none transition focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-400"
 									/>
 								</div>
 							</div>
@@ -198,7 +229,7 @@ export default function AddAvailabilityModal({
 							</div>
 
 							<div>
-								<p className="text-sm font-bold text-stone-800">Set repeat type</p>
+								<p className="text-sm font-bold text-stone-800">Select frequency</p>
 							</div>
 						</div>
 
@@ -208,9 +239,9 @@ export default function AddAvailabilityModal({
 							onChange={(event) => setRepeatType(event.target.value as ScheduleRepeatType)}
 							className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-800 outline-none transition focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20"
 						>
-							<option value="once">Doesn't repeat</option>
-							<option value="daily">Every day</option>
-							<option value="weekly">Every week</option>
+							<option value="once">Once</option>
+							<option value="daily">Daily</option>
+							<option value="weekly">Weekly</option>
 						</select>
 					</section>
 

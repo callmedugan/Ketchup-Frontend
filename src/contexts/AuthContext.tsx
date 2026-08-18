@@ -71,21 +71,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 	}
 
 	async function manualLogout() {
-		// //try to hit the logout endpoint
-		// const response = await fetch("http://localhost:8080/auth/logout", {
-		// 	method: "POST",
-		// 	headers: {
-		// 		Authorization: `Bearer ${token}`,
-		// 		"Content-Type": "application/json",
-		// 	},
-		// });
-
-		// //error
-		// if (!response.ok) {
-		// 	throw new Error("User was not logged in or failed to logout");
-		// }
-
-		//success
 		logout();
 	}
 
@@ -113,13 +98,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		return response;
 	}
 
-	return (
-		<AuthContext.Provider
-			value={{ token, login, logout, isAuthenticated, authFetch, manualLogout, user }}
-		>
-			{children}
-		</AuthContext.Provider>
-	);
+	return <AuthContext.Provider value={{ token, login, logout, isAuthenticated, authFetch, manualLogout, user }}>{children}</AuthContext.Provider>;
 };
 
 /* ========================================================================= */

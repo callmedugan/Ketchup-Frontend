@@ -1,25 +1,48 @@
-import { format, isSameDay } from "date-fns";
-import type { FriendSchedule, Schedule } from "../../utils/types";
+import { differenceInMinutes, format, set } from "date-fns";
+import type { MatchedSchedule } from "../../utils/types";
 import { useState } from "react";
 import OverlapModal from "./OverlapModal";
+import { useSchedule } from "../../contexts/SchedulesContext";
 
 type StickyNoteProps = {
-	schedule: Schedule;
-	allFriendSchedules: FriendSchedule[];
-	onDeleted: (ScheduleId: string) => void;
+	scheduleId: string;
+	date: Date;
+	onDeleted: () => void;
 };
 
-export default function StickyNote({ schedule, allFriendSchedules, onDeleted }: StickyNoteProps) {
+export default function StickyNote({ scheduleId, date, onDeleted }: StickyNoteProps) {
+	const [error, setError] = useState<string | null>(null);
+	const { getUserScheduleById, matchedSchedules } = useSchedule();
+
+	const noteSchedule = getUserScheduleById(scheduleId);
+	if (noteSchedule === undefined) {
+		setError("Invalid schedule ID: " + scheduleId);
+		throw new Error("Invalid schedule ID: " + scheduleId);
+	}
+
 	//used to grey out the note if time has passed
-	const hasPassed = schedule.endTime < new Date();
+	const scheduleTime = set(date, {
+		hours: noteSchedule.endTime.getHours(),
+		minutes: noteSchedule.endTime.getMinutes(),
+	});
+	const hasPassed = scheduleTime <= new Date();
 
 	const [isOpen, setIsOpen] = useState(false);
 
-	//find all schedules for this day
-	const overlapsForThisDay: FriendSchedule[] = [];
-	for (const s of allFriendSchedules) {
-		if (isSameDay(s.startTime, schedule.startTime)) overlapsForThisDay.push(s);
+	//get number of unique users - also want to only show longest overlap per user
+	const overlapMap = new Map<string, MatchedSchedule>();
+	for (const s of matchedSchedules) {
+		//skip anything not related to this day
+		if (s.userScheduleIdMatched !== noteSchedule.id) continue;
+		//if exists then take the longer duration overlap
+		const existing = overlapMap.get(s.userId);
+		if (!existing || differenceInMinutes(s.endTime, s.startTime) > differenceInMinutes(existing.endTime, existing.startTime)) {
+			overlapMap.set(s.userId, s);
+		}
 	}
+
+	//finally
+	const overlapsForThisDay = [...overlapMap.values()];
 	const overlapCount = overlapsForThisDay.length;
 
 	return (
@@ -43,8 +66,15 @@ export default function StickyNote({ schedule, allFriendSchedules, onDeleted }: 
 
 				{/* date */}
 				<div className="absolute left-3 top-2.5 truncate text-xs font-bold text-[#66531c]">
-					{format(schedule.startTime, "p")} - {format(schedule.endTime, "p")}:
+					{format(noteSchedule.startTime, "p")} - {format(noteSchedule.endTime, "p")}:
 				</div>
+
+				{/* error */}
+				{error && (
+					<p role="alert" className="mt-2 text-sm text-red-600">
+						{error}
+					</p>
+				)}
 
 				{/* friends free */}
 				{overlapCount > 0 && !hasPassed && (
@@ -56,8 +86,9 @@ export default function StickyNote({ schedule, allFriendSchedules, onDeleted }: 
 			{/* overlap modal */}
 			{isOpen && (
 				<OverlapModal
-					schedule={schedule}
-					friends={overlapsForThisDay}
+					noteSchedule={noteSchedule}
+					hasPassed={hasPassed}
+					overlaps={overlapsForThisDay}
 					onClose={() => setIsOpen(false)}
 					onDeleted={onDeleted}
 				/>

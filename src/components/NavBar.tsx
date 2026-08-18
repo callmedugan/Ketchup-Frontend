@@ -25,8 +25,8 @@ export default function NavBar() {
 
 					{/* Navigation */}
 					<nav className="flex flex-col gap-1.5">
-						<NavLink to="/home" className={navLinkClass}>
-							Home
+						<NavLink to="/calendar" className={navLinkClass}>
+							Calendar
 						</NavLink>
 
 						<NavLink to="/friends" className={navLinkClass}>
@@ -75,23 +75,11 @@ export default function NavBar() {
 						aria-expanded={isOpen}
 					>
 						{isOpen ? (
-							<svg
-								className="h-6 w-6"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="2"
-							>
+							<svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
 								<path d="M6 6l12 12M18 6L6 18" />
 							</svg>
 						) : (
-							<svg
-								className="h-6 w-6"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="2"
-							>
+							<svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
 								<path d="M4 6h16M4 12h16M4 18h16" />
 							</svg>
 						)}

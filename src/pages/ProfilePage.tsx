@@ -33,9 +33,7 @@ export function ProfilePage() {
 			return (
 				<div className="flex min-h-96 items-center justify-center px-6">
 					<div className="text-center">
-						<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
-							!
-						</div>
+						<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">!</div>
 
 						<h2 className="mt-4 text-lg font-bold text-stone-900">Something went wrong</h2>
 
@@ -67,19 +65,11 @@ export function ProfilePage() {
 			<div className="px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-9">
 				{/* Page heading */}
 				<div className="mb-7">
-					<p className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
-						Your profile
-					</p>
+					<p className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500">Your profile</p>
 
-					{user && (
-						<h1 className="mt-1 text-3xl font-bold tracking-tight text-stone-900">
-							Hello, {user.name.split(" ")[0]}!
-						</h1>
-					)}
+					{user && <h1 className="mt-1 text-3xl font-bold tracking-tight text-stone-900">Hello, {user.name.split(" ")[0]}!</h1>}
 
-					<p className="mt-1 text-sm text-stone-500">
-						Manage your profile and let your friends know when you're free.
-					</p>
+					<p className="mt-1 text-sm text-stone-500">Tell your friends a little bit about yourself.</p>
 				</div>
 
 				{/* Profile */}

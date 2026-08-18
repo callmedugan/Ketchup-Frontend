@@ -1,4 +1,4 @@
-import type { Friend } from "../utils/types";
+import type { Friend } from "../../utils/types";
 
 type FriendsListProps = {
 	friends: Friend[];
@@ -8,21 +8,6 @@ export default function FriendsList({ friends }: FriendsListProps) {
 	return (
 		<div className="w-full">
 			<div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
-				{/* Header */}
-				<div className="flex min-h-20 items-center justify-between border-b border-stone-200 bg-[#fffdf8] px-5">
-					<div>
-						<h2 className="text-2xl font-bold tracking-tight text-stone-800">Friends</h2>
-						<p className="mt-0.5 text-sm text-stone-500">People you're connected with</p>
-					</div>
-
-					<button
-						type="button"
-						className="rounded-full bg-[#d94b3d] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#c94034] active:scale-95"
-					>
-						+ Add friend
-					</button>
-				</div>
-
 				{/* Friends */}
 				<div className="bg-[#faf7f0] p-3 sm:p-5">
 					<div className="flex flex-col gap-3">
@@ -43,11 +28,7 @@ export default function FriendsList({ friends }: FriendsListProps) {
 										<div className="mt-0.5 flex items-center gap-1.5 text-xs font-medium">
 											<span
 												className={`h-1.5 w-1.5 rounded-full ${
-													friend.status === "accepted"
-														? "bg-emerald-500"
-														: friend.status === "requested"
-															? "bg-amber-500"
-															: "bg-stone-400"
+													friend.status === "accepted" ? "bg-emerald-500" : friend.status === "requested" ? "bg-amber-500" : "bg-stone-400"
 												}`}
 											/>
 
@@ -73,15 +54,11 @@ export default function FriendsList({ friends }: FriendsListProps) {
 						{/* Empty state */}
 						{friends.length === 0 && (
 							<div className="rounded-xl border border-dashed border-stone-300 bg-[#fffdf9] px-6 py-12 text-center">
-								<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#f3d6d1] text-xl">
-									👋
-								</div>
+								<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#f3d6d1] text-xl">👋</div>
 
 								<h3 className="mt-4 font-bold text-stone-800">No friends yet</h3>
 
-								<p className="mx-auto mt-1 max-w-sm text-sm text-stone-500">
-									Add some friends to start comparing schedules and making plans.
-								</p>
+								<p className="mx-auto mt-1 max-w-sm text-sm text-stone-500">Add some friends to start comparing schedules and making plans.</p>
 
 								<button
 									type="button"

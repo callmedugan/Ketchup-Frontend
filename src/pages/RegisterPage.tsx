@@ -41,6 +41,9 @@ export function RegisterPage() {
 		setError("");
 		setIsLoading(true);
 
+		//used to save to user and convert all times to local
+		//const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 		try {
 			const response = await fetch("http://localhost:8080/api/users", {
 				method: "POST",
@@ -87,9 +90,7 @@ export function RegisterPage() {
 						<>
 							{/* Heading */}
 							<div className="mb-6">
-								<h1 className="mt-1 text-2xl font-bold tracking-tight text-center text-stone-500">
-									Create your account
-								</h1>
+								<h1 className="mt-1 text-2xl font-bold tracking-tight text-center text-stone-500">Create your account</h1>
 							</div>
 
 							<form onSubmit={handleSubmit} className="space-y-5">
@@ -105,25 +106,15 @@ export function RegisterPage() {
 
 								<InputField variant="email" placeholder="" ref={emailRef} />
 
-								<InputField
-									variant="password"
-									autoComplete="new-password"
-									placeholder=""
-									ref={passwordRef}
-								/>
+								<InputField variant="password" autoComplete="new-password" placeholder="" ref={passwordRef} />
 
 								{error && (
-									<div
-										role="alert"
-										className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"
-									>
+									<div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700">
 										{error}
 									</div>
 								)}
 
-								<Button disabled={isLoading}>
-									{isLoading ? "Creating account..." : "Create account"}
-								</Button>
+								<Button disabled={isLoading}>{isLoading ? "Creating account..." : "Create account"}</Button>
 							</form>
 
 							<div className="my-6 flex items-center gap-3">
@@ -134,10 +125,7 @@ export function RegisterPage() {
 
 							<p className="text-center text-sm text-stone-500">
 								Already have an account?{" "}
-								<Link
-									to="/login"
-									className="font-bold text-[#d94b3d] transition hover:text-[#c94034]"
-								>
+								<Link to="/login" className="font-bold text-[#d94b3d] transition hover:text-[#c94034]">
 									Log in
 								</Link>
 							</p>
@@ -146,9 +134,7 @@ export function RegisterPage() {
 				</div>
 
 				{/* Small brand footer */}
-				<p className="mt-5 text-center text-xs font-medium text-[#f7e9d7]/80">
-					Powered by React · TypeScript · Node.js
-				</p>
+				<p className="mt-5 text-center text-xs font-medium text-[#f7e9d7]/80">Powered by React · TypeScript · Node.js</p>
 			</div>
 		</main>
 	);

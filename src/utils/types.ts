@@ -153,16 +153,17 @@ function setFriendDates(f: Friend): Friend {
 }
 //#endregion
 
-//#region friend schedules
-export type FriendSchedule = {
+//#region matched schedules
+export type MatchedSchedule = {
 	friendId: string;
 	friendName: string;
+	userScheduleIdMatched: string;
 } & Schedule;
 
-function isFriendScheduleArray(obj: any): obj is FriendSchedule[] {
+function isMatchedScheduleArray(obj: any): obj is MatchedSchedule[] {
 	if (Array.isArray(obj)) {
 		for (const item of obj) {
-			if (!isFriendSchedule(item)) return false;
+			if (!isMatchedSchedule(item)) return false;
 		}
 		return true;
 	}
@@ -170,27 +171,26 @@ function isFriendScheduleArray(obj: any): obj is FriendSchedule[] {
 }
 
 //only use internally, does not convert dates from the json string
-function isFriendSchedule(obj: any): obj is FriendSchedule {
+function isMatchedSchedule(obj: any): obj is MatchedSchedule {
 	return (
 		_isSchedule(obj) &&
 		//strings
 		typeof obj?.friendId === "string" &&
-		typeof obj?.friendName === "string"
+		typeof obj?.friendName === "string" &&
+		typeof obj?.userScheduleIdMatched === "string"
 	);
 }
 
 //returns array with schedule objs or obj
-export const getFriendSchedulesFromParsedJson = (
-	parsedData: string,
-): FriendSchedule[] | undefined => {
+export const getMatchedSchedulesFromParsedJson = (parsedData: string): MatchedSchedule[] | undefined => {
 	try {
-		if (isFriendScheduleArray(parsedData)) {
+		if (isMatchedScheduleArray(parsedData)) {
 			const result = [];
-			for (const p of parsedData) result.push(setFriendScheduleDates(p));
+			for (const p of parsedData) result.push(setMatchedScheduleDates(p));
 			return result;
 		}
-		if (isFriendSchedule(parsedData)) {
-			return [setFriendScheduleDates(parsedData)];
+		if (isMatchedSchedule(parsedData)) {
+			return [setMatchedScheduleDates(parsedData)];
 		}
 		return undefined;
 	} catch (e) {
@@ -199,7 +199,7 @@ export const getFriendSchedulesFromParsedJson = (
 };
 
 //used to build the dates. technically not safe but date was parsed when checking if schedule
-function setFriendScheduleDates(s: FriendSchedule): FriendSchedule {
+function setMatchedScheduleDates(s: MatchedSchedule): MatchedSchedule {
 	return {
 		...s,
 		createdAt: new Date(s.createdAt),
@@ -216,19 +216,50 @@ export type User = {
 };
 
 function isUser(obj: any): obj is User {
-	return (
-		obj !== null &&
-		typeof obj === "object" &&
-		typeof obj?.id === "string" &&
-		typeof obj?.name === "string" &&
-		typeof obj?.email === "string"
-	);
+	return obj !== null && typeof obj === "object" && typeof obj?.id === "string" && typeof obj?.name === "string" && typeof obj?.email === "string";
 }
 
 export const getUserFromParsedJson = (parsedData: string): User | undefined => {
 	try {
 		if (isUser(parsedData)) return parsedData;
 		else return undefined;
+	} catch (e) {
+		console.error("Invalid data.");
+	}
+};
+//#endregion
+
+//#region userSearchResult
+export type userSearchResult = {
+	id: string;
+	name: string;
+};
+
+function isUserSearchResultArray(obj: any): obj is userSearchResult[] {
+	if (Array.isArray(obj)) {
+		for (const item of obj) {
+			if (!isUserSearchResult(item)) return false;
+		}
+		return true;
+	}
+	return false;
+}
+
+function isUserSearchResult(obj: any): obj is userSearchResult {
+	return obj !== null && typeof obj === "object" && typeof obj?.id === "string" && typeof obj?.name === "string";
+}
+
+export const getUserSearchResultsFromParsedJson = (parsedData: string): userSearchResult[] | undefined => {
+	try {
+		if (isUserSearchResultArray(parsedData)) {
+			const result = [];
+			for (const p of parsedData) result.push(p);
+			return result;
+		}
+		if (isUserSearchResult(parsedData)) {
+			return [parsedData];
+		}
+		return undefined;
 	} catch (e) {
 		console.error("Invalid data.");
 	}

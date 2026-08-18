@@ -1,75 +1,40 @@
-import { useEffect, useMemo, useState } from "react";
-import { addDays, addWeeks, format, set, startOfWeek } from "date-fns";
+import { useMemo, useState } from "react";
 import {
-	getFriendSchedulesFromParsedJson,
-	type FriendSchedule,
-	type Schedule,
-} from "../../utils/types";
+	addDays,
+	addWeeks,
+	format,
+	isAfter,
+	isBefore,
+	set,
+	startOfDay,
+	startOfWeek,
+} from "date-fns";
+import { type Schedule } from "../../utils/types";
 import StickyNote from "./StickyNote";
-import { useAuth } from "../../contexts/AuthContext";
-import { LoadingIndicator } from "../LoadingIndicator";
+import { useSchedule } from "../../contexts/SchedulesContext";
 
 type CalendarProps = {
-	schedules: Schedule[];
-	onDeleted: (ScheduleId: string) => void;
+	onDeleted: () => void;
 };
 
-export default function Calendar({ schedules, onDeleted }: CalendarProps) {
-	//standard
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-	//others
+export default function Calendar({ onDeleted }: CalendarProps) {
+	const { userSchedules } = useSchedule();
+
+	//changed with buttons
 	const [weekOffset, setWeekOffset] = useState(0);
-	const currentSchedules = useMemo(buildSchedulesForWeek, [weekOffset, schedules]);
+
+	//this is an array of schedule objects built for this week
+	const weekSchedule = useMemo(buildWeekSchedule, [weekOffset, userSchedules]);
+
+	//used to draw the calendar
 	const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), { weekStartsOn: 0 });
 	const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
-	//store fetch req
-	const [friendSchedules, setFriendSchedules] = useState<FriendSchedule[]>([]);
-
-	const { user, authFetch } = useAuth();
-
-	/* ========================================================================= */
-	// useEffect when component mounts
-	/* ========================================================================= */
-
-	useEffect(() => {
-		fetchFriendSchedules();
-	}, [user]);
-
-	function fetchFriendSchedules() {
-		if (!user) return;
-
-		//add start and end query params
-		const params = new URLSearchParams({
-			start: weekStart.toDateString(),
-			end: addWeeks(weekStart, 1).toDateString(),
-		});
-
-		authFetch(`${import.meta.env.VITE_API_URL}/api/friends/overlap?${params}`)
-			.then((response) => {
-				if (!response.ok) throw new Error("Could not connect to server");
-
-				return response.json();
-			})
-			.then((data) => {
-				const scheduleData = getFriendSchedulesFromParsedJson(data);
-
-				if (scheduleData == null) throw new Error("Schedule data invalid");
-
-				setFriendSchedules(scheduleData);
-				setLoading(false);
-			})
-			.catch((err) => {
-				setError(err.message);
-				setLoading(false);
-			});
-	}
 
 	return (
 		<div className="w-full">
 			<div className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
 				{/* ========================================================= */}
-				{/* Date navigation */}
+				{/* header */}
 				{/* ========================================================= */}
 
 				<div className="flex min-h-20 items-center justify-between border-b border-[#7f2f29] bg-[#943b32] px-3 sm:px-5">
@@ -122,7 +87,7 @@ export default function Calendar({ schedules, onDeleted }: CalendarProps) {
 					{weekDays.map((day, index) => {
 						const isToday = format(day, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
 
-						const daySchedules = currentSchedules.filter(
+						const daySchedules = weekSchedule.filter(
 							(schedule) =>
 								schedule.startTime.getFullYear() === day.getFullYear() &&
 								schedule.startTime.getMonth() === day.getMonth() &&
@@ -156,8 +121,8 @@ export default function Calendar({ schedules, onDeleted }: CalendarProps) {
 									{daySchedules.map((schedule) => (
 										<StickyNote
 											key={schedule.id}
-											schedule={schedule}
-											allFriendSchedules={friendSchedules}
+											scheduleId={schedule.id}
+											date={day}
 											onDeleted={onDeleted}
 										/>
 									))}
@@ -165,60 +130,52 @@ export default function Calendar({ schedules, onDeleted }: CalendarProps) {
 							</div>
 						);
 					})}
-					{showLoading()}
-					{showError()}
 				</div>
 			</div>
 		</div>
 	);
 
-	function buildSchedulesForWeek() {
+	function buildWeekSchedule() {
+		//find the first day of the week
 		const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), {
 			weekStartsOn: 0,
 		});
 
-		const weekSchedules: Schedule[] = [];
+		const weekEnd = addWeeks(weekStart, 1);
 
-		for (const schedule of schedules) {
+		//create an array to store
+		const result: Schedule[] = [];
+
+		for (const s of userSchedules) {
 			/* ------------------------------------------------------------- */
 			// Once
 			/* ------------------------------------------------------------- */
 
-			if (schedule.repeatType === "once") {
-				const scheduleDate = format(schedule.startTime, "yyyy-MM-dd");
-
-				const weekDates = Array.from({ length: 7 }, (_, i) =>
-					format(addDays(weekStart, i), "yyyy-MM-dd"),
-				);
-
-				if (weekDates.includes(scheduleDate)) {
-					weekSchedules.push(schedule);
-				}
+			//if between the week then add
+			if (s.repeatType === "once") {
+				if (isAfter(s.startTime, weekStart) && isBefore(s.endTime, weekEnd)) result.push(s);
 			}
 
 			/* ------------------------------------------------------------- */
 			// Daily
 			/* ------------------------------------------------------------- */
-
-			if (schedule.repeatType === "daily") {
+			//duplicate 7 times and change the day
+			else if (s.repeatType === "daily") {
 				for (let i = 0; i < 7; i++) {
 					const day = addDays(weekStart, i);
 
-					weekSchedules.push({
-						...schedule,
+					//skip if schedule starts later
+					if (startOfDay(day) < startOfDay(s.startTime)) continue;
 
+					result.push({
+						...s,
 						startTime: set(day, {
-							hours: schedule.startTime.getHours(),
-							minutes: schedule.startTime.getMinutes(),
-							seconds: schedule.startTime.getSeconds(),
-							milliseconds: schedule.startTime.getMilliseconds(),
+							hours: s.startTime.getHours(),
+							minutes: s.startTime.getMinutes(),
 						}),
-
 						endTime: set(day, {
-							hours: schedule.endTime.getHours(),
-							minutes: schedule.endTime.getMinutes(),
-							seconds: schedule.endTime.getSeconds(),
-							milliseconds: schedule.endTime.getMilliseconds(),
+							hours: s.endTime.getHours(),
+							minutes: s.endTime.getMinutes(),
 						}),
 					});
 				}
@@ -227,57 +184,28 @@ export default function Calendar({ schedules, onDeleted }: CalendarProps) {
 			/* ------------------------------------------------------------- */
 			// Weekly
 			/* ------------------------------------------------------------- */
+			//just get the day of the week and offset the week start by that amount
+			else if (s.repeatType === "weekly") {
+				const day = addDays(weekStart, s.startTime.getDay());
 
-			if (schedule.repeatType === "weekly") {
-				for (let i = 0; i < 7; i++) {
-					const day = addDays(weekStart, i);
+				//skip if schedule starts later
+				if (startOfDay(day) < startOfDay(s.startTime)) continue;
 
-					if (day.getDay() === schedule.startTime.getDay()) {
-						weekSchedules.push({
-							...schedule,
-
-							startTime: set(day, {
-								hours: schedule.startTime.getHours(),
-								minutes: schedule.startTime.getMinutes(),
-								seconds: schedule.startTime.getSeconds(),
-								milliseconds: schedule.startTime.getMilliseconds(),
-							}),
-
-							endTime: set(day, {
-								hours: schedule.endTime.getHours(),
-								minutes: schedule.endTime.getMinutes(),
-								seconds: schedule.endTime.getSeconds(),
-								milliseconds: schedule.endTime.getMilliseconds(),
-							}),
-						});
-					}
-				}
+				result.push({
+					...s,
+					startTime: set(day, {
+						hours: s.startTime.getHours(),
+						minutes: s.startTime.getMinutes(),
+					}),
+					endTime: set(day, {
+						hours: s.endTime.getHours(),
+						minutes: s.endTime.getMinutes(),
+					}),
+				});
 			}
 		}
 
-		return weekSchedules;
-	}
-
-	function showLoading() {
-		if (loading) {
-			return (
-				<>
-					<div className="flex min-h-96 items-center justify-center">
-						<LoadingIndicator variant="Loading" />
-					</div>
-				</>
-			);
-		}
-	}
-	function showError() {
-		if (error) {
-			return (
-				<>
-					<div role="alert" className="mt-3  px-4 py-3 text-center text-sm text-red-700">
-						{error}
-					</div>
-				</>
-			);
-		}
+		//return sorted so that times will show up in order
+		return result.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
 	}
 }

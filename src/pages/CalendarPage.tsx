@@ -1,64 +1,22 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { LoadingIndicator } from "../components/LoadingIndicator";
-import { getScheduleFromParsedJson, type Schedule } from "../utils/types";
 import Calendar from "../components/calendar/Calendar";
 import NavBar from "../components/NavBar";
-import AddAvailabilityModal from "../components/AddAvailabilityModal";
+import NewScheduleModal from "../components/calendar/NewScheduleModal";
+import { useSchedule } from "../contexts/SchedulesContext";
 
-export function HomePage() {
-	const [loading, setLoading] = useState(true);
+export function CalendarPage() {
+	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
-	const { user, authFetch } = useAuth();
+	const { user } = useAuth();
+	const { fetchUserSchedules, fetchMatchedSchedules, addUserSchedule } = useSchedule();
 
-	/* ========================================================================= */
-	// schedules
-	/* ========================================================================= */
-
-	const [schedules, setSchedules] = useState<Schedule[]>([]);
-
-	/* ========================================================================= */
-	// create schedule
-	/* ========================================================================= */
-
+	//used when adding schedule
 	const [showScheduleForm, setShowScheduleForm] = useState(false);
-	const [_, setScheduleError] = useState<string | null>(null);
 
 	const [date] = useState("");
-
-	/* ========================================================================= */
-	// useEffect when component mounts
-	/* ========================================================================= */
-
-	useEffect(() => {
-		fetchSchedules();
-	}, [user]);
-
-	function fetchSchedules() {
-		if (!user) return;
-
-		authFetch(`${import.meta.env.VITE_API_URL}/api/schedules/${user.id}`)
-			.then((response) => {
-				if (!response.ok) throw new Error("Could not connect to server");
-
-				return response.json();
-			})
-			.then((data) => {
-				const scheduleData = getScheduleFromParsedJson(data);
-
-				if (scheduleData == null) {
-					throw new Error("Schedule data invalid");
-				}
-
-				setSchedules(scheduleData);
-				setLoading(false);
-			})
-			.catch((err) => {
-				setError(err.message);
-				setLoading(false);
-			});
-	}
 
 	/* ========================================================================= */
 	// page
@@ -135,16 +93,13 @@ export function HomePage() {
 							</h1>
 						)}
 
-						<p className="mt-1 text-sm text-stone-500">
-							Here&apos;s when you&apos;re available this week.
-						</p>
+						<p className="mt-1 text-sm text-stone-500">Check out what's going on this week.</p>
 					</div>
 
 					{/* Add availability */}
 					<button
 						type="button"
 						onClick={() => {
-							setScheduleError(null);
 							setShowScheduleForm(true);
 						}}
 						className="shrink-0 rounded-xl bg-[#943b32] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#7f2f29] active:scale-95"
@@ -155,7 +110,7 @@ export function HomePage() {
 
 				{/* Calendar */}
 				<section className="overflow-hidden rounded-2xl border border-stone-300/80 bg-white shadow-[0_4px_15px_rgba(60,30,15,0.08)]">
-					<Calendar schedules={schedules} onDeleted={handleScheduleDeleted} />
+					<Calendar onDeleted={handleScheduleDeleted} />
 				</section>
 			</div>
 		);
@@ -167,41 +122,42 @@ export function HomePage() {
 
 	function showCreateScheduleForm() {
 		return (
-			<AddAvailabilityModal
+			<NewScheduleModal
 				initialDate={date}
 				onClose={() => setShowScheduleForm(false)}
-				onSubmit={async ({ date, startTime, endTime, repeatType }) => {
-					if (!user) return;
-
-					const scheduleStart = new Date(`${date}T${startTime}`);
-
-					const scheduleEnd = new Date(`${date}T${endTime}`);
-
-					const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/schedules`, {
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({
-							userId: user.id,
-							startTime: scheduleStart.toISOString(),
-							endTime: scheduleEnd.toISOString(),
-							repeatType,
-						}),
-					});
-
-					if (!response.ok) {
-						throw new Error("Failed to create availability");
-					}
-
-					fetchSchedules();
+				onSubmit={(NewSchedule) => {
+					//add schedule then fetch matched schedules
+					setLoading(true);
+					Promise.all([
+						addUserSchedule(
+							user!.id,
+							NewSchedule.date,
+							NewSchedule.startTime,
+							NewSchedule.endTime,
+							NewSchedule.repeatType,
+						),
+						fetchMatchedSchedules(),
+					])
+						.catch((err) => {
+							setError(err.message);
+						})
+						.finally(() => {
+							setLoading(false);
+						});
 				}}
 			/>
 		);
 	}
 
-	//removes schedule when deleted
-	function handleScheduleDeleted(scheduleId: string) {
-		setSchedules((prev) => prev.filter((schedule) => schedule.id !== scheduleId));
+	//called when a schedule is deleted in calendar
+	function handleScheduleDeleted() {
+		setLoading(true);
+		fetchUserSchedules()
+			.catch((err) => {
+				setError(err.message);
+			})
+			.finally(() => {
+				setLoading(false);
+			});
 	}
 }

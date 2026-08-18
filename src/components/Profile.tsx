@@ -8,13 +8,6 @@ export default function Profile({ user }: ProfileProps) {
 	return (
 		<div className="w-full">
 			<div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
-				{/* Header */}
-				<div className="border-b border-stone-200 bg-[#fffdf8] px-5 py-5">
-					<h2 className="text-2xl font-bold tracking-tight text-stone-800">Profile</h2>
-
-					<p className="mt-0.5 text-sm text-stone-500">Your account information</p>
-				</div>
-
 				{/* Profile */}
 				<div className="bg-[#faf7f0] p-3 sm:p-5">
 					<div className="rounded-xl border border-stone-200 bg-[#fffdf9] p-5 shadow-sm">
@@ -28,7 +21,7 @@ export default function Profile({ user }: ProfileProps) {
 							<div className="min-w-0">
 								<h3 className="truncate text-xl font-bold text-stone-800">{user.name}</h3>
 
-								<p className="mt-0.5 truncate text-sm text-stone-500">{user.email}</p>
+								<p className="mt-0.5 truncate text-sm text-stone-500">Bio...</p>
 							</div>
 						</div>
 
