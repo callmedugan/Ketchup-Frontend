@@ -4,15 +4,8 @@ import { useAuth } from "../contexts/AuthContext";
 import type { MatchedSchedule } from "../utils/types";
 import { useState } from "react";
 import NewPlanModal from "../components/plans/newPlansModal";
-
-type DummyPlan = {
-	id: string;
-	title: string;
-	friendName: string;
-	date: string;
-	time: string;
-	status: "Draft" | "Confirmed";
-};
+import { usePlans } from "../contexts/PlansContext";
+import { format } from "date-fns";
 
 export function PlansPage() {
 	const location = useLocation();
@@ -21,34 +14,9 @@ export function PlansPage() {
 	const overlap = location.state?.overlap as MatchedSchedule | undefined;
 	const [showNewPlanModal, setShowNewPlanModal] = useState(overlap !== undefined);
 
+	//contexts
 	const { user } = useAuth();
-
-	const plans: DummyPlan[] = [
-		{
-			id: "1",
-			title: "Dinner downtown",
-			friendName: "Jake",
-			date: "Friday, August 21",
-			time: "6:30 PM – 9:00 PM",
-			status: "Confirmed",
-		},
-		{
-			id: "2",
-			title: "Grab coffee",
-			friendName: "Sarah",
-			date: "Sunday, August 23",
-			time: "11:00 AM – 1:00 PM",
-			status: "Draft",
-		},
-		{
-			id: "3",
-			title: "Movie night",
-			friendName: "Chris",
-			date: "Wednesday, August 26",
-			time: "7:00 PM – 10:00 PM",
-			status: "Confirmed",
-		},
-	];
+	const { plans } = usePlans();
 
 	return (
 		<div className="flex min-h-screen bg-[#b8794f] bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12)_0_1px,transparent_1px),radial-gradient(circle_at_80%_70%,rgba(80,40,20,0.12)_0_1px,transparent_1px)] bg-size[11px_11px,17px_17px]">
@@ -85,7 +53,7 @@ export function PlansPage() {
 
 												<span
 													className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-														plan.status === "Confirmed" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+														plan.status === "confirmed" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
 													}`}
 												>
 													{plan.status}
@@ -94,16 +62,14 @@ export function PlansPage() {
 
 											<p className="mt-1 text-sm font-medium text-stone-600">With {plan.friendName}</p>
 
-											<p className="mt-1 text-sm text-stone-500">
-												{plan.date} · {plan.time}
-											</p>
+											<p className="mt-1 text-sm text-stone-500">{format(plan.meetTime, "EEEE, MMMM d p")}</p>
 										</div>
 
 										<button
 											type="button"
 											className="shrink-0 rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-bold text-stone-700 transition hover:bg-stone-50 active:scale-95"
 										>
-											View plan
+											Details
 										</button>
 									</div>
 								))}

@@ -150,6 +150,7 @@ export const planSchema = z.object({
 
 	title: z.string(),
 	comments: z.string(),
+	friendName: z.string(), //joined from users table using friendId
 
 	meetTime: z.coerce.date(),
 

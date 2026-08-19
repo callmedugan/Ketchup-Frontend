@@ -1,48 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { LoadingIndicator } from "../components/LoadingIndicator";
-import { getFriendsFromParsedJson, type Friend } from "../utils/types";
 import NavBar from "../components/NavBar";
 import FriendsList from "../components/friends/FriendsList";
 import AddFriendModal from "../components/friends/AddFriendModal";
 
 export function FriendsPage() {
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-
-	const { user, authFetch } = useAuth();
-
-	const [friends, setFriends] = useState<Friend[]>([]);
+	const { user } = useAuth();
 
 	const [showAddFriendModal, setShowAddFriendModal] = useState(false);
-
-	/* ========================================================================= */
-	//                        useEffect when component mounts
-	/* ========================================================================= */
-
-	useEffect(() => {
-		if (!user) return;
-
-		authFetch(import.meta.env.VITE_API_URL + "/api/friends/")
-			.then((response) => {
-				if (!response.ok) throw new Error("Could not connect to server");
-				return response.json();
-			})
-			.then((data) => {
-				const friendData = getFriendsFromParsedJson(data);
-
-				if (friendData == null) {
-					throw new Error("Friend data invalid");
-				}
-
-				setFriends(friendData);
-				setLoading(false);
-			})
-			.catch((err) => {
-				setError(err.message);
-				setLoading(false);
-			});
-	}, [user]);
 
 	/* ========================================================================= */
 	//                        page
@@ -68,42 +33,6 @@ export function FriendsPage() {
 	);
 
 	function getContent() {
-		/* --------------------------------------------------------------------- */
-		// Error
-		/* --------------------------------------------------------------------- */
-
-		if (error) {
-			return (
-				<div className="flex min-h-96 items-center justify-center px-6">
-					<div className="text-center">
-						<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">!</div>
-
-						<h2 className="mt-4 text-lg font-bold text-stone-900">Something went wrong</h2>
-
-						<p role="alert" className="mt-2 text-sm text-red-600">
-							{error}
-						</p>
-					</div>
-				</div>
-			);
-		}
-
-		/* --------------------------------------------------------------------- */
-		// Loading
-		/* --------------------------------------------------------------------- */
-
-		if (loading) {
-			return (
-				<div className="flex min-h-96 items-center justify-center">
-					<LoadingIndicator variant="Loading" />
-				</div>
-			);
-		}
-
-		/* --------------------------------------------------------------------- */
-		// Default
-		/* --------------------------------------------------------------------- */
-
 		return (
 			<div className="px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-9">
 				{/* Page heading */}
@@ -128,7 +57,7 @@ export function FriendsPage() {
 					</button>
 				</div>
 				{/* Friends */}
-				<FriendsList friends={friends} />
+				<FriendsList />
 			</div>
 		);
 	}

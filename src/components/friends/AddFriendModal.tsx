@@ -1,6 +1,7 @@
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { getUserSearchResultsFromParsedJson, type userSearchResult } from "../../utils/types";
+import { getUserSearchResultsFromParsedJson, type UserSearchResult } from "../../utils/types";
+import { useFriends } from "../../contexts/FriendsContext";
 
 type AddFriendModalProps = {
 	onClose: () => void;
@@ -8,17 +9,18 @@ type AddFriendModalProps = {
 
 export default function AddFriendModal({ onClose }: AddFriendModalProps) {
 	const [search, setSearch] = useState("");
-	const [results, setResults] = useState<userSearchResult[]>([]);
+	const [results, setResults] = useState<UserSearchResult[]>([]);
 	const [isSearching, setIsSearching] = useState(false);
 	const [addingFriendId, setAddingFriendId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
-	const [sentRequests, setSentRequests] = useState<string[]>([]);
 
 	const { authFetch } = useAuth();
+	const { friends, addFriend } = useFriends();
 
-	async function handleSearch(event: FormEvent<HTMLFormElement>) {
+	async function handleSearch(event: SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
 
+		// validate search
 		const trimmedSearch = search.trim();
 
 		if (!trimmedSearch) {
@@ -29,10 +31,14 @@ export default function AddFriendModal({ onClose }: AddFriendModalProps) {
 		setError(null);
 		setIsSearching(true);
 
-		authFetch(`${import.meta.env.VITE_API_URL}/api/users`)
+		// build query params
+		const params = new URLSearchParams({
+			search: trimmedSearch,
+		});
+
+		authFetch(`${import.meta.env.VITE_API_URL}/api/users?${params.toString()}`)
 			.then((response) => {
 				if (!response.ok) throw new Error("Could not connect to server");
-
 				return response.json();
 			})
 			.then((data) => {
@@ -54,19 +60,18 @@ export default function AddFriendModal({ onClose }: AddFriendModalProps) {
 			});
 	}
 
-	async function handleAddFriend(userId: string) {
+	//called by add friend button
+	async function handleAddFriend(friendId: string) {
 		setError(null);
-		setAddingFriendId(userId);
+		setAddingFriendId(friendId);
 
-		try {
-			// Replace with your API call
-
-			setSentRequests((prev) => [...prev, userId]);
-		} catch (err) {
-			setError(err instanceof Error ? err.message : "Unable to send friend request.");
-		} finally {
-			setAddingFriendId(null);
-		}
+		addFriend(friendId)
+			.catch((err) => {
+				setError(err instanceof Error ? err.message : "Unable to send friend request.");
+			})
+			.finally(() => {
+				setAddingFriendId(null);
+			});
 	}
 
 	return (
@@ -144,7 +149,8 @@ export default function AddFriendModal({ onClose }: AddFriendModalProps) {
 							) : (
 								<div className="space-y-2">
 									{results.map((user) => {
-										const requestSent = sentRequests.includes(user.id);
+										//check if user is already friend
+										const friend = friends.find((friend) => friend.userId === user.id);
 
 										const isAdding = addingFriendId === user.id;
 
@@ -164,13 +170,20 @@ export default function AddFriendModal({ onClose }: AddFriendModalProps) {
 												{/* Add */}
 												<button
 													type="button"
-													disabled={requestSent || isAdding}
+													//disabled if adding or is friends
+													disabled={friend !== undefined || isAdding}
 													onClick={() => handleAddFriend(user.id)}
 													className={`shrink-0 rounded-lg px-3 py-2 text-xs font-bold transition ${
-														requestSent ? "bg-stone-100 text-stone-500" : "bg-[#943b32] text-white hover:bg-[#7f2f29]"
+														friend !== undefined ? "bg-stone-100 text-stone-500" : "bg-[#943b32] text-white hover:bg-[#7f2f29]"
 													} disabled:cursor-not-allowed`}
 												>
-													{isAdding ? "Adding..." : requestSent ? "Request sent" : "Add friend"}
+													{isAdding
+														? "Adding..."
+														: friend?.status === "requested"
+															? "Requested"
+															: friend?.status === "accepted"
+																? "Accepted"
+																: "Add friend"}
 												</button>
 											</div>
 										);

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 import { useAuth } from "./AuthContext";
-import type { Plan } from "../utils/types";
+import { getPlansFromParsedJson, type Plan } from "../utils/types";
 
 /* ========================================================================= */
 //                        context
@@ -58,9 +58,8 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 		}
 
 		const data = await response.json();
-
-		// temporary until you make getPlansFromParsedJson()
-		const planData = data as Plan[];
+		const planData = getPlansFromParsedJson(data);
+		if (planData == null) throw new Error("Plan data invalid");
 
 		setPlans(planData);
 
