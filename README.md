@@ -1,4 +1,4 @@
-<img width="3795" height="1807" alt="image" src="https://github.com/user-attachments/assets/2e15036a-4262-4a09-a621-646342dc56ec" />
+<img width="3822" height="1807" alt="image" src="https://github.com/user-attachments/assets/815205f2-6d53-46e9-9266-bdf479b613c9" />
 
 About Ketchup
 
