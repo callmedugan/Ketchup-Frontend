@@ -36,6 +36,10 @@ export default function NavBar() {
 						<NavLink to="/profile" className={navLinkClass}>
 							Profile
 						</NavLink>
+
+						<NavLink to="/plans" className={navLinkClass}>
+							Plans
+						</NavLink>
 					</nav>
 
 					<div className="mt-auto">

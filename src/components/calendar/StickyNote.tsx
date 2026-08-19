@@ -1,5 +1,4 @@
-import { differenceInMinutes, format, set } from "date-fns";
-import type { MatchedSchedule } from "../../utils/types";
+import { format, set } from "date-fns";
 import { useState } from "react";
 import OverlapModal from "./OverlapModal";
 import { useSchedule } from "../../contexts/SchedulesContext";
@@ -29,21 +28,18 @@ export default function StickyNote({ scheduleId, date, onDeleted }: StickyNotePr
 
 	const [isOpen, setIsOpen] = useState(false);
 
-	//get number of unique users - also want to only show longest overlap per user
-	const overlapMap = new Map<string, MatchedSchedule>();
+	//get number of unique users and overlaps for the day
+	const overlapsForThisDay = [];
+	const users = new Set();
 	for (const s of matchedSchedules) {
 		//skip anything not related to this day
-		if (s.userScheduleIdMatched !== noteSchedule.id) continue;
-		//if exists then take the longer duration overlap
-		const existing = overlapMap.get(s.userId);
-		if (!existing || differenceInMinutes(s.endTime, s.startTime) > differenceInMinutes(existing.endTime, existing.startTime)) {
-			overlapMap.set(s.userId, s);
+		if (s.userScheduleIdMatched === noteSchedule.id) {
+			overlapsForThisDay.push(s);
+			users.add(s.userId);
 		}
 	}
-
 	//finally
-	const overlapsForThisDay = [...overlapMap.values()];
-	const overlapCount = overlapsForThisDay.length;
+	const overlapCount = users.size;
 
 	return (
 		<>

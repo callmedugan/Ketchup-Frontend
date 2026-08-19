@@ -57,23 +57,19 @@ export const ScheduleProvider = ({ children }: ScheduleProviderProps) => {
 	//#region api calls
 
 	async function fetchUserSchedules() {
-		return authFetch(`${import.meta.env.VITE_API_URL}/api/schedules/${user!.id}`)
-			.then((response) => {
-				if (!response.ok) throw new Error("Could not connect to server");
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/schedules/${user!.id}`);
+		if (!response.ok) {
+			const data = await response.json();
+			throw new Error(data.error);
+		}
 
-				return response.json();
-			})
-			.then((data) => {
-				const scheduleData = getScheduleFromParsedJson(data);
+		const data = await response.json();
+		const scheduleData = getScheduleFromParsedJson(data);
+		if (scheduleData == null) throw new Error("Schedule data invalid");
 
-				if (scheduleData == null) {
-					throw new Error("Schedule data invalid");
-				}
+		setUserSchedules(scheduleData);
 
-				setUserSchedules(scheduleData);
-
-				return scheduleData;
-			});
+		return scheduleData;
 	}
 
 	async function fetchMatchedSchedules() {
@@ -83,33 +79,34 @@ export const ScheduleProvider = ({ children }: ScheduleProviderProps) => {
 		// 	end: addWeeks(weekStart, weekDuration).toDateString(),
 		// });
 
-		return authFetch(`${import.meta.env.VITE_API_URL}/api/friends/overlap`)
-			.then((response) => {
-				if (!response.ok) throw new Error("Could not connect to server");
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends/overlap`);
+		if (!response.ok) {
+			const data = await response.json();
+			throw new Error(data.error);
+		}
 
-				return response.json();
-			})
-			.then((data) => {
-				const scheduleData = getMatchedSchedulesFromParsedJson(data);
+		const data = await response.json();
+		const scheduleData = getMatchedSchedulesFromParsedJson(data);
+		if (scheduleData == null) throw new Error("Schedule data invalid");
 
-				if (scheduleData == null) throw new Error("Schedule data invalid");
+		setMatchedSchedules(scheduleData);
 
-				setMatchedSchedules(scheduleData);
-
-				return scheduleData;
-			});
+		return scheduleData;
 	}
 
 	async function deleteUserSchedule(id: string) {
-		return authFetch(`${import.meta.env.VITE_API_URL}/api/schedules`, {
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/schedules`, {
 			method: "DELETE",
 			body: JSON.stringify({
 				id: id,
 			}),
-		}).then((response) => {
-			if (!response.ok) throw new Error("Could not connect to server");
-			return fetchUserSchedules();
 		});
+		if (!response.ok) {
+			const data = await response.json();
+			throw new Error(data.error);
+		}
+
+		return fetchUserSchedules();
 	}
 
 	async function addUserSchedule(
@@ -120,24 +117,27 @@ export const ScheduleProvider = ({ children }: ScheduleProviderProps) => {
 		repeatType: ScheduleRepeatType,
 	): Promise<Schedule[]> {
 		const scheduleStart = new Date(`${date}T${startTime}`);
-
 		const scheduleEnd = new Date(`${date}T${endTime}`);
 
-		return authFetch(`${import.meta.env.VITE_API_URL}/api/schedules`, {
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/schedules`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				userId: userId,
+				userId,
 				startTime: scheduleStart.toISOString(),
 				endTime: scheduleEnd.toISOString(),
 				repeatType,
 			}),
-		}).then((response) => {
-			if (!response.ok) throw new Error("Could not connect to server");
-			return fetchUserSchedules();
 		});
+
+		if (!response.ok) {
+			const data = await response.json();
+			throw new Error(data.error);
+		}
+
+		return fetchUserSchedules();
 	}
 	//#endregion
 

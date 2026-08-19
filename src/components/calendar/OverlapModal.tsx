@@ -3,6 +3,7 @@ import type { MatchedSchedule, Schedule } from "../../utils/types";
 import { useState } from "react";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { useSchedule } from "../../contexts/SchedulesContext";
+import { useNavigate } from "react-router-dom";
 
 type OverlapModalProps = {
 	noteSchedule: Schedule;
@@ -18,6 +19,9 @@ export default function OverlapModal({ noteSchedule, overlaps, hasPassed, onClos
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	//for the make plans button
+	const navigate = useNavigate();
 
 	async function handleDeleteSchedule() {
 		setLoading(true);
@@ -91,10 +95,13 @@ export default function OverlapModal({ noteSchedule, overlaps, hasPassed, onClos
 									</p>
 								</div>
 
-								{/* Action */}
+								{/* button */}
 								<button
 									type="button"
 									disabled={hasPassed}
+									onClick={() => {
+										navigate("/plans", { state: { overlap } });
+									}}
 									className={`shrink-0 rounded-lg px-3 py-2 text-sm font-bold transition ${
 										hasPassed ? "cursor-not-allowed bg-stone-200 text-stone-400" : "bg-red-500 text-white hover:bg-red-600"
 									}`}

@@ -1,23 +1,16 @@
 import { useMemo, useState } from "react";
-import {
-	addDays,
-	addWeeks,
-	format,
-	isAfter,
-	isBefore,
-	set,
-	startOfDay,
-	startOfWeek,
-} from "date-fns";
+import { addDays, addWeeks, format, isAfter, isBefore, set, startOfDay, startOfWeek } from "date-fns";
 import { type Schedule } from "../../utils/types";
 import StickyNote from "./StickyNote";
 import { useSchedule } from "../../contexts/SchedulesContext";
+import { LoadingIndicator } from "../LoadingIndicator";
 
-type CalendarProps = {
-	onDeleted: () => void;
-};
+export default function Calendar() {
+	//standard
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-export default function Calendar({ onDeleted }: CalendarProps) {
+	const { fetchUserSchedules } = useSchedule();
 	const { userSchedules } = useSchedule();
 
 	//changed with buttons
@@ -29,6 +22,42 @@ export default function Calendar({ onDeleted }: CalendarProps) {
 	//used to draw the calendar
 	const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), { weekStartsOn: 0 });
 	const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+
+	/* --------------------------------------------------------------------- */
+	// Error
+	/* --------------------------------------------------------------------- */
+
+	if (error) {
+		return (
+			<div className="flex min-h-96 items-center justify-center px-6">
+				<div className="text-center">
+					<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">!</div>
+
+					<h2 className="mt-4 text-lg font-bold text-stone-900">Something went wrong</h2>
+
+					<p role="alert" className="mt-2 text-sm text-red-600">
+						{error}
+					</p>
+				</div>
+			</div>
+		);
+	}
+
+	/* --------------------------------------------------------------------- */
+	// Loading
+	/* --------------------------------------------------------------------- */
+
+	if (loading) {
+		return (
+			<div className="flex min-h-96 items-center justify-center">
+				<LoadingIndicator variant="Loading" />
+			</div>
+		);
+	}
+
+	/* ========================================================================= */
+	//                        default
+	/* ========================================================================= */
 
 	return (
 		<div className="w-full">
@@ -50,18 +79,14 @@ export default function Calendar({ onDeleted }: CalendarProps) {
 
 					{/* Center */}
 					<div className="flex min-w-0 items-center justify-center gap-3">
-						<h2 className="whitespace-nowrap text-2xl font-bold tracking-tight text-[#fff3d6] sm:text-3xl">
-							{format(weekDays[0], "MMMM yyyy")}
-						</h2>
+						<h2 className="whitespace-nowrap text-2xl font-bold tracking-tight text-[#fff3d6] sm:text-3xl">{format(weekDays[0], "MMMM yyyy")}</h2>
 
 						<button
 							type="button"
 							onClick={() => setWeekOffset(0)}
 							disabled={weekOffset === 0}
 							className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition ${
-								weekOffset === 0
-									? "cursor-default bg-white/10 text-white/40"
-									: "bg-[#fff3d6] text-[#943b32] shadow-sm hover:bg-white active:scale-95"
+								weekOffset === 0 ? "cursor-default bg-white/10 text-white/40" : "bg-[#fff3d6] text-[#943b32] shadow-sm hover:bg-white active:scale-95"
 							}`}
 						>
 							This week
@@ -97,15 +122,11 @@ export default function Calendar({ onDeleted }: CalendarProps) {
 						return (
 							<div
 								key={day.toISOString()}
-								className={`min-h-72 min-w-0 border-r border-stone-200/80 last:border-r-0 ${
-									index % 2 === 0 ? "bg-[#fffdf9]" : "bg-[#faf7f0]"
-								}`}
+								className={`min-h-72 min-w-0 border-r border-stone-200/80 last:border-r-0 ${index % 2 === 0 ? "bg-[#fffdf9]" : "bg-[#faf7f0]"}`}
 							>
 								{/* Day header */}
 								<div className="border-b border-stone-200/80 bg-[#f3e4d7] px-2 py-3 text-center">
-									<div className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#8b6259] sm:text-xs">
-										{format(day, "EEE")}
-									</div>
+									<div className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#8b6259] sm:text-xs">{format(day, "EEE")}</div>
 
 									<div
 										className={`mx-auto mt-1 flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${
@@ -119,12 +140,7 @@ export default function Calendar({ onDeleted }: CalendarProps) {
 								{/* Availability */}
 								<div className="flex flex-col gap-3 p-3">
 									{daySchedules.map((schedule) => (
-										<StickyNote
-											key={schedule.id}
-											scheduleId={schedule.id}
-											date={day}
-											onDeleted={onDeleted}
-										/>
+										<StickyNote key={schedule.id} scheduleId={schedule.id} date={day} onDeleted={handleScheduleDeleted} />
 									))}
 								</div>
 							</div>
@@ -207,5 +223,17 @@ export default function Calendar({ onDeleted }: CalendarProps) {
 
 		//return sorted so that times will show up in order
 		return result.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+	}
+
+	//called when a schedule is deleted in calendar
+	function handleScheduleDeleted() {
+		setLoading(true);
+		fetchUserSchedules()
+			.catch((err) => {
+				setError(err.message);
+			})
+			.finally(() => {
+				setLoading(false);
+			});
 	}
 }

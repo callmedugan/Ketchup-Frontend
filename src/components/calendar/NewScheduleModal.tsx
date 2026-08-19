@@ -1,23 +1,15 @@
 import { useState, type SubmitEvent } from "react";
 import type { ScheduleRepeatType } from "../../utils/types";
+import { useSchedule } from "../../contexts/SchedulesContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 type NewScheduleModalProps = {
 	onClose: () => void;
-	onSubmit: (schedule: {
-		date: string;
-		startTime: string;
-		endTime: string;
-		repeatType: ScheduleRepeatType;
-	}) => Promise<void> | void;
 
 	initialDate?: string;
 };
 
-export default function NewScheduleModal({
-	onClose,
-	onSubmit,
-	initialDate = "",
-}: NewScheduleModalProps) {
+export default function NewScheduleModal({ onClose, initialDate = "" }: NewScheduleModalProps) {
 	const [date, setDate] = useState(initialDate);
 	const [startTime, setStartTime] = useState("18:00");
 	const [endTime, setEndTime] = useState("21:00");
@@ -26,6 +18,9 @@ export default function NewScheduleModal({
 
 	const [error, setError] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	const { addUserSchedule, fetchMatchedSchedules } = useSchedule();
+	const { user } = useAuth();
 
 	/* ========================================================================= */
 	//                        submit
@@ -47,22 +42,38 @@ export default function NewScheduleModal({
 			return;
 		}
 
-		try {
-			setIsSubmitting(true);
+		//add schedule then fetch matched schedules
+		setIsSubmitting(true);
+		setError(null);
 
-			await onSubmit({
-				date,
-				startTime: submitStartTime,
-				endTime: submitEndTime,
-				repeatType,
+		addUserSchedule(user!.id, date, submitStartTime, submitEndTime, repeatType)
+			.then(() => {
+				fetchMatchedSchedules();
+				onClose();
+			})
+			.catch((err) => {
+				setError(err.message);
+			})
+			.finally(() => {
+				setIsSubmitting(false);
 			});
 
-			onClose();
-		} catch {
-			setError("Something went wrong while adding your availability.");
-		} finally {
-			setIsSubmitting(false);
-		}
+		// try {
+		// 	setIsSubmitting(true);
+
+		// 	await onSubmit({
+		// 		date,
+		// 		startTime: submitStartTime,
+		// 		endTime: submitEndTime,
+		// 		repeatType,
+		// 	});
+
+		// 	onClose();
+		// } catch {
+		// 	setError("Something went wrong while adding your availability.");
+		// } finally {
+		// 	setIsSubmitting(false);
+		// }
 	}
 
 	function setPreset(start: string, end: string) {
@@ -101,9 +112,7 @@ export default function NewScheduleModal({
 					{/* Step 1 */}
 					<section>
 						<div className="mb-3 flex items-center gap-3">
-							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#943b32] text-sm font-bold text-white">
-								1
-							</div>
+							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#943b32] text-sm font-bold text-white">1</div>
 
 							<div>
 								<p className="text-sm font-bold text-stone-800">Choose a date</p>
@@ -125,9 +134,7 @@ export default function NewScheduleModal({
 					{/* Step 2 */}
 					<section>
 						<div className="mb-3 flex items-center gap-3">
-							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#943b32] text-sm font-bold text-white">
-								2
-							</div>
+							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#943b32] text-sm font-bold text-white">2</div>
 
 							<div>
 								<p className="text-sm font-bold text-stone-800">Choose a time</p>
@@ -146,23 +153,15 @@ export default function NewScheduleModal({
 								type="button"
 								onClick={() => setAllDay((prev) => !prev)}
 								aria-pressed={allDay}
-								className={`relative h-6 w-11 shrink-0 rounded-full transition ${
-									allDay ? "bg-[#943b32]" : "bg-stone-300"
-								}`}
+								className={`relative h-6 w-11 shrink-0 rounded-full transition ${allDay ? "bg-[#943b32]" : "bg-stone-300"}`}
 							>
-								<span
-									className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${
-										allDay ? "left-6" : "left-1"
-									}`}
-								/>
+								<span className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${allDay ? "left-6" : "left-1"}`} />
 							</button>
 						</div>
 
 						{/* Quick select */}
 						<div className={allDay ? "pointer-events-none opacity-40" : ""}>
-							<p className="mb-2 text-xs font-bold uppercase tracking-wide text-stone-500">
-								Quick select
-							</p>
+							<p className="mb-2 text-xs font-bold uppercase tracking-wide text-stone-500">Quick select</p>
 
 							<div className="grid grid-cols-3 gap-2">
 								<PresetButton label="Morning" onClick={() => setPreset("09:00", "12:00")} />
@@ -177,10 +176,7 @@ export default function NewScheduleModal({
 						<div className="mt-4">
 							<div className="grid grid-cols-2 gap-4">
 								<div>
-									<label
-										htmlFor="availability-start"
-										className="mb-1.5 block text-xs font-semibold text-stone-500"
-									>
+									<label htmlFor="availability-start" className="mb-1.5 block text-xs font-semibold text-stone-500">
 										Start
 									</label>
 
@@ -197,10 +193,7 @@ export default function NewScheduleModal({
 								</div>
 
 								<div>
-									<label
-										htmlFor="availability-end"
-										className="mb-1.5 block text-xs font-semibold text-stone-500"
-									>
+									<label htmlFor="availability-end" className="mb-1.5 block text-xs font-semibold text-stone-500">
 										End
 									</label>
 
@@ -224,9 +217,7 @@ export default function NewScheduleModal({
 					{/* Step 3 */}
 					<section>
 						<div className="mb-3 flex items-center gap-3">
-							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#943b32] text-sm font-bold text-white">
-								3
-							</div>
+							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#943b32] text-sm font-bold text-white">3</div>
 
 							<div>
 								<p className="text-sm font-bold text-stone-800">Select frequency</p>
@@ -250,11 +241,7 @@ export default function NewScheduleModal({
 
 					{/* Actions */}
 					<div className="flex justify-end gap-2 border-t border-stone-200 pt-4">
-						<button
-							type="button"
-							onClick={onClose}
-							className="rounded-xl px-4 py-2.5 text-sm font-bold text-stone-600 transition hover:bg-stone-100"
-						>
+						<button type="button" onClick={onClose} className="rounded-xl px-4 py-2.5 text-sm font-bold text-stone-600 transition hover:bg-stone-100">
 							Cancel
 						</button>
 
