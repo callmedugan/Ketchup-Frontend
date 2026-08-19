@@ -1,30 +1,51 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import Logo from "./Logo";
 import { useAuth } from "../contexts/AuthContext";
+import { format } from "date-fns";
 
 export default function NavBar() {
 	const [isOpen, setIsOpen] = useState(false);
 
 	const { logout } = useAuth();
 
+	const [currentTime, setCurrentTime] = useState(new Date());
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setCurrentTime(new Date());
+		}, 60_000);
+
+		return () => clearInterval(interval);
+	}, []);
+
 	const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 		`rounded-lg px-3 py-2 text-sm font-semibold transition ${
-			isActive ? "bg-[#f3d6d1] text-[#a63c32]" : "text-stone-200 hover:bg-white/10 hover:text-white"
+			isActive ? "bg-[#f3d6d1] text-[#943b32] shadow-sm" : "text-[#66584f] hover:bg-[#f7eadb] hover:text-[#943b32]"
 		}`;
 
 	return (
 		<>
 			{/* Desktop Sidebar */}
-			<nav className="hidden min-h-screen w-56 shrink-0 border-r border-[#4a4038] bg-[#463b33] px-4 py-6 text-stone-100 shadow-[4px_0_15px_rgba(40,20,10,0.15)] md:block">
+			<nav className="hidden min-h-screen w-56 shrink-0 border-r border-[#d8c5ad] bg-[#f6eddf] px-4 py-6 shadow-[4px_0_12px_rgba(80,50,30,0.08)] md:block">
 				<div className="flex h-full flex-col">
-					{/* Logo */}
-					<div className="mb-10 px-2">
-						<Logo showTagLine={false} />
+					{/* Logo card */}
+					<div className="relative mb-4 rotate-1 rounded-sm border border-[#ddc9aa] bg-[#fffaf0] px-4 pb-3 pt-5 shadow-[2px_3px_6px_rgba(80,50,30,0.12)]">
+						{/* Push pin */}
+						<div className="absolute left-1/2 top-1.5 h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-[#a63c32] shadow-sm" />
+
+						<Logo showTagLine={false} size="nav" />
+					</div>
+
+					{/* Current date / time */}
+					<div className="mb-8 px-2 text-center">
+						<div className="text-lg font-bold text-[#66584f]">{format(currentTime, "h:mm a")}</div>
+
+						<div className="mt-0.5 text-xs font-medium text-[#9a887a]">{format(currentTime, "EEEE, MMM d")}</div>
 					</div>
 
 					{/* Navigation */}
-					<nav className="flex flex-col gap-1.5">
+					<nav className="flex flex-col gap-1.5 ">
 						<NavLink to="/calendar" className={navLinkClass}>
 							Calendar
 						</NavLink>
@@ -44,18 +65,18 @@ export default function NavBar() {
 
 					<div className="mt-auto">
 						{/* Account actions */}
-						<div className="border-t border-[#5a4d43] pt-3">
+						<div className="border-t border-[#d8c5ad] pt-3">
 							<button
 								type="button"
 								onClick={logout}
-								className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-stone-300 transition hover:bg-white/10 hover:text-white"
+								className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-[#7a6a5f] transition hover:bg-[#f7eadb] hover:text-[#943b32]"
 							>
 								Log out
 							</button>
 						</div>
 
 						{/* Branding */}
-						<div className="mt-4 px-2 text-xs text-stone-400">
+						<div className="mt-4 px-2 text-xs text-[#9a887a]">
 							<p>
 								Powered by
 								<br />
@@ -67,14 +88,18 @@ export default function NavBar() {
 			</nav>
 
 			{/* Mobile Navbar */}
-			<nav className="border-b border-[#4a4038] bg-[#463b33] text-stone-100 shadow-[0_3px_10px_rgba(40,20,10,0.15)] md:hidden">
+			<nav className="border-b border-[#d8c5ad] bg-[#f6eddf] text-[#66584f] shadow-[0_3px_10px_rgba(80,50,30,0.08)] md:hidden">
 				<div className="flex h-16 items-center justify-between px-4">
-					<Logo showTagLine={false} />
+					<div className="relative rotate-1 rounded-sm border border-[#ddc9aa] bg-[#fffaf0] px-3 py-1.5 shadow-sm">
+						<div className="absolute left-1/2 top-0.5 h-2 w-2 -translate-x-1/2 rounded-full bg-[#a63c32]" />
+
+						<Logo showTagLine={false} />
+					</div>
 
 					<button
 						type="button"
 						onClick={() => setIsOpen(!isOpen)}
-						className="rounded-lg p-2 text-stone-200 transition hover:bg-white/10 hover:text-white"
+						className="rounded-lg p-2 text-[#66584f] transition hover:bg-[#f7eadb] hover:text-[#943b32]"
 						aria-label="Toggle navigation"
 						aria-expanded={isOpen}
 					>
@@ -92,10 +117,10 @@ export default function NavBar() {
 
 				{/* Mobile menu */}
 				{isOpen && (
-					<div className="border-t border-[#5a4d43] px-4 py-3">
+					<div className="border-t border-[#d8c5ad] px-4 py-3">
 						<nav className="flex flex-col gap-1.5">
-							<NavLink to="/home" className={navLinkClass} onClick={() => setIsOpen(false)}>
-								Home
+							<NavLink to="/calendar" className={navLinkClass} onClick={() => setIsOpen(false)}>
+								Calendar
 							</NavLink>
 
 							<NavLink to="/friends" className={navLinkClass} onClick={() => setIsOpen(false)}>
@@ -105,28 +130,28 @@ export default function NavBar() {
 							<NavLink to="/profile" className={navLinkClass} onClick={() => setIsOpen(false)}>
 								Profile
 							</NavLink>
+
+							<NavLink to="/plans" className={navLinkClass} onClick={() => setIsOpen(false)}>
+								Plans
+							</NavLink>
 						</nav>
 
-						<div className="mt-auto">
-							{/* Account actions */}
-							<div className="border-t border-[#5a4d43] pt-3">
-								<button
-									type="button"
-									onClick={logout}
-									className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-stone-300 transition hover:bg-white/10 hover:text-white"
-								>
-									Log out
-								</button>
-							</div>
+						<div className="mt-3 border-t border-[#d8c5ad] pt-3">
+							<button
+								type="button"
+								onClick={logout}
+								className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-[#7a6a5f] transition hover:bg-[#f7eadb] hover:text-[#943b32]"
+							>
+								Log out
+							</button>
+						</div>
 
-							{/* Branding */}
-							<div className="mt-4 px-2 text-xs text-stone-400">
-								<p>
-									Powered by
-									<br />
-									React · TypeScript · Node.js
-								</p>
-							</div>
+						<div className="mt-4 px-2 text-xs text-[#9a887a]">
+							<p>
+								Powered by
+								<br />
+								React · TypeScript · Node.js
+							</p>
 						</div>
 					</div>
 				)}

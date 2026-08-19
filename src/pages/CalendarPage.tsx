@@ -3,6 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import Calendar from "../components/calendar/Calendar";
 import NavBar from "../components/NavBar";
 import NewScheduleModal from "../components/calendar/NewScheduleModal";
+import PageContainer from "./PageContainer";
 
 export function CalendarPage() {
 	const { user } = useAuth();
@@ -20,9 +21,7 @@ export function CalendarPage() {
 		<div className="flex min-h-screen bg-[#b8794f] bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12)_0_1px,transparent_1px),radial-gradient(circle_at_80%_70%,rgba(80,40,20,0.12)_0_1px,transparent_1px)] bg-size[11px_11px,17px_17px]">
 			<NavBar />
 
-			<main className="m-5 flex-1 overflow-hidden rounded-3xl border border-stone-300/70 bg-[#f7f1e5] shadow-[0_10px_30px_rgba(60,30,15,0.18)] lg:m-7">
-				{getContent()}
-			</main>
+			<PageContainer>{getContent()}</PageContainer>
 
 			{/* Create schedule modal */}
 			{showScheduleForm && showCreateScheduleForm()}

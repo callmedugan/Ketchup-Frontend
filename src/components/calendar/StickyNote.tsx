@@ -84,7 +84,7 @@ export default function StickyNote({ scheduleId, date, onDeleted }: StickyNotePr
 				<OverlapModal
 					noteSchedule={noteSchedule}
 					hasPassed={hasPassed}
-					overlaps={overlapsForThisDay}
+					noteOverlaps={overlapsForThisDay}
 					onClose={() => setIsOpen(false)}
 					onDeleted={onDeleted}
 				/>

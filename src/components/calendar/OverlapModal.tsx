@@ -7,13 +7,13 @@ import { useNavigate } from "react-router-dom";
 
 type OverlapModalProps = {
 	noteSchedule: Schedule;
-	overlaps: MatchedSchedule[];
+	noteOverlaps: MatchedSchedule[];
 	hasPassed: boolean;
 	onClose: () => void;
 	onDeleted: () => void;
 };
 
-export default function OverlapModal({ noteSchedule, overlaps, hasPassed, onClose, onDeleted }: OverlapModalProps) {
+export default function OverlapModal({ noteSchedule, noteOverlaps, hasPassed, onClose, onDeleted }: OverlapModalProps) {
 	const [confirmDelete, setConfirmDelete] = useState(false);
 	const { deleteUserSchedule } = useSchedule();
 
@@ -23,6 +23,9 @@ export default function OverlapModal({ noteSchedule, overlaps, hasPassed, onClos
 	//for the make plans button
 	const navigate = useNavigate();
 
+	const overlaps = noteOverlaps.sort((a, b) => a.startTime.getTime() - a.endTime.getTime() - (b.startTime.getTime() - b.endTime.getTime()));
+
+	//delete button
 	async function handleDeleteSchedule() {
 		setLoading(true);
 
@@ -81,21 +84,9 @@ export default function OverlapModal({ noteSchedule, overlaps, hasPassed, onClos
 								</div>
 
 								{/* Friend info */}
-								<div className="min-w-0 flex-1">
-									<div className="flex items-center gap-2">
-										<div className="truncate font-semibold text-stone-800">{overlap.friendName}</div>
+								{showFriendInfo(overlap)}
 
-										<span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${getOverlapStyle(overlap.startTime, overlap.endTime)}`}>
-											{formatOverlapDuration(overlap.startTime, overlap.endTime)}
-										</span>
-									</div>
-
-									<p className="mt-0.5 text-sm text-stone-500">
-										{format(overlap.startTime, "p")} - {format(overlap.endTime, "p")}
-									</p>
-								</div>
-
-								{/* button */}
+								{/* Button */}
 								<button
 									type="button"
 									disabled={hasPassed}
@@ -103,7 +94,7 @@ export default function OverlapModal({ noteSchedule, overlaps, hasPassed, onClos
 										navigate("/plans", { state: { overlap } });
 									}}
 									className={`shrink-0 rounded-lg px-3 py-2 text-sm font-bold transition ${
-										hasPassed ? "cursor-not-allowed bg-stone-200 text-stone-400" : "bg-red-500 text-white hover:bg-red-600"
+										hasPassed ? "cursor-not-allowed bg-stone-200 text-stone-400" : "bg-[#943b32] text-white hover:bg-[#7f2f29]"
 									}`}
 								>
 									{hasPassed ? "Expired" : "Make plans!"}
@@ -123,35 +114,39 @@ export default function OverlapModal({ noteSchedule, overlaps, hasPassed, onClos
 		</div>
 	);
 
-	function formatOverlapDuration(startTime: Date, endTime: Date) {
-		const minutes = differenceInMinutes(endTime, startTime);
+	function showFriendInfo(overlap: MatchedSchedule) {
+		const minutes = differenceInMinutes(overlap.endTime, overlap.startTime);
 
+		// format duration
 		const hours = Math.floor(minutes / 60);
 		const remainingMinutes = minutes % 60;
 
+		let duration: string;
+
 		if (hours === 0) {
-			return `${minutes} min${minutes > 1 ? "s" : ""}`;
+			duration = `${minutes} min${minutes !== 1 ? "s" : ""}`;
+		} else if (remainingMinutes === 0) {
+			duration = `${hours} hr${hours !== 1 ? "s" : ""}`;
+		} else {
+			duration = `${hours} hr${hours !== 1 ? "s" : ""} ${remainingMinutes} min${remainingMinutes !== 1 ? "s" : ""}`;
 		}
 
-		if (remainingMinutes === 0) {
-			return `${hours} hr${hours > 1 ? "s" : ""}`;
+		// duration color
+		let durationStyle = "text-stone-500";
+
+		if (minutes >= 180) {
+			durationStyle = "text-green-700";
+		} else if (minutes >= 60) {
+			durationStyle = "text-amber-700";
 		}
 
-		return `${hours} hr${hours > 1 ? "s" : ""} ${remainingMinutes} min${remainingMinutes > 1 ? "s" : ""}`;
-	}
+		return (
+			<div className="min-w-0 flex-1">
+				<div className="truncate font-semibold text-stone-800">{overlap.friendName}</div>
 
-	function getOverlapStyle(startTime: Date, endTime: Date) {
-		const minutes = differenceInMinutes(endTime, startTime);
-
-		if (minutes >= 120) {
-			return "bg-green-100 text-green-700";
-		}
-
-		if (minutes >= 60) {
-			return "bg-amber-100 text-amber-700";
-		}
-
-		return "bg-stone-100 text-stone-600";
+				<p className={`mt-0.5 text-sm font-bold ${durationStyle}`}>{duration}</p>
+			</div>
+		);
 	}
 
 	function showLoading() {
