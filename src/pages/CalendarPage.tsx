@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import Calendar from "../components/calendar/Calendar";
-import NavBar from "../components/NavBar";
 import NewScheduleModal from "../components/calendar/NewScheduleModal";
 import PageContainer from "./PageContainer";
 
@@ -18,14 +17,10 @@ export function CalendarPage() {
 	/* ========================================================================= */
 
 	return (
-		<div className="flex min-h-screen bg-[#b8794f] bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12)_0_1px,transparent_1px),radial-gradient(circle_at_80%_70%,rgba(80,40,20,0.12)_0_1px,transparent_1px)] bg-size[11px_11px,17px_17px]">
-			<NavBar />
-
-			<PageContainer>{getContent()}</PageContainer>
-
-			{/* Create schedule modal */}
+		<PageContainer>
+			{getContent()}
 			{showScheduleForm && showCreateScheduleForm()}
-		</div>
+		</PageContainer>
 	);
 
 	/* ========================================================================= */
@@ -38,11 +33,11 @@ export function CalendarPage() {
 				{/* Dashboard heading */}
 				<div className="mb-7 flex items-end justify-between gap-4">
 					<div>
-						<p className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500">Your calendar</p>
+						<p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-muted">Your calendar</p>
 
-						{user && <h1 className="mt-1 text-3xl font-bold tracking-tight text-stone-900">Hello, {user.name.split(" ")[0]}!</h1>}
+						{user && <h1 className="mt-1 text-3xl font-bold tracking-tight text-brand-text">Hello, {user.name.split(" ")[0]}!</h1>}
 
-						<p className="mt-1 text-sm text-stone-500">Check out what's going on this week.</p>
+						<p className="mt-1 text-sm font-medium text-brand-muted">Check out what's going on this week.</p>
 					</div>
 
 					{/* Add availability */}

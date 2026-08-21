@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+	--color-brand-text: #66584f;
+	--color-brand-muted: #9a887a;
+}
+
 @keyframes float-notification {
 	0%,
 	100% {

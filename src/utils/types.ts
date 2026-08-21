@@ -146,7 +146,7 @@ export const planSchema = z.object({
 	creatorId: z.string(),
 	friendId: z.string(),
 
-	status: z.enum(["draft", "pending", "confirmed"]),
+	status: z.enum(["declined", "pending", "confirmed", "cancelled"]),
 
 	title: z.string(),
 	comments: z.string(),
@@ -156,6 +156,9 @@ export const planSchema = z.object({
 
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
+
+	lastUpdatedBy: z.string(),
+	location: z.string(),
 });
 
 export type Plan = z.infer<typeof planSchema>;

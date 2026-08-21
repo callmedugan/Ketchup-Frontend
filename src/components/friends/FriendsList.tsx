@@ -10,9 +10,19 @@ export default function FriendsList() {
 				<div className="bg-[#faf7f0] p-3 sm:p-5">
 					<div className="flex flex-col gap-3">
 						{friends.map((friend) => (
-							<div
+							<button
 								key={friend.userId}
-								className="flex items-center justify-between rounded-xl border border-stone-200 bg-[#fffdf9] p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-md"
+								type="button"
+								onClick={() => {
+									// open friend details
+								}}
+								className="
+									group flex w-full items-center justify-between
+									rounded-xl border border-stone-200 bg-[#fffdf9]
+									p-4 text-left shadow-sm transition
+									hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-md
+									active:translate-y-0 active:shadow-sm
+								"
 							>
 								{/* Friend info */}
 								<div className="flex min-w-0 items-center gap-3">
@@ -22,7 +32,8 @@ export default function FriendsList() {
 									</div>
 
 									<div className="min-w-0">
-										<div className="truncate text-l font-bold text-stone-800">{friend.name}</div>
+										<div className="truncate text-lg font-bold text-stone-800">{friend.name}</div>
+
 										<div className="mt-0.5 flex items-center gap-1.5 text-xs font-medium">
 											<span
 												className={`h-1.5 w-1.5 rounded-full ${
@@ -39,14 +50,19 @@ export default function FriendsList() {
 									</div>
 								</div>
 
-								{/* Actions */}
-								<button
-									type="button"
-									className="ml-3 shrink-0 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-bold text-stone-600 transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900"
+								{/* Click indicator */}
+								<svg
+									viewBox="0 0 20 20"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="2"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									className="ml-4 h-5 w-5 shrink-0 text-stone-300 transition group-hover:translate-x-0.5 group-hover:text-stone-500"
 								>
-									View
-								</button>
-							</div>
+									<path d="M7 4l6 6-6 6" />
+								</svg>
+							</button>
 						))}
 
 						{/* Empty state */}
@@ -54,7 +70,7 @@ export default function FriendsList() {
 							<div className="rounded-xl border border-dashed border-stone-300 bg-[#fffdf9] px-6 py-12 text-center">
 								<h3 className="mt-4 font-bold text-stone-800">No friends yet</h3>
 
-								<p className="mx-auto mt-1 max-w-sm text-sm text-stone-500">Add some friends to get the ball rolling.</p>
+								<p className="mx-auto mt-1 max-w-sm text-sm text-stone-500">Add some friends to get started!</p>
 							</div>
 						)}
 					</div>

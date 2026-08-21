@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { LoadingIndicator } from "../components/LoadingIndicator";
-import NavBar from "../components/NavBar";
 import Profile from "../components/Profile";
 import PageContainer from "./PageContainer";
 
@@ -15,13 +14,7 @@ export function ProfilePage() {
 	//                        page
 	/* ========================================================================= */
 
-	return (
-		<div className="flex min-h-screen bg-[#b8794f] bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12)_0_1px,transparent_1px),radial-gradient(circle_at_80%_70%,rgba(80,40,20,0.12)_0_1px,transparent_1px)] bg-size[11px_11px,17px_17px]">
-			<NavBar />
-
-			<PageContainer>{getContent()}</PageContainer>
-		</div>
-	);
+	return <PageContainer>{getContent()}</PageContainer>;
 
 	function getContent() {
 		/* --------------------------------------------------------------------- */
@@ -63,12 +56,12 @@ export function ProfilePage() {
 		return (
 			<div className="px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-9">
 				{/* Page heading */}
-				<div className="mb-7">
-					<p className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500">Your profile</p>
+				<div className="mb-7 shrink-0">
+					<p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-muted">Your profile</p>
 
-					{user && <h1 className="mt-1 text-3xl font-bold tracking-tight text-stone-900">Hello, {user.name.split(" ")[0]}!</h1>}
+					{user && <h1 className="mt-1 text-3xl font-bold tracking-tight text-brand-text">Hello, {user.name.split(" ")[0]}!</h1>}
 
-					<p className="mt-1 text-sm text-stone-500">Tell your friends a little bit about yourself.</p>
+					<p className="mt-1 text-sm font-medium text-brand-muted">Tell your friends a little bit about yourself.</p>
 				</div>
 
 				{/* Profile */}

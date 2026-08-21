@@ -57,7 +57,7 @@ export const ScheduleProvider = ({ children }: ScheduleProviderProps) => {
 	//#region api calls
 
 	async function fetchUserSchedules() {
-		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/schedules/${user!.id}`);
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/schedules`);
 		if (!response.ok) {
 			const data = await response.json();
 			throw new Error(data.error);

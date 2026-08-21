@@ -13,8 +13,9 @@ type PlansContextType = {
 	plans: Plan[];
 	fetchPlans: () => Promise<Plan[]>;
 	getPlanById: (id: string) => Plan | undefined;
-	addPlan: (friendId: string, title: string, comments: string, meetTime: Date) => Promise<Plan[]>;
-	deletePlan: (id: string) => Promise<Plan[]>;
+	addPlan: (friendId: string, title: string, comments: string, meetTime: Date, location: string) => Promise<Plan[]>;
+	cancelPlan: (id: string) => Promise<Plan[]>;
+	updatePlanStatus: (id: string, response: "accepted" | "declined") => Promise<Plan[]>;
 };
 
 const PlansContext = createContext<PlansContextType | null>(null);
@@ -66,7 +67,7 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 		return planData;
 	}
 
-	async function addPlan(friendId: string, title: string, comments: string, meetTime: Date): Promise<Plan[]> {
+	async function addPlan(friendId: string, title: string, comments: string, meetTime: Date, location: string): Promise<Plan[]> {
 		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/plans`, {
 			method: "POST",
 			headers: {
@@ -77,6 +78,7 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 				title,
 				comments,
 				meetTime,
+				location,
 			}),
 		});
 
@@ -88,19 +90,29 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 		return fetchPlans();
 	}
 
-	async function deletePlan(id: string): Promise<Plan[]> {
-		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/plans`, {
+	async function cancelPlan(id: string): Promise<Plan[]> {
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/plans/${id}`, {
 			method: "DELETE",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				id,
-			}),
 		});
 
 		if (!response.ok) {
 			const data = await response.json();
+			throw new Error(data.error);
+		}
+
+		return fetchPlans();
+	}
+
+	async function updatePlanStatus(id: string, response: "accepted" | "declined"): Promise<Plan[]> {
+		const fetchResponse = await authFetch(`${import.meta.env.VITE_API_URL}/api/plans/${id}/respond`, {
+			method: "PATCH",
+			body: JSON.stringify({
+				response,
+			}),
+		});
+
+		if (!fetchResponse.ok) {
+			const data = await fetchResponse.json();
 			throw new Error(data.error);
 		}
 
@@ -120,7 +132,8 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 				fetchPlans,
 				getPlanById,
 				addPlan,
-				deletePlan,
+				cancelPlan,
+				updatePlanStatus,
 			}}
 		>
 			{children}
