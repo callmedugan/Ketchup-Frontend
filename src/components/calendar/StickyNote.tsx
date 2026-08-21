@@ -2,43 +2,44 @@ import { format, set } from "date-fns";
 import { useState } from "react";
 import OverlapModal from "./OverlapModal";
 import { useSchedule } from "../../contexts/SchedulesContext";
+import type { Schedule } from "../../utils/types";
 
 type StickyNoteProps = {
-	scheduleId: string;
-	date: Date;
+	scheduleData: Schedule;
+	noteDate: Date;
 	onDeleted: () => void;
 };
 
-export default function StickyNote({ scheduleId, date, onDeleted }: StickyNoteProps) {
-	const [error, setError] = useState<string | null>(null);
-	const { getUserScheduleById, matchedSchedules } = useSchedule();
+export default function StickyNote({ scheduleData: noteSchedule, noteDate, onDeleted }: StickyNoteProps) {
+	const { matchedSchedules } = useSchedule();
 
-	const noteSchedule = getUserScheduleById(scheduleId);
-	if (noteSchedule === undefined) {
-		setError("Invalid schedule ID: " + scheduleId);
-		throw new Error("Invalid schedule ID: " + scheduleId);
-	}
+	///////////need to figure out how to make the sticky note pass the right date
 
-	//used to grey out the note if time has passed
-	const scheduleTime = set(date, {
+	//create a date for the beginning and end
+	const noteStartTime = set(noteDate, {
+		hours: noteSchedule.startTime.getHours(),
+		minutes: noteSchedule.startTime.getMinutes(),
+	});
+	const noteEndTime = set(noteDate, {
 		hours: noteSchedule.endTime.getHours(),
 		minutes: noteSchedule.endTime.getMinutes(),
 	});
-	const hasPassed = scheduleTime <= new Date();
+	const hasPassed = noteEndTime <= new Date();
 
 	const [isOpen, setIsOpen] = useState(false);
 
 	//get number of unique users and overlaps for the day
-	const overlapsForThisDay = [];
+	const _overlaps = [];
 	const users = new Set();
 	for (const s of matchedSchedules) {
 		//skip anything not related to this day
 		if (s.userScheduleIdMatched === noteSchedule.id) {
-			overlapsForThisDay.push(s);
+			_overlaps.push(s);
 			users.add(s.userId);
 		}
 	}
 	//finally
+	const overlapsForThisDay = _overlaps.sort((a, b) => a.startTime.getTime() - a.endTime.getTime() - (b.startTime.getTime() - b.endTime.getTime()));
 	const overlapCount = users.size;
 
 	return (
@@ -66,11 +67,11 @@ export default function StickyNote({ scheduleId, date, onDeleted }: StickyNotePr
 				</div>
 
 				{/* error */}
-				{error && (
+				{/* {error && (
 					<p role="alert" className="mt-2 text-sm text-red-600">
 						{error}
 					</p>
-				)}
+				)} */}
 
 				{/* friends free */}
 				{overlapCount > 0 && !hasPassed && (
@@ -84,6 +85,8 @@ export default function StickyNote({ scheduleId, date, onDeleted }: StickyNotePr
 				<OverlapModal
 					noteSchedule={noteSchedule}
 					hasPassed={hasPassed}
+					noteStartTime={noteStartTime}
+					noteEndTime={noteEndTime}
 					noteOverlaps={overlapsForThisDay}
 					onClose={() => setIsOpen(false)}
 					onDeleted={onDeleted}

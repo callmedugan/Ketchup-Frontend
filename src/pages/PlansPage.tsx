@@ -24,7 +24,7 @@ export function PlansPage() {
 	/* ========================================================================= */
 
 	return (
-		<div className="flex min-h-screen bg-[#b8794f] bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12)_0_1px,transparent_1px),radial-gradient(circle_at_80%_70%,rgba(80,40,20,0.12)_0_1px,transparent_1px)] bg-size[11px_11px,17px_17px]">
+		<div className="flex h-screen overflow-hidden bg-[#b8794f] bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12)_0_1px,transparent_1px),radial-gradient(circle_at_80%_70%,rgba(80,40,20,0.12)_0_1px,transparent_1px)] bg-size[11px_11px,17px_17px]">
 			<NavBar />
 
 			<PageContainer>{getContent()}</PageContainer>
@@ -40,21 +40,26 @@ export function PlansPage() {
 
 	function getContent() {
 		return (
-			<div className="px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-9">
+			<div className="flex h-full min-h-0 flex-col px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-9">
 				{/* Page heading */}
-				<div className="mb-7 flex items-end justify-between gap-4">
-					<div>
-						<p className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500">Your plans</p>
+				<div className="mb-7 shrink-0">
+					<p className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500">Your plans</p>
 
-						{user && <h1 className="mt-1 text-3xl font-bold tracking-tight text-stone-900">Hello, {user.name.split(" ")[0]}!</h1>}
+					{user && <h1 className="mt-1 text-3xl font-bold tracking-tight text-stone-900">Hello, {user.name.split(" ")[0]}!</h1>}
 
-						<p className="mt-1 text-sm text-stone-500">Keep track of what's going down.</p>
-					</div>
+					<p className="mt-1 text-sm text-stone-500">Keep track of what's going down.</p>
 				</div>
 
-				{/* Plans list */}
-				<div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
-					<div className="bg-[#faf7f0] p-3 sm:p-5">
+				{/* Plans container */}
+				<div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-[#faf7f0] shadow-sm">
+					{/* Scrollable plans list */}
+					<div
+						className="
+							min-h-0 flex-1 overflow-y-auto p-3 sm:p-5
+							scrollbar-none
+							[&::-webkit-scrollbar]:hidden
+						"
+					>
 						<div className="flex flex-col gap-3">
 							{plans.map((plan) => (
 								<div

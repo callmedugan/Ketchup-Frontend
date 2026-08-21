@@ -6,14 +6,16 @@ import { useSchedule } from "../../contexts/SchedulesContext";
 import { useNavigate } from "react-router-dom";
 
 type OverlapModalProps = {
-	noteSchedule: Schedule;
+	noteSchedule: Schedule; //schedule data
 	noteOverlaps: MatchedSchedule[];
+	noteStartTime: Date;
+	noteEndTime: Date;
 	hasPassed: boolean;
 	onClose: () => void;
 	onDeleted: () => void;
 };
 
-export default function OverlapModal({ noteSchedule, noteOverlaps, hasPassed, onClose, onDeleted }: OverlapModalProps) {
+export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime, noteEndTime, hasPassed, onClose, onDeleted }: OverlapModalProps) {
 	const [confirmDelete, setConfirmDelete] = useState(false);
 	const { deleteUserSchedule } = useSchedule();
 
@@ -53,15 +55,11 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, hasPassed, on
 					<div>
 						<h2 className={`text-lg font-bold ${hasPassed ? "text-stone-600" : "text-stone-800"}`}>Who else is free?</h2>
 
-						<p className={`mt-1 text-sm ${hasPassed ? "text-stone-400" : "text-stone-500"}`}>{format(noteSchedule.startTime, "EEEE, MMMM d")}</p>
+						<p className={`mt-1 text-sm ${hasPassed ? "text-stone-400" : "text-stone-500"}`}>{format(noteStartTime, "EEEE, MMMM d")}</p>
 
 						<p className={`text-sm ${hasPassed ? "text-stone-400" : "text-stone-500"}`}>
-							{format(noteSchedule.startTime, "p")} - {format(noteSchedule.endTime, "p")}
+							{format(noteStartTime, "p")} - {format(noteEndTime, "p")}
 						</p>
-
-						{hasPassed && (
-							<p className="mt-2 inline-block rounded-full bg-stone-200 px-2.5 py-1 text-xs font-bold text-stone-600">Past availability</p>
-						)}
 					</div>
 
 					<button type="button" onClick={onClose} className="rounded-lg px-2 py-1 text-stone-500 transition hover:bg-stone-200 hover:text-stone-800">

@@ -140,7 +140,7 @@ export default function Calendar() {
 								{/* Availability */}
 								<div className="flex flex-col gap-3 p-3">
 									{daySchedules.map((schedule) => (
-										<StickyNote key={schedule.id} scheduleId={schedule.id} date={day} onDeleted={handleScheduleDeleted} />
+										<StickyNote key={schedule.id} scheduleData={schedule} noteDate={day} onDeleted={handleScheduleDeleted} />
 									))}
 								</div>
 							</div>

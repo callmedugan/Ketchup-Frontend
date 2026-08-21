@@ -6,12 +6,11 @@ type PageContainerProps = {
 
 export default function PageContainer({ children }: PageContainerProps) {
 	return (
-		<main className="relative m-5 flex-1  overflow-visible rounded-3xl border border-stone-300/70 bg-[#f7f1e5] shadow-[0_10px_30px_rgba(60,30,15,0.18)] lg:m-7">
-			{/* Push pins */}
+		<main className="relative m-5 min-h-0 flex-1 overflow-hidden rounded-3xl border border-stone-300/70 bg-[#f7f1e5] shadow-[0_10px_30px_rgba(60,30,15,0.18)] lg:m-7">
 			<PushPin className="left-5 top-5" />
 			<PushPin className="right-5 top-5" />
 
-			<div>{children}</div>
+			{children}
 		</main>
 	);
 }
