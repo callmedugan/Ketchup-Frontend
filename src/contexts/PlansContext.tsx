@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 import { useAuth } from "./AuthContext";
-import { getPlansFromParsedJson, type Plan } from "../utils/types";
+import { getPlansFromParsedJson, isPresetAvatar, type Plan } from "../utils/types";
 
 /* ========================================================================= */
 //                        context
@@ -61,6 +61,11 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 		const data = await response.json();
 		const planData = getPlansFromParsedJson(data);
 		if (planData == null) throw new Error("Plan data invalid");
+
+		//make avatarUrls
+		for (const p of planData) {
+			if (isPresetAvatar(p.friendAvatarUrl)) p.friendAvatarUrl = `/avatars/${p.friendAvatarUrl}.webp`;
+		}
 
 		setPlans(planData);
 

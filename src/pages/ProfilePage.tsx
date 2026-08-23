@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { LoadingIndicator } from "../components/LoadingIndicator";
-import Profile from "../components/Profile";
+import Profile from "../components/profile/Profile";
 import PageContainer from "./PageContainer";
 
 export function ProfilePage() {
@@ -11,7 +11,7 @@ export function ProfilePage() {
 	const { user } = useAuth();
 
 	/* ========================================================================= */
-	//                        page
+	// page
 	/* ========================================================================= */
 
 	return <PageContainer>{getContent()}</PageContainer>;
@@ -25,11 +25,11 @@ export function ProfilePage() {
 			return (
 				<div className="flex min-h-96 items-center justify-center px-6">
 					<div className="text-center">
-						<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">!</div>
+						<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 font-bold text-red-600">!</div>
 
-						<h2 className="mt-4 text-lg font-bold text-stone-900">Something went wrong</h2>
+						<h2 className="mt-4 text-lg font-bold text-brand-text">Something went wrong</h2>
 
-						<p role="alert" className="mt-2 text-sm text-red-600">
+						<p role="alert" className="mt-2 text-sm font-medium text-red-600">
 							{error}
 						</p>
 					</div>
@@ -65,7 +65,6 @@ export function ProfilePage() {
 				</div>
 
 				{/* Profile */}
-				<div className="mx-auto max-w-3xl">{/* Profile content goes here */}</div>
 				<Profile user={user!} />
 			</div>
 		);

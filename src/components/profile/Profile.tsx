@@ -1,4 +1,4 @@
-import type { User } from "../utils/types";
+import type { User } from "../../utils/types";
 
 type ProfileProps = {
 	user: User;
@@ -19,27 +19,29 @@ export default function Profile({ user }: ProfileProps) {
 							</div>
 
 							<div className="min-w-0">
-								<h3 className="truncate text-xl font-bold text-stone-800">{user.name}</h3>
+								<h3 className="truncate text-xl font-bold text-brand-text">{user.name}</h3>
 
-								<p className="mt-0.5 truncate text-sm text-stone-500">Bio...</p>
+								<p className="mt-0.5 truncate text-sm font-medium text-brand-muted">Bio...</p>
 							</div>
 						</div>
 
 						{/* Account information */}
 						<div className="mt-6 border-t border-stone-200 pt-5">
-							<h3 className="text-sm font-bold text-stone-800">Account information</h3>
+							<h3 className="text-sm font-bold text-brand-text">Account information</h3>
 
 							<div className="mt-3 flex flex-col gap-3">
-								<div className="rounded-lg border border-stone-200 bg-white px-4 py-3">
-									<p className="text-xs font-bold uppercase tracking-wide text-stone-400">Name</p>
+								{/* Name */}
+								<div className="rounded-lg border border-stone-200 bg-white/70 px-4 py-3">
+									<p className="text-xs font-bold uppercase tracking-wide text-brand-muted">Name</p>
 
-									<p className="mt-1 text-sm font-medium text-stone-700">{user.name}</p>
+									<p className="mt-1 text-sm font-medium text-brand-text">{user.name}</p>
 								</div>
 
-								<div className="rounded-lg border border-stone-200 bg-white px-4 py-3">
-									<p className="text-xs font-bold uppercase tracking-wide text-stone-400">Email</p>
+								{/* Email */}
+								<div className="rounded-lg border border-stone-200 bg-white/70 px-4 py-3">
+									<p className="text-xs font-bold uppercase tracking-wide text-brand-muted">Email</p>
 
-									<p className="mt-1 text-sm font-medium text-stone-700">{user.email}</p>
+									<p className="mt-1 text-sm font-medium text-brand-text">{user.email}</p>
 								</div>
 							</div>
 						</div>

@@ -27,12 +27,12 @@ export default function FriendsList() {
 								{/* Friend info */}
 								<div className="flex min-w-0 items-center gap-3">
 									{/* Avatar */}
-									<div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f3d6d1] text-sm font-bold text-[#a63c32]">
+									<div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f3d6d1] text-[#943b32]  text-sm font-bold ">
 										{friend.name.charAt(0).toUpperCase()}
 									</div>
 
 									<div className="min-w-0">
-										<div className="truncate text-lg font-bold text-stone-800">{friend.name}</div>
+										<div className="truncate text-lg font-bold text-brand-text">{friend.name}</div>
 
 										<div className="mt-0.5 flex items-center gap-1.5 text-xs font-medium">
 											<span
@@ -41,7 +41,7 @@ export default function FriendsList() {
 												}`}
 											/>
 
-											<span className="text-stone-500">
+											<span className="text-brand-muted">
 												{friend.status === "accepted" && "Friends"}
 												{friend.status === "requested" && "Request pending"}
 												{friend.status === "blocked" && "Request declined"}
@@ -58,7 +58,12 @@ export default function FriendsList() {
 									strokeWidth="2"
 									strokeLinecap="round"
 									strokeLinejoin="round"
-									className="ml-4 h-5 w-5 shrink-0 text-stone-300 transition group-hover:translate-x-0.5 group-hover:text-stone-500"
+									className="
+										ml-4 h-5 w-5 shrink-0
+										text-brand-muted/50 transition
+										group-hover:translate-x-0.5
+										group-hover:text-brand-muted
+									"
 								>
 									<path d="M7 4l6 6-6 6" />
 								</svg>
@@ -68,9 +73,9 @@ export default function FriendsList() {
 						{/* Empty state */}
 						{friends.length === 0 && (
 							<div className="rounded-xl border border-dashed border-stone-300 bg-[#fffdf9] px-6 py-12 text-center">
-								<h3 className="mt-4 font-bold text-stone-800">No friends yet</h3>
+								<h3 className="mt-4 font-bold text-brand-text">No friends yet</h3>
 
-								<p className="mx-auto mt-1 max-w-sm text-sm text-stone-500">Add some friends to get started!</p>
+								<p className="mx-auto mt-1 max-w-sm text-sm font-medium text-brand-muted">Add some friends to get started!</p>
 							</div>
 						)}
 					</div>

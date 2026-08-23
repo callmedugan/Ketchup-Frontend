@@ -76,7 +76,7 @@ export default function PlanInfoModal({ plan, onClose }: PlanInfoModalProps) {
 			case "confirmed":
 				return {
 					text: "Confirmed",
-					title: isPast ? "This plan has passed" : "You're all set!",
+					title: isPast ? "This plan has expired" : "You're all set!",
 					className: "bg-emerald-100 text-emerald-700",
 				};
 
@@ -98,7 +98,7 @@ export default function PlanInfoModal({ plan, onClose }: PlanInfoModalProps) {
 				if (isPast) {
 					return {
 						text: "Expired",
-						title: "This invite has passed",
+						title: "This invite has expired",
 						className: "bg-stone-200 text-brand-text",
 					};
 				}
@@ -258,18 +258,30 @@ export default function PlanInfoModal({ plan, onClose }: PlanInfoModalProps) {
 
 				{/* Confirmation overlay */}
 				{confirmAction && (
-					<div className="absolute inset-0 z-20 flex items-center justify-center bg-stone-950/20 px-5 backdrop-blur-[1px]">
-						<div className="w-full max-w-xs rounded-xl border border-stone-200 bg-[#fffdf8] p-4 shadow-xl">
-							<p className="text-center text-sm font-bold text-brand-text">{canRespond ? "Decline this plan?" : "Cancel this plan?"}</p>
+					<div className="absolute inset-0 z-20 flex items-center justify-center bg-brand-text/20 px-5 backdrop-blur-[1px]">
+						<div className="w-full max-w-xs rounded-2xl border border-stone-200 bg-[#fffdf9] p-5 shadow-xl">
+							{/* Confirmation text */}
+							<div className="text-center">
+								<p className="text-sm font-bold text-brand-text">{canRespond ? "Decline this plan?" : "Cancel this plan?"}</p>
 
-							<p className="mt-1 text-center text-xs font-medium text-brand-muted">This action cannot be undone.</p>
+								<p className="mt-1 text-xs font-medium text-brand-muted">This action cannot be undone.</p>
+							</div>
 
+							{/* Actions */}
 							<div className="mt-4 flex gap-2">
 								<button
 									type="button"
 									onClick={() => setConfirmAction(false)}
 									disabled={isSubmitting}
-									className="flex-1 rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm font-bold text-brand-text transition hover:bg-[#faf7f0] disabled:opacity-60"
+									className="
+										flex-1 rounded-xl
+										border border-stone-200 bg-[#faf7f0]
+										px-3 py-2
+										text-sm font-bold text-brand-text
+										transition
+										hover:bg-[#f3e9df]
+										disabled:opacity-60
+									"
 								>
 									Go back
 								</button>
@@ -278,7 +290,14 @@ export default function PlanInfoModal({ plan, onClose }: PlanInfoModalProps) {
 									type="button"
 									onClick={canRespond ? handleDecline : handleCancel}
 									disabled={isSubmitting}
-									className="flex-1 rounded-xl bg-red-600 px-3 py-2 text-sm font-bold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+									className="
+										flex-1 rounded-xl bg-red-600
+										px-3 py-2
+										text-sm font-bold text-white
+										transition
+										hover:bg-red-700
+										disabled:cursor-not-allowed disabled:opacity-60
+									"
 								>
 									{isSubmitting ? (canRespond ? "Declining..." : "Cancelling...") : canRespond ? "Decline" : "Cancel plan"}
 								</button>

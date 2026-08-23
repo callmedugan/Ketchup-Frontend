@@ -6,7 +6,7 @@ import { useSchedule } from "../../contexts/SchedulesContext";
 import { useNavigate } from "react-router-dom";
 
 type OverlapModalProps = {
-	noteSchedule: Schedule; //schedule data
+	noteSchedule: Schedule;
 	noteOverlaps: MatchedSchedule[];
 	noteStartTime: Date;
 	noteEndTime: Date;
@@ -46,23 +46,29 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4" onClick={onClose}>
 			<div
-				className={`w-full max-w-md rounded-2xl border p-6 shadow-xl transition ${
+				className={`relative w-full max-w-md rounded-2xl border p-6 shadow-xl transition ${
 					hasPassed ? "border-stone-300 bg-stone-100" : "border-stone-200 bg-amber-50"
 				}`}
 				onClick={(e) => e.stopPropagation()}
 			>
 				<div className="flex items-start justify-between gap-4">
 					<div>
-						<h2 className={`text-lg font-bold ${hasPassed ? "text-stone-600" : "text-stone-800"}`}>Who else is free?</h2>
+						<h2 className={`text-lg font-bold ${hasPassed ? "text-brand-muted" : "text-brand-text"}`}>Who else is free?</h2>
 
-						<p className={`mt-1 text-sm ${hasPassed ? "text-stone-400" : "text-stone-500"}`}>{format(noteStartTime, "EEEE, MMMM d")}</p>
+						<p className={`mt-1 text-sm font-medium ${hasPassed ? "text-brand-muted/70" : "text-brand-muted"}`}>
+							{format(noteStartTime, "EEEE, MMMM d")}
+						</p>
 
-						<p className={`text-sm ${hasPassed ? "text-stone-400" : "text-stone-500"}`}>
+						<p className={`text-sm font-medium ${hasPassed ? "text-brand-muted/70" : "text-brand-muted"}`}>
 							{format(noteStartTime, "p")} - {format(noteEndTime, "p")}
 						</p>
 					</div>
 
-					<button type="button" onClick={onClose} className="rounded-lg px-2 py-1 text-stone-500 transition hover:bg-stone-200 hover:text-stone-800">
+					<button
+						type="button"
+						onClick={onClose}
+						className="rounded-lg px-2 py-1 text-brand-muted transition hover:bg-stone-200 hover:text-brand-text"
+					>
 						✕
 					</button>
 				</div>
@@ -80,6 +86,11 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 								<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f3d6d1] text-sm font-bold text-[#a63c32]">
 									{overlap.friendName.charAt(0).toUpperCase()}
 								</div>
+								<img
+									src={overlap.friendAvatarUrl}
+									alt={`${overlap.friendName}'s avatar`}
+									className={"h-11 w-11 shrink-0 rounded-full object-cover"}
+								/>
 
 								{/* Friend info */}
 								{showFriendInfo(overlap)}
@@ -89,10 +100,12 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 									type="button"
 									disabled={hasPassed}
 									onClick={() => {
-										navigate("/plans", { state: { overlap } });
+										navigate("/plans", {
+											state: { overlap },
+										});
 									}}
 									className={`shrink-0 rounded-lg px-3 py-2 text-sm font-bold transition ${
-										hasPassed ? "cursor-not-allowed bg-stone-200 text-stone-400" : "bg-[#943b32] text-white hover:bg-[#7f2f29]"
+										hasPassed ? "cursor-not-allowed bg-stone-200 text-brand-muted/70" : "bg-[#943b32] text-white hover:bg-[#7f2f29]"
 									}`}
 								>
 									{hasPassed ? "Expired" : "Make plans!"}
@@ -100,7 +113,9 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 							</div>
 						))
 					) : (
-						<p className={`text-sm ${hasPassed ? "text-stone-400" : "text-stone-500"}`}>None of your friends are free during this time.</p>
+						<p className={`text-sm font-medium ${hasPassed ? "text-brand-muted/70" : "text-brand-muted"}`}>
+							None of your friends are free during this time.
+						</p>
 					)}
 				</div>
 
@@ -115,7 +130,6 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 	function showFriendInfo(overlap: MatchedSchedule) {
 		const minutes = differenceInMinutes(overlap.endTime, overlap.startTime);
 
-		// format duration
 		const hours = Math.floor(minutes / 60);
 		const remainingMinutes = minutes % 60;
 
@@ -129,8 +143,8 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 			duration = `${hours} hr${hours !== 1 ? "s" : ""} ${remainingMinutes} min${remainingMinutes !== 1 ? "s" : ""}`;
 		}
 
-		// duration color
-		let durationStyle = "text-stone-500";
+		// Keep semantic duration colors
+		let durationStyle = "text-brand-muted";
 
 		if (minutes >= 180) {
 			durationStyle = "text-green-700";
@@ -140,7 +154,7 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 
 		return (
 			<div className="min-w-0 flex-1">
-				<div className="truncate font-semibold text-stone-800">{overlap.friendName}</div>
+				<div className="truncate font-semibold text-brand-text">{overlap.friendName}</div>
 
 				<p className={`mt-0.5 text-sm font-bold ${durationStyle}`}>{duration}</p>
 			</div>
@@ -160,7 +174,7 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 	function showError() {
 		if (error) {
 			return (
-				<div role="alert" className="mt-3 px-4 py-3 text-center text-sm text-red-700">
+				<div role="alert" className="mt-3 px-4 py-3 text-center text-sm font-medium text-red-700">
 					{error}
 				</div>
 			);
@@ -170,36 +184,71 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 	function showDeleteButton() {
 		return (
 			<>
-				{confirmDelete ? (
-					<div className="mt-3 w-full rounded-xl border border-red-200 bg-red-50 p-3">
-						<p className="text-center text-sm font-semibold text-stone-700">Are you sure you want to delete this schedule?</p>
+				{/* Delete action */}
+				<button
+					type="button"
+					onClick={() => setConfirmDelete(true)}
+					className="
+						mt-3 w-full rounded-xl
+						border border-red-200 bg-[#fffdf8]
+						px-4 py-2.5
+						font-bold text-red-600
+						shadow-sm transition
+						hover:border-red-300 hover:bg-[#faf7f0] hover:text-red-700
+						active:bg-[#f3e9df]
+					"
+				>
+					Delete schedule
+				</button>
 
-						<div className="mt-3 flex gap-2">
-							<button
-								type="button"
-								onClick={() => setConfirmDelete(false)}
-								className="flex-1 rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-semibold text-stone-700 transition hover:bg-stone-100"
-							>
-								Cancel
-							</button>
+				{/* Confirmation overlay */}
+				{confirmDelete && (
+					<div className="absolute inset-0 z-20 flex items-center justify-center bg-brand-text/20 px-5 backdrop-blur-[1px]">
+						<div className="w-full max-w-xs rounded-2xl border border-stone-200 bg-[#fffdf9] p-5 shadow-xl">
+							{/* Confirmation text */}
+							<div className="text-center">
+								<p className="text-sm font-bold text-brand-text">Delete this schedule?</p>
 
-							<button
-								type="button"
-								onClick={handleDeleteSchedule}
-								className="flex-1 rounded-lg bg-red-500 px-3 py-2 text-sm font-bold text-white transition hover:bg-red-600"
-							>
-								Yes, delete
-							</button>
+								<p className="mt-1 text-xs font-medium text-brand-muted">This action cannot be undone.</p>
+							</div>
+
+							{/* Actions */}
+							<div className="mt-4 flex gap-2">
+								<button
+									type="button"
+									onClick={() => setConfirmDelete(false)}
+									disabled={loading}
+									className="
+						flex-1 rounded-xl
+						border border-stone-200 bg-[#faf7f0]
+						px-3 py-2
+						text-sm font-bold text-brand-text
+						transition
+						hover:bg-[#f3e9df]
+						disabled:opacity-60
+					"
+								>
+									Go back
+								</button>
+
+								<button
+									type="button"
+									onClick={handleDeleteSchedule}
+									disabled={loading}
+									className="
+						flex-1 rounded-xl bg-red-600
+						px-3 py-2
+						text-sm font-bold text-white
+						transition
+						hover:bg-red-700
+						disabled:cursor-not-allowed disabled:opacity-60
+					"
+								>
+									{loading ? "Deleting..." : "Delete"}
+								</button>
+							</div>
 						</div>
 					</div>
-				) : (
-					<button
-						type="button"
-						onClick={() => setConfirmDelete(true)}
-						className="mt-3 w-full rounded-xl border border-red-300 bg-red-50 px-4 py-2.5 font-bold text-red-700 transition hover:border-red-400 hover:bg-red-100 active:bg-red-200"
-					>
-						Delete schedule
-					</button>
 				)}
 			</>
 		);

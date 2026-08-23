@@ -1,10 +1,10 @@
 import { useState, type SubmitEvent } from "react";
 import { addMinutes, differenceInMinutes, format } from "date-fns";
-import type { MatchedSchedule } from "../../utils/types";
+import type { MatchedScheduleData } from "../../utils/types";
 import { usePlans } from "../../contexts/PlansContext";
 
 type NewPlanModalProps = {
-	overlap: MatchedSchedule;
+	overlap: MatchedScheduleData;
 	friendName: string;
 	onClose: () => void;
 };

@@ -60,6 +60,9 @@ export const friendSchema = z.object({
 	updatedAt: z.coerce.date(),
 
 	status: z.enum(["requested", "accepted", "blocked"]),
+	bio: z.string(),
+	timezone: z.string(),
+	avatarUrl: z.string(),
 });
 
 export type Friend = z.infer<typeof friendSchema>;
@@ -77,17 +80,25 @@ export function getFriendsFromParsedJson(data: unknown): Friend[] | undefined {
 
 //#region matched schedules
 
-export const matchedScheduleSchema = scheduleSchema.extend({
+//backend
+export const matchedScheduleDataSchema = scheduleSchema.extend({
 	friendId: z.string(),
-	friendName: z.string(),
+	//friendName: z.string(),
 	userScheduleIdMatched: z.string(),
+	//friendAvatarUrl: z.string(),
 });
 
-export type MatchedSchedule = z.infer<typeof matchedScheduleSchema>;
-
-export function getMatchedSchedulesFromParsedJson(data: unknown): MatchedSchedule[] | undefined {
-	return parseOneOrMany(matchedScheduleSchema, data);
+export type MatchedScheduleData = z.infer<typeof matchedScheduleDataSchema>;
+export function getMatchedSchedulesFromParsedJson(data: unknown): MatchedScheduleData[] | undefined {
+	return parseOneOrMany(matchedScheduleDataSchema, data);
 }
+
+//frontend
+export const matchedScheduleSchema = matchedScheduleDataSchema.extend({
+	friendName: z.string(),
+	friendAvatarUrl: z.string(),
+});
+export type MatchedSchedule = z.infer<typeof matchedScheduleSchema>;
 
 //#endregion
 
@@ -101,6 +112,9 @@ export const userSchema = z.object({
 	id: z.string(),
 	name: z.string(),
 	email: z.string(),
+	bio: z.string(),
+	timezone: z.string(),
+	avatarUrl: z.string(),
 });
 
 export type User = z.infer<typeof userSchema>;
@@ -142,21 +156,16 @@ export function getUserSearchResultsFromParsedJson(data: unknown): UserSearchRes
 
 export const planSchema = z.object({
 	id: z.string(),
-
 	creatorId: z.string(),
 	friendId: z.string(),
-
 	status: z.enum(["declined", "pending", "confirmed", "cancelled"]),
-
 	title: z.string(),
 	comments: z.string(),
 	friendName: z.string(), //joined from users table using friendId
-
+	friendAvatarUrl: z.string(), //joined from users table using friendId
 	meetTime: z.coerce.date(),
-
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
-
 	lastUpdatedBy: z.string(),
 	location: z.string(),
 });
@@ -166,4 +175,26 @@ export type PlanStatus = Plan["status"];
 
 export function getPlansFromParsedJson(data: unknown): Plan[] | undefined {
 	return parseOneOrMany(planSchema, data);
+}
+
+/* ========================================================================= */
+//                        avatars
+/* ========================================================================= */
+export const presetAvatarStrings = [
+	"ketchup",
+	"mustard",
+	"mayo",
+	"sriracha",
+	"ranch",
+	"bbq",
+	"honey",
+	"soy",
+	"relish",
+	"hot-sauce",
+	"whole-grain-mustard",
+	"aioli",
+] as const;
+export type presetAvatarType = (typeof presetAvatarStrings)[number];
+export function isPresetAvatar(value: string): value is presetAvatarType {
+	return presetAvatarStrings.includes(value as presetAvatarType);
 }

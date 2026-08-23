@@ -39,7 +39,7 @@ export default function PlansList() {
 				{/* Filter */}
 				<div className="flex shrink-0 items-center justify-end border-b border-stone-200 px-3 py-2 sm:px-5">
 					<div className="flex items-center gap-2">
-						<span className="text-xs font-bold text-stone-500">{showActiveOnly ? "Active only" : "Showing all"}</span>
+						<span className="text-xs font-bold text-brand-muted">{showActiveOnly ? "Active only" : "Showing all"}</span>
 
 						<button
 							type="button"
@@ -88,14 +88,14 @@ export default function PlansList() {
 								>
 									<div className="min-w-0">
 										<div className="flex items-center gap-2">
-											<h2 className={`truncate text-lg font-bold ${isInactive ? "text-stone-500" : "text-stone-800"}`}>{plan.title}</h2>
+											<h2 className={`truncate text-lg font-bold ${isInactive ? "text-brand-muted" : "text-brand-text"}`}>{plan.title}</h2>
 
 											<span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${status.className}`}>{status.text}</span>
 										</div>
 
-										<p className={`mt-1 text-sm font-medium ${isInactive ? "text-stone-400" : "text-stone-600"}`}>With {plan.friendName}</p>
+										<p className={`mt-1 text-sm font-medium ${isInactive ? "text-brand-muted/70" : "text-brand-text"}`}>With {plan.friendName}</p>
 
-										<p className={`mt-0.5 text-sm ${isInactive ? "text-stone-400" : "text-stone-500"}`}>
+										<p className={`mt-0.5 text-sm font-medium ${isInactive ? "text-brand-muted/70" : "text-brand-muted"}`}>
 											{format(plan.meetTime, "EEE, MMM d ' @ ' h:mm a")}
 											{isPast && " · Past"}
 										</p>
@@ -110,10 +110,10 @@ export default function PlansList() {
 										strokeLinecap="round"
 										strokeLinejoin="round"
 										className="
-											ml-4 h-5 w-5 shrink-0 text-stone-300
-											transition
+											ml-4 h-5 w-5 shrink-0
+											text-brand-muted/50 transition
 											group-hover:translate-x-0.5
-											group-hover:text-stone-500
+											group-hover:text-brand-muted
 										"
 									>
 										<path d="M7 4l6 6-6 6" />
@@ -125,9 +125,9 @@ export default function PlansList() {
 						{/* Empty state */}
 						{visiblePlans.length === 0 && (
 							<div className="rounded-xl border border-dashed border-stone-300 bg-[#fffdf9] px-6 py-12 text-center">
-								<h3 className="font-bold text-stone-800">{showActiveOnly ? "No active plans" : "No plans yet"}</h3>
+								<h3 className="font-bold text-brand-text">{showActiveOnly ? "No active plans" : "No plans yet"}</h3>
 
-								<p className="mx-auto mt-1 max-w-sm text-sm text-stone-500">
+								<p className="mx-auto mt-1 max-w-sm text-sm font-medium text-brand-muted">
 									{showActiveOnly ? "You don't have any upcoming plans right now." : "Make some plans with a friend to get started!"}
 								</p>
 							</div>
@@ -152,13 +152,13 @@ export default function PlansList() {
 			case "declined":
 				return {
 					text: `Declined by ${lastUpdatedByName}`,
-					className: "bg-stone-200 text-stone-600",
+					className: "bg-stone-200 text-brand-text",
 				};
 
 			case "cancelled":
 				return {
 					text: `Cancelled by ${lastUpdatedByName}`,
-					className: "bg-stone-200 text-stone-600",
+					className: "bg-stone-200 text-brand-text",
 				};
 
 			case "pending":

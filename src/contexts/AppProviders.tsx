@@ -13,11 +13,11 @@ type AppProvidersProps = {
 export default function AppProviders({ children }: AppProvidersProps) {
 	return (
 		<AuthProvider>
-			<ScheduleProvider>
-				<FriendsProvider>
+			<FriendsProvider>
+				<ScheduleProvider>
 					<PlansProvider>{children}</PlansProvider>
-				</FriendsProvider>
-			</ScheduleProvider>
+				</ScheduleProvider>
+			</FriendsProvider>
 		</AuthProvider>
 	);
 }

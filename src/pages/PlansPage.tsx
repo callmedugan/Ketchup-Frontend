@@ -4,7 +4,7 @@ import type { MatchedSchedule } from "../utils/types";
 import { useState } from "react";
 import NewPlanModal from "../components/plans/NewPlansModal";
 import PageContainer from "./PageContainer";
-import PlansList from "../components/plans/PlansList";
+import PlansSplitView from "../components/plans/PlansSplitView";
 
 export function PlansPage() {
 	const location = useLocation();
@@ -44,7 +44,7 @@ export function PlansPage() {
 					<p className="mt-1 text-sm font-medium text-brand-muted">Keep track of what's going down.</p>
 				</div>
 
-				<PlansList />
+				<PlansSplitView />
 			</div>
 		);
 	}

@@ -1,12 +1,14 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
 	getMatchedSchedulesFromParsedJson,
 	getScheduleFromParsedJson,
 	type MatchedSchedule,
+	type MatchedScheduleData,
 	type Schedule,
 	type ScheduleRepeatType,
 } from "../utils/types";
 import { useAuth } from "./AuthContext";
+import { useFriends } from "./FriendsContext";
 
 /* ========================================================================= */
 //                        context
@@ -16,9 +18,9 @@ import { useAuth } from "./AuthContext";
 type ScheduleContextType = {
 	userSchedules: Schedule[];
 	getUserScheduleById: (id: string) => Schedule | undefined;
-	matchedSchedules: MatchedSchedule[];
+	matchedSchedules: MatchedScheduleData[];
 	fetchUserSchedules: () => Promise<Schedule[]>;
-	fetchMatchedSchedules: () => Promise<MatchedSchedule[]>;
+	fetchMatchedSchedules: () => Promise<MatchedScheduleData[]>;
 	deleteUserSchedule: (id: string) => Promise<Schedule[]>;
 	addUserSchedule: (userId: string, date: string, startTime: string, endTime: string, repeatType: ScheduleRepeatType) => Promise<Schedule[]>;
 };
@@ -39,20 +41,40 @@ type ScheduleProviderProps = {
 export const ScheduleProvider = ({ children }: ScheduleProviderProps) => {
 	//needs to be nested inside auth provider
 	const { user, authFetch } = useAuth();
+	//needs to be nested inside friends provider
+	const { friends } = useFriends();
 
 	const [userSchedules, setUserSchedules] = useState<Schedule[]>([]);
-	const [matchedSchedules, setMatchedSchedules] = useState<MatchedSchedule[]>([]);
+	const [matchedSchedulesData, setMatchedSchedulesData] = useState<MatchedScheduleData[]>([]);
 
 	//fetch schedules when user updates
 	useEffect(() => {
 		if (!user) {
 			setUserSchedules([]);
-			setMatchedSchedules([]);
+			setMatchedSchedulesData([]);
 			return;
 		}
 		fetchUserSchedules();
 		fetchMatchedSchedules();
 	}, [user]);
+
+	//only build out the schedules if the data has been changed
+	const matchedSchedules: MatchedSchedule[] = useMemo(() => {
+		//add other fields
+		const result = [];
+		for (const s of matchedSchedulesData) {
+			const foundFriend = friends.find((friend) => friend.userId === s.friendId);
+			if (foundFriend !== undefined) {
+				result.push({
+					...s,
+					friendName: foundFriend.name,
+					friendBio: foundFriend.bio,
+					friendAvatarUrl: foundFriend.avatarUrl,
+				});
+			}
+		}
+		return result;
+	}, [matchedSchedulesData, friends]);
 
 	//#region api calls
 
@@ -68,29 +90,23 @@ export const ScheduleProvider = ({ children }: ScheduleProviderProps) => {
 		if (scheduleData == null) throw new Error("Schedule data invalid");
 
 		setUserSchedules(scheduleData);
-
 		return scheduleData;
 	}
 
 	async function fetchMatchedSchedules() {
-		//add start and end query params
-		// const params = new URLSearchParams({
-		// 	start: weekStart.toDateString(),
-		// 	end: addWeeks(weekStart, weekDuration).toDateString(),
-		// });
-
 		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends/overlap`);
 		if (!response.ok) {
 			const data = await response.json();
 			throw new Error(data.error);
 		}
 
+		//try parse
 		const data = await response.json();
 		const scheduleData = getMatchedSchedulesFromParsedJson(data);
 		if (scheduleData == null) throw new Error("Schedule data invalid");
 
-		setMatchedSchedules(scheduleData);
-
+		//set the raw useEffect
+		setMatchedSchedulesData(scheduleData);
 		return scheduleData;
 	}
 
