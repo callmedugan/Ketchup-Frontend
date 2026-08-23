@@ -18,7 +18,7 @@ import { useFriends } from "./FriendsContext";
 type ScheduleContextType = {
 	userSchedules: Schedule[];
 	getUserScheduleById: (id: string) => Schedule | undefined;
-	matchedSchedules: MatchedScheduleData[];
+	matchedSchedules: MatchedSchedule[];
 	fetchUserSchedules: () => Promise<Schedule[]>;
 	fetchMatchedSchedules: () => Promise<MatchedScheduleData[]>;
 	deleteUserSchedule: (id: string) => Promise<Schedule[]>;
@@ -63,12 +63,11 @@ export const ScheduleProvider = ({ children }: ScheduleProviderProps) => {
 		//add other fields
 		const result = [];
 		for (const s of matchedSchedulesData) {
-			const foundFriend = friends.find((friend) => friend.userId === s.friendId);
+			const foundFriend = friends.find((friend) => s.userId === friend.userId);
 			if (foundFriend !== undefined) {
 				result.push({
 					...s,
 					friendName: foundFriend.name,
-					friendBio: foundFriend.bio,
 					friendAvatarUrl: foundFriend.avatarUrl,
 				});
 			}

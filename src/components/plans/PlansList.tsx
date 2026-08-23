@@ -2,7 +2,7 @@ import { format, isBefore } from "date-fns";
 import ScrollableContainer from "../common/ScrollableContainer";
 import { usePlans } from "../../contexts/PlansContext";
 import { useAuth } from "../../contexts/AuthContext";
-import type { Plan } from "../../utils/types";
+import type { PlanData } from "../../utils/types";
 import PlanInfoModal from "./PlanInfoModal";
 import { useState } from "react";
 
@@ -10,7 +10,7 @@ export default function PlansList() {
 	const { plans } = usePlans();
 	const { user } = useAuth();
 
-	const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+	const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null);
 	const [showActiveOnly, setShowActiveOnly] = useState(true);
 
 	const now = new Date();
@@ -141,7 +141,7 @@ export default function PlansList() {
 		</>
 	);
 
-	function getPlanStatus(plan: Plan, lastUpdatedByName: string) {
+	function getPlanStatus(plan: PlanData, lastUpdatedByName: string) {
 		switch (plan.status) {
 			case "confirmed":
 				return {

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { format, isBefore } from "date-fns";
-import type { Plan } from "../../utils/types";
+import type { PlanData } from "../../utils/types";
 import { usePlans } from "../../contexts/PlansContext";
 import { useAuth } from "../../contexts/AuthContext";
 
 type PlanInfoModalProps = {
-	plan: Plan;
+	plan: PlanData;
 	onClose: () => void;
 };
 

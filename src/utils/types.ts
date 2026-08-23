@@ -82,10 +82,7 @@ export function getFriendsFromParsedJson(data: unknown): Friend[] | undefined {
 
 //backend
 export const matchedScheduleDataSchema = scheduleSchema.extend({
-	friendId: z.string(),
-	//friendName: z.string(),
 	userScheduleIdMatched: z.string(),
-	//friendAvatarUrl: z.string(),
 });
 
 export type MatchedScheduleData = z.infer<typeof matchedScheduleDataSchema>;
@@ -154,15 +151,13 @@ export function getUserSearchResultsFromParsedJson(data: unknown): UserSearchRes
 //                        plans
 /* ========================================================================= */
 
-export const planSchema = z.object({
+export const planDataSchema = z.object({
 	id: z.string(),
 	creatorId: z.string(),
 	friendId: z.string(),
 	status: z.enum(["declined", "pending", "confirmed", "cancelled"]),
 	title: z.string(),
 	comments: z.string(),
-	friendName: z.string(), //joined from users table using friendId
-	friendAvatarUrl: z.string(), //joined from users table using friendId
 	meetTime: z.coerce.date(),
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
@@ -170,12 +165,19 @@ export const planSchema = z.object({
 	location: z.string(),
 });
 
-export type Plan = z.infer<typeof planSchema>;
-export type PlanStatus = Plan["status"];
+export type PlanData = z.infer<typeof planDataSchema>;
+export type PlanStatus = PlanData["status"];
 
-export function getPlansFromParsedJson(data: unknown): Plan[] | undefined {
-	return parseOneOrMany(planSchema, data);
+export function getPlansFromParsedJson(data: unknown): PlanData[] | undefined {
+	return parseOneOrMany(planDataSchema, data);
 }
+
+//frontend
+export const planSchema = planDataSchema.extend({
+	friendName: z.string(),
+	friendAvatarUrl: z.string(),
+});
+export type Plan = z.infer<typeof planSchema>;
 
 /* ========================================================================= */
 //                        avatars

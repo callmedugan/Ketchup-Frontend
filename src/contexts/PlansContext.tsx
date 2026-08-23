@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { useAuth } from "./AuthContext";
-import { getPlansFromParsedJson, isPresetAvatar, type Plan } from "../utils/types";
+import { getPlansFromParsedJson, type Plan, type PlanData } from "../utils/types";
+import { useFriends } from "./FriendsContext";
 
 /* ========================================================================= */
 //                        context
@@ -11,11 +12,11 @@ import { getPlansFromParsedJson, isPresetAvatar, type Plan } from "../utils/type
 
 type PlansContextType = {
 	plans: Plan[];
-	fetchPlans: () => Promise<Plan[]>;
-	getPlanById: (id: string) => Plan | undefined;
-	addPlan: (friendId: string, title: string, comments: string, meetTime: Date, location: string) => Promise<Plan[]>;
-	cancelPlan: (id: string) => Promise<Plan[]>;
-	updatePlanStatus: (id: string, response: "accepted" | "declined") => Promise<Plan[]>;
+	fetchPlans: () => Promise<PlanData[]>;
+	getPlanById: (id: string) => PlanData | undefined;
+	addPlan: (friendId: string, title: string, comments: string, meetTime: Date, location: string) => Promise<PlanData[]>;
+	cancelPlan: (id: string) => Promise<PlanData[]>;
+	updatePlanStatus: (id: string, response: "accepted" | "declined") => Promise<PlanData[]>;
 };
 
 const PlansContext = createContext<PlansContextType | null>(null);
@@ -33,24 +34,45 @@ type PlansProviderProps = {
 };
 
 export const PlansProvider = ({ children }: PlansProviderProps) => {
-	// needs to be nested inside AuthProvider
+	//needs to be nested inside auth provider
 	const { user, authFetch } = useAuth();
+	//needs to be nested inside friends provider
+	const { friends } = useFriends();
 
-	const [plans, setPlans] = useState<Plan[]>([]);
+	const [plansData, setPlansData] = useState<PlanData[]>([]);
 
 	// fetch plans when user updates
 	useEffect(() => {
 		if (!user) {
-			setPlans([]);
+			setPlansData([]);
 			return;
 		}
 
 		fetchPlans();
 	}, [user]);
 
+	//only build out if the data has been changed
+	const plans: Plan[] = useMemo(() => {
+		//add other fields
+		const result = [];
+		for (const p of plansData) {
+			//find using friend in either creator or friend field
+			const foundFriend =
+				p.creatorId === user!.id ? friends.find((friend) => p.friendId === friend.userId) : friends.find((friend) => p.creatorId === friend.userId);
+			if (foundFriend !== undefined) {
+				result.push({
+					...p,
+					friendName: foundFriend.name,
+					friendAvatarUrl: foundFriend.avatarUrl,
+				});
+			} else console.error("failed to find friend data for: " + p.title);
+		}
+		return result;
+	}, [plansData, friends]);
+
 	//#region api calls
 
-	async function fetchPlans(): Promise<Plan[]> {
+	async function fetchPlans(): Promise<PlanData[]> {
 		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/plans`);
 
 		if (!response.ok) {
@@ -62,17 +84,12 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 		const planData = getPlansFromParsedJson(data);
 		if (planData == null) throw new Error("Plan data invalid");
 
-		//make avatarUrls
-		for (const p of planData) {
-			if (isPresetAvatar(p.friendAvatarUrl)) p.friendAvatarUrl = `/avatars/${p.friendAvatarUrl}.webp`;
-		}
-
-		setPlans(planData);
+		setPlansData(planData);
 
 		return planData;
 	}
 
-	async function addPlan(friendId: string, title: string, comments: string, meetTime: Date, location: string): Promise<Plan[]> {
+	async function addPlan(friendId: string, title: string, comments: string, meetTime: Date, location: string): Promise<PlanData[]> {
 		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/plans`, {
 			method: "POST",
 			headers: {
@@ -95,7 +112,7 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 		return fetchPlans();
 	}
 
-	async function cancelPlan(id: string): Promise<Plan[]> {
+	async function cancelPlan(id: string): Promise<PlanData[]> {
 		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/plans/${id}`, {
 			method: "DELETE",
 		});
@@ -108,7 +125,7 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 		return fetchPlans();
 	}
 
-	async function updatePlanStatus(id: string, response: "accepted" | "declined"): Promise<Plan[]> {
+	async function updatePlanStatus(id: string, response: "accepted" | "declined"): Promise<PlanData[]> {
 		const fetchResponse = await authFetch(`${import.meta.env.VITE_API_URL}/api/plans/${id}/respond`, {
 			method: "PATCH",
 			body: JSON.stringify({
@@ -126,8 +143,8 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 
 	//#endregion
 
-	function getPlanById(id: string): Plan | undefined {
-		return plans.find((plan) => plan.id === id);
+	function getPlanById(id: string): PlanData | undefined {
+		return plansData.find((plan) => plan.id === id);
 	}
 
 	return (
