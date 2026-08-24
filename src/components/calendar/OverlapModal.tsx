@@ -102,7 +102,7 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 											});
 										}}
 										className={`shrink-0 rounded-lg px-3 py-2 text-sm font-bold transition ${
-											hasPassed ? "cursor-not-allowed bg-stone-200 text-brand-muted/70" : "bg-[#943b32] text-white hover:bg-[#7f2f29]"
+											hasPassed ? "cursor-not-allowed bg-stone-200 text-brand-muted/70" : "bg-brand-red text-white hover:bg-brand-red-dark"
 										}`}
 									>
 										{hasPassed ? "Expired" : "Make plans!"}
@@ -195,7 +195,7 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 						px-4 py-2.5
 						font-bold text-red-600
 						shadow-sm transition
-						hover:border-red-300 hover:bg-[#faf7f0] hover:text-red-700
+						hover:border-red-300 hover:bg-brand-surface hover:text-red-700
 						active:bg-[#f3e9df]
 					"
 				>
@@ -205,7 +205,7 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 				{/* Confirmation overlay */}
 				{confirmDelete && (
 					<div className="absolute inset-0 z-20 flex items-center justify-center bg-brand-text/20 px-5 backdrop-blur-[1px]">
-						<div className="w-full max-w-xs rounded-2xl border border-stone-200 bg-[#fffdf9] p-5 shadow-xl">
+						<div className="w-full max-w-xs rounded-2xl border border-stone-200 bg-brand-card p-5 shadow-xl">
 							{/* Confirmation text */}
 							<div className="text-center">
 								<p className="text-sm font-bold text-brand-text">Delete this schedule?</p>
@@ -221,7 +221,7 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 									disabled={loading}
 									className="
 						flex-1 rounded-xl
-						border border-stone-200 bg-[#faf7f0]
+						border border-stone-200 bg-brand-surface
 						px-3 py-2
 						text-sm font-bold text-brand-text
 						transition

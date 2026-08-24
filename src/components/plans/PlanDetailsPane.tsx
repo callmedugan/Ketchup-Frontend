@@ -49,7 +49,7 @@ export default function PlanDetailsPane({
 
 	function showHeader() {
 		return (
-			<div className="shrink-0 border-b border-[#7f2f29] bg-[#943b32] px-6 py-3">
+			<div className="shrink-0 border-b border-brand-red-dark bg-brand-red px-6 py-3">
 				<p className="text-sm font-bold uppercase tracking-[0.15em] text-[#f1c7bd]">Plan details</p>
 			</div>
 		);
@@ -76,8 +76,7 @@ export default function PlanDetailsPane({
 	function showWhen() {
 		return (
 			<div className="flex items-start gap-5">
-				<p className="w-16 shrink-0 pt-0.5 text-xs font-semibold uppercase tracking-wide text-brand-muted">When</p>
-
+				<p className="plan-label">When</p>
 				<p className="text-sm font-bold text-brand-text">{format(plan.meetTime, "EEEE, MMMM d 'at' h:mm a")}</p>
 			</div>
 		);
@@ -85,12 +84,9 @@ export default function PlanDetailsPane({
 
 	function showWith() {
 		return (
-			<div className="flex items-center gap-5">
-				<p className="w-16 shrink-0 text-xs font-semibold uppercase tracking-wide text-brand-muted">With</p>
-
-				<div className="flex items-center gap-2.5">
-					<p className="text-sm font-bold text-brand-text">{plan.friendName}</p>
-				</div>
+			<div className="flex items-start gap-5">
+				<p className="plan-label">With</p>
+				<p className="text-sm font-bold text-brand-text">{plan.friendName}</p>
 			</div>
 		);
 	}
@@ -100,8 +96,7 @@ export default function PlanDetailsPane({
 
 		return (
 			<div className="flex items-start gap-5">
-				<p className="w-16 shrink-0 pt-0.5 text-xs font-semibold uppercase tracking-wide text-brand-muted">Where</p>
-
+				<p className="plan-label">Where</p>
 				<p className="text-sm font-bold text-brand-text">{plan.location}</p>
 			</div>
 		);
@@ -110,11 +105,9 @@ export default function PlanDetailsPane({
 	function showWhat() {
 		return (
 			<div className="flex items-start gap-5">
-				<p className="w-16 shrink-0 pt-0.5 text-xs font-semibold uppercase tracking-wide text-brand-muted">What</p>
-
+				<p className="plan-label">What</p>
 				<div className="min-w-0">
 					<p className="text-sm font-bold text-brand-text">{plan.title}</p>
-
 					{plan.comments && <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-brand-muted">{plan.comments}</p>}
 				</div>
 			</div>
@@ -123,8 +116,8 @@ export default function PlanDetailsPane({
 
 	function showStatus() {
 		return (
-			<div className="flex items-start gap-2">
-				<p className="w-16 shrink-0 pt-0.5 text-xs font-semibold uppercase tracking-wide text-brand-muted">status</p>
+			<div className="flex items-start gap-3">
+				<p className="plan-label mt-1.5">status</p>
 				<span className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold ${status.className}`}>{status.text}</span>
 			</div>
 		);
@@ -140,21 +133,11 @@ export default function PlanDetailsPane({
 		if (canRespond) {
 			return (
 				<div className="flex justify-end gap-3">
-					<button
-						type="button"
-						onClick={() => setConfirmAction(true)}
-						disabled={isSubmitting}
-						className="rounded-xl border border-stone-300 bg-white px-5 py-2.5 text-sm font-bold text-brand-text transition hover:bg-[#faf7f0] disabled:cursor-not-allowed disabled:opacity-60"
-					>
+					<button type="button" onClick={() => setConfirmAction(true)} disabled={isSubmitting} className="btn-secondary">
 						Decline
 					</button>
 
-					<button
-						type="button"
-						onClick={() => handleAccept(plan)}
-						disabled={isSubmitting}
-						className="rounded-xl bg-[#943b32] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#7f2f29] disabled:cursor-not-allowed disabled:opacity-60"
-					>
+					<button type="button" onClick={() => handleAccept(plan)} disabled={isSubmitting} className="btn-primary">
 						{isSubmitting ? "Accepting..." : "Accept plan"}
 					</button>
 				</div>
@@ -164,12 +147,7 @@ export default function PlanDetailsPane({
 		if (canCancel) {
 			return (
 				<div className="flex justify-end">
-					<button
-						type="button"
-						onClick={() => setConfirmAction(true)}
-						disabled={isSubmitting}
-						className="rounded-xl px-4 py-2.5 text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-					>
+					<button type="button" onClick={() => setConfirmAction(true)} disabled={isSubmitting} className="btn-danger">
 						Cancel plan
 					</button>
 				</div>
@@ -184,7 +162,7 @@ export default function PlanDetailsPane({
 
 		return (
 			<div className="absolute inset-0 z-20 flex items-center justify-center bg-brand-text/20 px-5 backdrop-blur-[1px]">
-				<div className="w-full max-w-xs rounded-2xl border border-stone-200 bg-[#fffdf9] p-5 shadow-xl">
+				<div className="w-full max-w-xs rounded-2xl border border-stone-200 bg-brand-card p-5 shadow-xl">
 					<div className="text-center">
 						<p className="text-sm font-bold text-brand-text">{canRespond ? "Decline this plan?" : "Cancel this plan?"}</p>
 
@@ -196,7 +174,7 @@ export default function PlanDetailsPane({
 							type="button"
 							onClick={() => setConfirmAction(false)}
 							disabled={isSubmitting}
-							className="flex-1 rounded-xl border border-stone-200 bg-[#faf7f0] px-3 py-2 text-sm font-bold text-brand-text transition hover:bg-[#f3e9df] disabled:opacity-60"
+							className="flex-1 rounded-xl border border-stone-200 bg-brand-surface px-3 py-2 text-sm font-bold text-brand-text transition hover:bg-[#f3e9df] disabled:opacity-60"
 						>
 							Go back
 						</button>
@@ -238,21 +216,18 @@ export default function PlanDetailsPane({
 			case "confirmed":
 				return {
 					text: "Confirmed",
-					title: isPast ? "This plan has expired" : "You're all set!",
 					className: "bg-emerald-100 text-emerald-700",
 				};
 
 			case "declined":
 				return {
 					text: `Declined by ${lastUpdatedByName}`,
-					title: "This invite was declined",
 					className: "bg-stone-200 text-brand-text",
 				};
 
 			case "cancelled":
 				return {
 					text: `Cancelled by ${lastUpdatedByName}`,
-					title: "This plan was cancelled",
 					className: "bg-stone-200 text-brand-text",
 				};
 
@@ -260,7 +235,6 @@ export default function PlanDetailsPane({
 				if (isPast) {
 					return {
 						text: "Expired",
-						title: "This invite has expired",
 						className: "bg-stone-200 text-brand-text",
 					};
 				}
@@ -268,14 +242,12 @@ export default function PlanDetailsPane({
 				if (isCreator) {
 					return {
 						text: "Invite sent",
-						title: "Waiting for a response",
 						className: "bg-amber-100 text-amber-700",
 					};
 				}
 
 				return {
 					text: "Awaiting response",
-					title: "You've been invited",
 					className: "bg-blue-100 text-blue-700",
 				};
 		}

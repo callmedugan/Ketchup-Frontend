@@ -53,17 +53,12 @@ export default function NewPlanModal({ overlap, friendName, onClose }: NewPlanMo
 				}
 			}}
 		>
-			<div className="w-full max-w-md overflow-hidden rounded-2xl border border-stone-200 bg-[#fffdf8] shadow-2xl">
+			<div className="w-full max-w-md overflow-hidden rounded-2xl border border-stone-200 bg-brand-page shadow-2xl">
 				{/* Header */}
-				<div className="flex items-center justify-between border-b border-[#7f2f29] bg-[#943b32] px-5 py-4">
-					<h2 className="text-xl font-bold text-[#fff3d6]">Make Plans</h2>
+				<div className="flex items-center justify-between border-b border-brand-red-dark bg-brand-red px-5 py-4">
+					<h2 className="text-2xl font-bold text-brand-cream">New Plan</h2>
 
-					<button
-						type="button"
-						onClick={onClose}
-						className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xl text-[#f7ddd4] transition hover:bg-white/10 hover:text-white"
-						aria-label="Close"
-					>
+					<button type="button" onClick={onClose} className="modal-close-btn" aria-label="Close">
 						×
 					</button>
 				</div>
@@ -71,23 +66,20 @@ export default function NewPlanModal({ overlap, friendName, onClose }: NewPlanMo
 				<form onSubmit={handleSubmit} className="space-y-5 p-5">
 					{/* Plan details */}
 					<section>
-						<div className="rounded-xl border border-stone-200 bg-white p-4">
-							<div className="space-y-3">
+						<div className="rounded-xl border border-stone-200 bg-brand-surface p-4">
+							<div className="space-y-5">
 								{/* When */}
 								<div>
 									<div className="flex items-baseline gap-4">
-										<p className="w-14 shrink-0 text-xs font-semibold uppercase tracking-wide text-stone-400">When</p>
-
-										<p className="text-sm font-bold text-stone-800">{format(meetTime, "EEE, MMM d ' @ ' h:mm a")}</p>
+										<p className="plan-label">When</p>
+										<p className="text-sm font-bold text-brand-text">{format(meetTime, "EEE, MMM d ' @ ' h:mm a")}</p>
 									</div>
 
 									{/* Time slider */}
 									<div className="ml-18 mt-2">
 										{showSlider()}
-
-										<div className="mt-1.5 flex justify-between text-xs text-stone-400">
+										<div className="mt-1.5 flex justify-between text-xs text-stone-muted">
 											<span>{format(overlap.startTime, "h:mm a")}</span>
-
 											<span>{format(overlap.endTime, "h:mm a")}</span>
 										</div>
 									</div>
@@ -95,14 +87,13 @@ export default function NewPlanModal({ overlap, friendName, onClose }: NewPlanMo
 
 								{/* With */}
 								<div className="flex items-baseline gap-4">
-									<p className="w-14 shrink-0 text-xs font-semibold uppercase tracking-wide text-stone-400">With</p>
-
-									<p className="text-sm font-bold text-stone-800">{friendName}</p>
+									<p className="plan-label">With</p>
+									<p className="text-sm font-bold text-brand-text">{friendName}</p>
 								</div>
 
 								{/* Where */}
-								<div className="flex items-start gap-4">
-									<label htmlFor="plan-location" className="w-14 shrink-0 pt-2.5 text-xs font-semibold uppercase tracking-wide text-stone-400">
+								<div className="flex items-start gap-3">
+									<label htmlFor="plan-location" className="plan-label">
 										Where
 									</label>
 
@@ -113,13 +104,13 @@ export default function NewPlanModal({ overlap, friendName, onClose }: NewPlanMo
 										value={location}
 										onChange={(event) => setLocation(event.target.value)}
 										placeholder="Optional location"
-										className="min-w-0 flex-1 rounded-lg border border-stone-300 bg-[#fffdf9] px-3 py-2 text-sm text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20"
+										className="plan-input-field"
 									/>
 								</div>
 
 								{/* What */}
-								<div className="flex items-start gap-4">
-									<label htmlFor="plan-title" className="w-14 shrink-0 pt-2.5 text-xs font-semibold uppercase tracking-wide text-stone-400">
+								<div className="flex items-start gap-3">
+									<label htmlFor="plan-title" className="plan-label">
 										What
 									</label>
 
@@ -132,17 +123,17 @@ export default function NewPlanModal({ overlap, friendName, onClose }: NewPlanMo
 											value={title}
 											onChange={(event) => setTitle(event.target.value)}
 											placeholder="Dinner, coffee, movie night..."
-											className="w-full rounded-lg border border-stone-300 bg-[#fffdf9] px-3 py-2 text-sm font-medium text-stone-800 outline-none transition placeholder:font-normal placeholder:text-stone-400 focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20"
+											className="plan-input-field"
 										/>
 
 										<textarea
 											id="plan-comments"
 											maxLength={500}
-											rows={2}
+											rows={3}
 											value={comments}
 											onChange={(event) => setComments(event.target.value)}
 											placeholder="Details..."
-											className="mt-2 w-full resize-none rounded-lg border border-stone-300 bg-[#fffdf9] px-3 py-2 text-sm text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20"
+											className="mt-2 plan-input-field"
 										/>
 									</div>
 								</div>
@@ -155,21 +146,12 @@ export default function NewPlanModal({ overlap, friendName, onClose }: NewPlanMo
 
 					{/* Actions */}
 					<div className="flex justify-end gap-2">
-						<button
-							type="button"
-							onClick={onClose}
-							disabled={isSubmitting}
-							className="rounded-xl px-4 py-2.5 text-sm font-bold text-stone-600 transition hover:bg-stone-100 disabled:opacity-60"
-						>
+						<button type="button" onClick={onClose} disabled={isSubmitting} className="btn-secondary min-w-1/4">
 							Cancel
 						</button>
 
-						<button
-							type="submit"
-							disabled={isSubmitting}
-							className="rounded-xl bg-[#943b32] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#7f2f29] disabled:cursor-not-allowed disabled:opacity-60"
-						>
-							{isSubmitting ? "Sending..." : "Send invite"}
+						<button type="submit" disabled={isSubmitting} className="btn-primary min-w-1/4">
+							{isSubmitting ? "Sending..." : "Send"}
 						</button>
 					</div>
 				</form>
@@ -200,7 +182,7 @@ export default function NewPlanModal({ overlap, friendName, onClose }: NewPlanMo
 					[&::-webkit-slider-thumb]:w-4.5
 					[&::-webkit-slider-thumb]:appearance-none
 					[&::-webkit-slider-thumb]:rounded-full
-					[&::-webkit-slider-thumb]:bg-[#943b32]
+					[&::-webkit-slider-thumb]:bg-brand-red
 
 					[&::-moz-range-track]:h-1.5
 					[&::-moz-range-track]:rounded-full
@@ -212,7 +194,7 @@ export default function NewPlanModal({ overlap, friendName, onClose }: NewPlanMo
 					[&::-moz-range-thumb]:w-4
 					[&::-moz-range-thumb]:rounded-full
 					[&::-moz-range-thumb]:border-0
-					[&::-moz-range-thumb]:bg-[#943b32]
+					[&::-moz-range-thumb]:bg-brand-red
 				"
 			/>
 		);

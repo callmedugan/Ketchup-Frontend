@@ -93,9 +93,9 @@ export default function NewScheduleModal({ onClose, initialDate = "" }: NewSched
 		>
 			<div className="w-full max-w-md overflow-hidden rounded-2xl border border-stone-200 bg-[#fffdf8] shadow-2xl">
 				{/* Header */}
-				<div className="flex items-center justify-between border-b border-[#7f2f29] bg-[#943b32] px-5 py-4">
+				<div className="flex items-center justify-between border-b border-brand-red-dark bg-brand-red px-5 py-4">
 					<div>
-						<h2 className="text-xl font-bold text-[#fff3d6]">Add availability</h2>
+						<h2 className="text-xl font-bold text-brand-cream">Add availability</h2>
 					</div>
 
 					<button
@@ -112,7 +112,7 @@ export default function NewScheduleModal({ onClose, initialDate = "" }: NewSched
 					{/* Step 1 */}
 					<section>
 						<div className="mb-3 flex items-center gap-3">
-							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#943b32] text-sm font-bold text-white">1</div>
+							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-red text-sm font-bold text-white">1</div>
 
 							<div>
 								<p className="text-sm font-bold text-stone-800">Choose a date</p>
@@ -134,7 +134,7 @@ export default function NewScheduleModal({ onClose, initialDate = "" }: NewSched
 					{/* Step 2 */}
 					<section>
 						<div className="mb-3 flex items-center gap-3">
-							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#943b32] text-sm font-bold text-white">2</div>
+							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-red text-sm font-bold text-white">2</div>
 
 							<div>
 								<p className="text-sm font-bold text-stone-800">Choose a time</p>
@@ -153,7 +153,7 @@ export default function NewScheduleModal({ onClose, initialDate = "" }: NewSched
 								type="button"
 								onClick={() => setAllDay((prev) => !prev)}
 								aria-pressed={allDay}
-								className={`relative h-6 w-11 shrink-0 rounded-full transition ${allDay ? "bg-[#943b32]" : "bg-stone-300"}`}
+								className={`relative h-6 w-11 shrink-0 rounded-full transition ${allDay ? "bg-brand-red" : "bg-stone-300"}`}
 							>
 								<span className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${allDay ? "left-6" : "left-1"}`} />
 							</button>
@@ -217,7 +217,7 @@ export default function NewScheduleModal({ onClose, initialDate = "" }: NewSched
 					{/* Step 3 */}
 					<section>
 						<div className="mb-3 flex items-center gap-3">
-							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#943b32] text-sm font-bold text-white">3</div>
+							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-red text-sm font-bold text-white">3</div>
 
 							<div>
 								<p className="text-sm font-bold text-stone-800">Select frequency</p>
@@ -248,7 +248,7 @@ export default function NewScheduleModal({ onClose, initialDate = "" }: NewSched
 						<button
 							type="submit"
 							disabled={isSubmitting}
-							className="rounded-xl bg-[#943b32] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#7f2f29] disabled:cursor-not-allowed disabled:opacity-60"
+							className="rounded-xl bg-brand-red px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-brand-red-dark disabled:cursor-not-allowed disabled:opacity-60"
 						>
 							{isSubmitting ? "Adding..." : "Add availability"}
 						</button>
@@ -269,7 +269,7 @@ function PresetButton({ label, onClick }: PresetButtonProps) {
 		<button
 			type="button"
 			onClick={onClick}
-			className="rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm font-bold text-stone-700 transition hover:border-[#b65a4f] hover:bg-[#fff4ef] hover:text-[#943b32]"
+			className="rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm font-bold text-stone-700 transition hover:border-[#b65a4f] hover:bg-[#fff4ef] hover:text-brand-red"
 		>
 			{label}
 		</button>

@@ -68,12 +68,12 @@ export default function Calendar() {
 				{/* Header */}
 				{/* ========================================================= */}
 
-				<div className="flex min-h-20 items-center justify-between border-b border-[#7f2f29] bg-[#943b32] px-3 sm:px-5">
+				<div className="flex min-h-20 items-center justify-between border-b border-brand-red-dark bg-brand-red px-3 sm:px-5">
 					{/* Previous week */}
 					<button
 						type="button"
 						onClick={() => setWeekOffset((prev) => prev - 1)}
-						className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-[#fff3d6] transition hover:bg-white/20 hover:text-white active:scale-95"
+						className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-brand-cream transition hover:bg-white/20 hover:text-white active:scale-95"
 						aria-label="Previous week"
 					>
 						<span className="mb-1 text-xl leading-none">‹</span>
@@ -81,14 +81,16 @@ export default function Calendar() {
 
 					{/* Center */}
 					<div className="flex min-w-0 items-center justify-center gap-3">
-						<h2 className="whitespace-nowrap text-2xl font-bold tracking-tight text-[#fff3d6] sm:text-3xl">{format(weekDays[0], "MMMM yyyy")}</h2>
+						<h2 className="whitespace-nowrap text-2xl font-bold tracking-tight text-brand-cream sm:text-3xl">{format(weekDays[0], "MMMM yyyy")}</h2>
 
 						<button
 							type="button"
 							onClick={() => setWeekOffset(0)}
 							disabled={weekOffset === 0}
 							className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition ${
-								weekOffset === 0 ? "cursor-default bg-white/10 text-white/40" : "bg-[#fff3d6] text-[#943b32] shadow-sm hover:bg-white active:scale-95"
+								weekOffset === 0
+									? "cursor-default bg-white/10 text-white/40"
+									: "bg-brand-cream text-brand-red shadow-sm hover:bg-white active:scale-95"
 							}`}
 						>
 							This week
@@ -99,7 +101,7 @@ export default function Calendar() {
 					<button
 						type="button"
 						onClick={() => setWeekOffset((prev) => prev + 1)}
-						className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-[#fff3d6] transition hover:bg-white/20 hover:text-white active:scale-95"
+						className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-brand-cream transition hover:bg-white/20 hover:text-white active:scale-95"
 						aria-label="Next week"
 					>
 						<span className="mb-1 text-xl leading-none">›</span>
@@ -124,7 +126,7 @@ export default function Calendar() {
 						return (
 							<div
 								key={day.toISOString()}
-								className={`min-h-72 min-w-0 border-r border-stone-200/80 last:border-r-0 ${index % 2 === 0 ? "bg-[#fffdf9]" : "bg-[#faf7f0]"}`}
+								className={`min-h-72 min-w-0 border-r border-stone-200/80 last:border-r-0 ${index % 2 === 0 ? "bg-brand-card" : "bg-brand-surface"}`}
 							>
 								{/* Day header */}
 								<div className="border-b border-stone-200/80 bg-[#f3e4d7] px-2 py-3 text-center">

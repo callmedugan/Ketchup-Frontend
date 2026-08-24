@@ -10,7 +10,7 @@ export default function Logo({ showTagLine, variant = "light", size = "default" 
 
 	return (
 		<div className={isNav ? "text-center" : "mb-10 text-center"}>
-			<h1 className={`font-black tracking-tight ${isNav ? "text-3xl" : "text-5xl"} ${isDark ? "text-[#fff3d6]" : "text-[#943b32]"}`}>Ketchup</h1>
+			<h1 className={`font-black tracking-tight ${isNav ? "text-3xl" : "text-5xl"} ${isDark ? "text-brand-cream" : "text-brand-red"}`}>Ketchup</h1>
 
 			{/* Brand accent */}
 			<div className={`mx-auto rounded-full ${isNav ? "mt-1 h-1 w-8" : "mt-2 h-1.5 w-10 -rotate-2"} ${isDark ? "bg-[#d86a5d]" : "bg-[#d9a441]"}`} />

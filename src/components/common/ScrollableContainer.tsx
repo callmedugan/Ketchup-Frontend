@@ -31,7 +31,7 @@ export default function ScrollableContainer({ children, className = "" }: Scroll
 		<div className="relative min-h-0 flex-1 overflow-hidden">
 			{/* Top fade */}
 			{canScrollUp && (
-				<div className="pointer-events-none absolute left-0 right-0 top-0 z-10 flex h-10 items-start justify-center bg-linear-to-b from-[#faf7f0] to-transparent pt-1">
+				<div className="pointer-events-none absolute left-0 right-0 top-0 z-10 flex h-10 items-start justify-center bg-linear-to-b from-brand-surface to-transparent pt-1">
 					<svg
 						viewBox="0 0 32 8"
 						className="h-2 w-8 text-stone-400"
@@ -62,7 +62,7 @@ export default function ScrollableContainer({ children, className = "" }: Scroll
 
 			{/* Bottom fade */}
 			{canScrollDown && (
-				<div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 flex h-10 items-end justify-center bg-linear-to-t from-[#faf7f0] to-transparent pb-1">
+				<div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 flex h-10 items-end justify-center bg-linear-to-t from-brand-surface to-transparent pb-1">
 					<svg
 						viewBox="0 0 32 8"
 						className="h-2 w-8 text-stone-400"

@@ -66,7 +66,7 @@ export default function PlansSplitView() {
 
 	return (
 		<div className="grid min-h-0 flex-1 grid-cols-[minmax(300px,0.85fr)_minmax(0,1.35fr)] gap-4">
-			<PlansListPane plans={plans} activePlan={activePlan} onSelectPlan={handleSelectPlan} onClearError={() => setError(null)} />
+			<PlansListPane activePlan={activePlan} onSelectPlan={handleSelectPlan} onClearError={() => setError(null)} />
 
 			<PlanDetailsPane
 				activePlan={activePlan}

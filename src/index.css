@@ -1,8 +1,67 @@
 @import "tailwindcss";
 
 @theme {
-	--color-brand-text: #66584f;
-	--color-brand-muted: #9a887a;
+	/* ================================================================ */
+	/* Brand */
+	/* ================================================================ */
+
+	--color-brand-red: #943b32;
+	--color-brand-red-dark: #7f2f29;
+	--color-brand-red-light: #c77b70;
+
+	--color-brand-text: #463b33;
+	--color-brand-muted: #786d65;
+
+	/* ================================================================ */
+	/* Surfaces */
+	/* ================================================================ */
+
+	--color-brand-page: #f7f1e5;
+	--color-brand-surface: #faf7f0;
+	--color-brand-card: #fffdf9;
+
+	/* ================================================================ */
+	/* Accent / decorative */
+	/* ================================================================ */
+
+	--color-brand-cream: #fff3d6;
+	--color-brand-pink: #f3d6d1;
+	--color-brand-pink-light: #fff7f2;
+
+	/* ================================================================ */
+	/* Corkboard */
+	/* ================================================================ */
+
+	--color-brand-cork: #b8794f;
+}
+
+@utility card {
+	@apply rounded-xl border border-stone-200 bg-brand-card shadow-sm;
+}
+
+@utility btn-primary {
+	@apply rounded-xl bg-brand-red px-4 py-2.5 text-sm font-bold text-white shadow-sm transition;
+	@apply hover:bg-brand-red-dark shrink-0 active:scale-95;
+	@apply disabled:cursor-not-allowed disabled:opacity-60;
+}
+@utility btn-secondary {
+	@apply rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-bold text-brand-text transition;
+	@apply hover:bg-brand-surface;
+	@apply disabled:cursor-not-allowed disabled:opacity-60;
+}
+@utility btn-danger {
+	@apply rounded-xl border border-red-700 px-4 py-2.5 text-sm font-bold text-red-600 transition;
+	@apply hover:bg-red-50;
+	@apply disabled:cursor-not-allowed disabled:opacity-60;
+}
+@utility plan-label {
+	@apply w-14 shrink-0 text-xs font-semibold uppercase tracking-wide text-brand-muted;
+}
+@utility plan-input-field {
+	@apply w-full rounded-lg border border-stone-300 bg-brand-surface px-3 py-2 text-sm font-medium text-brand-text outline-none transition placeholder:font-normal placeholder:text-stone-400 focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20;
+}
+@utility modal-close-btn{
+	@apply flex h-8 w-8 shrink-0 pb-1 items-center justify-center rounded-full text-xl text-brand-cream transition hover:bg-white/10 hover:text-white;
 }
 
 @keyframes float-notification {

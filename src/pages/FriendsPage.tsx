@@ -45,9 +45,9 @@ export function FriendsPage() {
 						onClick={() => {
 							setShowAddFriendModal(true);
 						}}
-						className="shrink-0 rounded-xl bg-[#943b32] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#7f2f29] active:scale-95"
+						className="btn-primary"
 					>
-						+ Add friend
+						Find friend
 					</button>
 				</div>
 

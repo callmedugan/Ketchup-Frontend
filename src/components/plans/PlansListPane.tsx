@@ -4,39 +4,39 @@ import type { Plan } from "../../utils/types";
 import { useAuth } from "../../contexts/AuthContext";
 import ScrollableContainer from "../common/ScrollableContainer";
 import Avatar from "../common/Avatar";
+import { usePlans } from "../../contexts/PlansContext";
 
 type PlansListPaneProps = {
-	plans: Plan[];
 	activePlan: Plan | null;
 	onSelectPlan: (plan: Plan) => void;
 	onClearError: () => void;
 };
 
-export default function PlansListPane({ plans, activePlan, onSelectPlan, onClearError }: PlansListPaneProps) {
+export default function PlansListPane({ activePlan, onSelectPlan, onClearError }: PlansListPaneProps) {
 	const { user } = useAuth();
+	const { plans } = usePlans();
 
 	const [showActiveOnly, setShowActiveOnly] = useState(true);
 
 	const now = new Date();
 
-	const visiblePlans = plans.filter((plan) => {
-		const isCreator = plan.creatorId === user?.id;
-		const isPast = isBefore(plan.meetTime, now);
-
-		if (plan.status === "declined" && !isCreator) {
-			return false;
-		}
-
-		if (showActiveOnly) {
-			return !isPast && (plan.status === "pending" || plan.status === "confirmed");
-		}
-
-		return true;
-	});
+	//filter depending on toggle and sort from first upcoming to later
+	const visiblePlans = plans
+		.filter((plan) => {
+			const isPast = isBefore(plan.meetTime, now);
+			//hide requests you decline - removed
+			//const isCreator = plan.creatorId === user?.id;
+			//if (plan.status === "declined" && !isCreator) return false;
+			//if toggle is on, only show active not past plans
+			if (showActiveOnly) return !isPast && (plan.status === "pending" || plan.status === "confirmed");
+			//default everything else to true if toggle is off
+			return true;
+		})
+		.sort((a, b) => a.meetTime.getTime() - b.meetTime.getTime());
 
 	function showFilterTabs() {
 		return (
-			<div className="grid shrink-0 grid-cols-2 border-b border-stone-200 bg-[#fffdf9]">
+			<div className="grid shrink-0 grid-cols-2 border-b border-stone-200 bg-brand-card">
 				<button
 					type="button"
 					onClick={() => {
@@ -46,7 +46,7 @@ export default function PlansListPane({ plans, activePlan, onSelectPlan, onClear
 					className={`
 						border-r border-stone-200 px-4 py-3
 						text-sm font-bold transition
-						${showActiveOnly ? "bg-[#943b32] text-[#fff3d6]" : "text-brand-muted hover:bg-[#f3e9df] hover:text-brand-text"}
+						${showActiveOnly ? "bg-brand-red text-brand-cream" : "text-brand-muted hover:bg-[#f3e9df] hover:text-brand-text"}
 					`}
 				>
 					Active
@@ -59,9 +59,8 @@ export default function PlansListPane({ plans, activePlan, onSelectPlan, onClear
 						onClearError();
 					}}
 					className={`
-						px-4 py-3
-						text-sm font-bold transition
-						${!showActiveOnly ? "bg-[#943b32] text-[#fff3d6]" : "text-brand-muted hover:bg-[#f3e9df] hover:text-brand-text"}
+						px-4 py-3 text-sm font-bold transition
+						${!showActiveOnly ? "bg-brand-red text-brand-cream" : "text-brand-muted hover:bg-[#f3e9df] hover:text-brand-text"}
 					`}
 				>
 					All
@@ -75,7 +74,6 @@ export default function PlansListPane({ plans, activePlan, onSelectPlan, onClear
 			<ScrollableContainer className="p-3 sm:p-4">
 				<div className="flex flex-col gap-2.5">
 					{visiblePlans.map((plan) => showPlan(plan))}
-
 					{visiblePlans.length === 0 && showEmptyState()}
 				</div>
 			</ScrollableContainer>
@@ -84,13 +82,9 @@ export default function PlansListPane({ plans, activePlan, onSelectPlan, onClear
 
 	function showPlan(plan: Plan) {
 		const isPast = isBefore(plan.meetTime, now);
-
 		const isInactive = isPast || plan.status === "declined" || plan.status === "cancelled";
-
 		const isSelected = activePlan?.id === plan.id;
-
 		const lastUpdatedByName = plan.lastUpdatedBy === user?.id ? "You" : plan.friendName;
-
 		const status = getPlanStatus(plan, lastUpdatedByName);
 
 		return (
@@ -103,10 +97,10 @@ export default function PlansListPane({ plans, activePlan, onSelectPlan, onClear
 					rounded-xl border p-3.5 text-left transition
 					${
 						isSelected
-							? "border-[#c77b70] bg-[#fff7f2] shadow-sm ring-1 ring-[#943b32]/10"
+							? "border-brand-red-light bg-brand-pink-light shadow-sm ring-1 ring-brand-red/10"
 							: isInactive
 								? "border-stone-200 bg-stone-100/80 opacity-60 hover:border-stone-300 hover:opacity-75"
-								: "border-stone-200 bg-[#fffdf9] hover:border-stone-300 hover:shadow-sm"
+								: "border-stone-200 bg-brand-card hover:border-stone-300 hover:shadow-sm"
 					}
 				`}
 			>
@@ -125,14 +119,13 @@ export default function PlansListPane({ plans, activePlan, onSelectPlan, onClear
 				<div className="min-w-0">
 					<div className="flex items-center gap-2">
 						<h3 className={`truncate font-bold ${isInactive ? "text-brand-muted" : "text-brand-text"}`}>{plan.title}</h3>
-
 						<span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${status.className}`}>{status.text}</span>
 					</div>
 
 					<p className={`mt-0.5 text-xs font-medium ${isInactive ? "text-brand-muted/70" : "text-brand-muted"}`}>
 						{format(plan.meetTime, "EEE, MMM d ' @ ' h:mm a")}
 
-						{isPast && " · Past"}
+						{isPast && " · (Past)"}
 					</p>
 				</div>
 			</div>
@@ -150,7 +143,7 @@ export default function PlansListPane({ plans, activePlan, onSelectPlan, onClear
 				strokeLinejoin="round"
 				className={`
 					ml-3 h-5 w-5 shrink-0 transition
-					${isSelected ? "translate-x-0.5 text-[#943b32]" : "text-brand-muted/40 group-hover:translate-x-0.5 group-hover:text-brand-muted"}
+					${isSelected ? "translate-x-0.5 text-brand-red" : "text-brand-muted/40 group-hover:translate-x-0.5 group-hover:text-brand-muted"}
 				`}
 			>
 				<path d="M7 4l6 6-6 6" />
@@ -160,7 +153,7 @@ export default function PlansListPane({ plans, activePlan, onSelectPlan, onClear
 
 	function showEmptyState() {
 		return (
-			<div className="rounded-xl border border-dashed border-stone-300 bg-[#fffdf9] px-5 py-10 text-center">
+			<div className="rounded-xl border border-dashed border-stone-300 bg-brand-card px-5 py-10 text-center">
 				<h3 className="font-bold text-brand-text">{showActiveOnly ? "No active plans" : "No plans yet"}</h3>
 
 				<p className="mx-auto mt-1 max-w-sm text-sm font-medium text-brand-muted">
@@ -206,7 +199,7 @@ export default function PlansListPane({ plans, activePlan, onSelectPlan, onClear
 	}
 
 	return (
-		<div className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-[#faf7f0] shadow-sm">
+		<div className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-brand-surface shadow-sm">
 			{showFilterTabs()}
 
 			{showPlans()}

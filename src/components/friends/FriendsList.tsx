@@ -8,7 +8,7 @@ export default function FriendsList() {
 	return (
 		<div className="flex h-full min-h-0 w-full flex-col">
 			<div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
-				<ScrollableContainer className="bg-[#faf7f0] p-3 pb-10 sm:p-5 sm:pb-10">
+				<ScrollableContainer className="bg-brand-surface p-3 pb-10 sm:p-5 sm:pb-10">
 					<div className="flex flex-col gap-3">
 						{friends.map((friend) => (
 							<button
@@ -18,12 +18,11 @@ export default function FriendsList() {
 									// open friend details
 								}}
 								className="
-								group flex w-full items-center justify-between
-								rounded-xl border border-stone-200 bg-[#fffdf9]
-								p-4 text-left shadow-sm transition
-								hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-md
-								active:translate-y-0 active:shadow-sm
-							"
+									group flex w-full items-center justify-between card
+									p-4 text-left transition
+									hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-md
+									active:translate-y-0 active:shadow-sm
+								"
 							>
 								{/* Friend info */}
 								<div className="flex min-w-0 items-center gap-3">
@@ -70,7 +69,7 @@ export default function FriendsList() {
 
 						{/* Empty state */}
 						{friends.length === 0 && (
-							<div className="rounded-xl border border-dashed border-stone-300 bg-[#fffdf9] px-6 py-12 text-center">
+							<div className="rounded-xl border border-dashed border-stone-300 bg-brand-card px-6 py-12 text-center">
 								<h3 className="mt-4 font-bold text-brand-text">No friends yet</h3>
 
 								<p className="mx-auto mt-1 max-w-sm text-sm font-medium text-brand-muted">Add some friends to get started!</p>

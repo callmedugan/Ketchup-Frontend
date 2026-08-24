@@ -22,7 +22,7 @@ export default function NavBar() {
 
 	const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 		`rounded-lg px-3 py-2 text-sm font-semibold transition ${
-			isActive ? "bg-[#f3d6d1] text-[#943b32] shadow-sm" : "text-brand-text hover:bg-[#f7eadb] hover:text-[#943b32]"
+			isActive ? "bg-[#f3d6d1] text-brand-red shadow-sm" : "text-brand-text hover:bg-[#f7eadb] hover:text-brand-red"
 		}`;
 
 	return (
@@ -71,7 +71,7 @@ export default function NavBar() {
 							<button
 								type="button"
 								onClick={logout}
-								className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-[#7a6a5f] transition hover:bg-[#f7eadb] hover:text-[#943b32]"
+								className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-[#7a6a5f] transition hover:bg-[#f7eadb] hover:text-brand-red"
 							>
 								Log out
 							</button>
@@ -101,7 +101,7 @@ export default function NavBar() {
 					<button
 						type="button"
 						onClick={() => setIsOpen(!isOpen)}
-						className="rounded-lg p-2 text-brand-text transition hover:bg-[#f7eadb] hover:text-[#943b32]"
+						className="rounded-lg p-2 text-brand-text transition hover:bg-[#f7eadb] hover:text-brand-red"
 						aria-label="Toggle navigation"
 						aria-expanded={isOpen}
 					>
@@ -142,7 +142,7 @@ export default function NavBar() {
 							<button
 								type="button"
 								onClick={logout}
-								className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-[#7a6a5f] transition hover:bg-[#f7eadb] hover:text-[#943b32]"
+								className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-[#7a6a5f] transition hover:bg-[#f7eadb] hover:text-brand-red"
 							>
 								Log out
 							</button>

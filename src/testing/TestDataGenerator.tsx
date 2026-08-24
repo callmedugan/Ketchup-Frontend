@@ -42,7 +42,7 @@ export default function TestDataGenerator() {
 
 		for (let i = 0; i < USER_COUNT; i++) {
 			const password = "111111";
-			const testName = testUsers[i];
+			const testName = testUsers[i].charAt(0).toUpperCase() + testUsers[i].slice(1);
 
 			setMessage(`Creating ${testName} (${i + 1}/${USER_COUNT})...`);
 

@@ -79,10 +79,10 @@ export function RegisterPage() {
 	}
 
 	return (
-		<main className="flex min-h-screen items-center justify-center bg-[#b8794f] bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12)_0_1px,transparent_1px),radial-gradient(circle_at_80%_70%,rgba(80,40,20,0.12)_0_1px,transparent_1px)] bg-size[11px_11px,17px_17px] px-4 py-8">
+		<main className="flex min-h-screen items-center justify-center bg-brand-cork bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12)_0_1px,transparent_1px),radial-gradient(circle_at_80%_70%,rgba(80,40,20,0.12)_0_1px,transparent_1px)] bg-size[11px_11px,17px_17px] px-4 py-8">
 			<div className="w-full max-w-md">
 				{/* Paper card */}
-				<div className="rounded-3xl border border-stone-300/70 bg-[#f7f1e5] p-7 shadow-[0_12px_35px_rgba(60,30,15,0.22)] sm:p-9">
+				<div className="rounded-3xl border border-stone-300/70 bg-brand-page p-7 shadow-[0_12px_35px_rgba(60,30,15,0.22)] sm:p-9">
 					{/* Logo */}
 					<div className="mb-8">
 						<Logo showTagLine={true} />

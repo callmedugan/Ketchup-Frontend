@@ -84,9 +84,9 @@ export default function AddFriendModal({ onClose }: AddFriendModalProps) {
 			{/* Fixed-size modal */}
 			<div className="flex h-150 w-full max-w-md flex-col overflow-hidden rounded-2xl border border-stone-200 bg-[#fffdf8] shadow-2xl">
 				{/* Header */}
-				<div className="flex shrink-0 items-center justify-between border-b border-[#7f2f29] bg-[#943b32] px-5 py-4">
+				<div className="flex shrink-0 items-center justify-between border-b border-brand-red-dark bg-brand-red px-5 py-4">
 					<div>
-						<h2 className="text-xl font-bold text-[#fff3d6]">Add a friend</h2>
+						<h2 className="text-xl font-bold text-brand-cream">Add a friend</h2>
 					</div>
 
 					<button
@@ -104,7 +104,7 @@ export default function AddFriendModal({ onClose }: AddFriendModalProps) {
 					{/* Search */}
 					<form onSubmit={handleSearch} className="shrink-0">
 						<div className="mb-3 flex items-center gap-3">
-							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#943b32] text-sm font-bold text-white">1</div>
+							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-red text-sm font-bold text-white">1</div>
 
 							<p className="text-sm font-bold text-stone-800">Find a friend</p>
 						</div>
@@ -121,7 +121,7 @@ export default function AddFriendModal({ onClose }: AddFriendModalProps) {
 							<button
 								type="submit"
 								disabled={isSearching}
-								className="rounded-xl bg-[#943b32] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#7f2f29] disabled:cursor-not-allowed disabled:opacity-60"
+								className="rounded-xl bg-brand-red px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-brand-red-dark disabled:cursor-not-allowed disabled:opacity-60"
 							>
 								{isSearching ? "Searching..." : "Search"}
 							</button>
@@ -133,7 +133,7 @@ export default function AddFriendModal({ onClose }: AddFriendModalProps) {
 					{/* Results */}
 					<section className="flex min-h-0 flex-1 flex-col">
 						<div className="mb-3 flex shrink-0 items-center gap-3">
-							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#943b32] text-sm font-bold text-white">2</div>
+							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-red text-sm font-bold text-white">2</div>
 
 							<p className="text-sm font-bold text-stone-800">Search results</p>
 						</div>
@@ -158,7 +158,7 @@ export default function AddFriendModal({ onClose }: AddFriendModalProps) {
 												<div className="flex min-w-0 items-center gap-3">
 													{/* avatar */}
 													<Avatar name={user.name} rawUrl={user.avatarUrl} />
-													{/* <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f3d6d1] text-sm font-bold text-[#943b32]">
+													{/* <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f3d6d1] text-sm font-bold text-brand-red">
 														{user.name.charAt(0).toUpperCase()}
 													</div> */}
 
@@ -174,7 +174,7 @@ export default function AddFriendModal({ onClose }: AddFriendModalProps) {
 													disabled={friend !== undefined || isAdding}
 													onClick={() => handleAddFriend(user.id)}
 													className={`shrink-0 rounded-lg px-3 py-2 text-xs font-bold transition ${
-														friend !== undefined ? "bg-stone-100 text-stone-500" : "bg-[#943b32] text-white hover:bg-[#7f2f29]"
+														friend !== undefined ? "bg-stone-100 text-stone-500" : "bg-brand-red text-white hover:bg-brand-red-dark"
 													} disabled:cursor-not-allowed`}
 												>
 													{isAdding

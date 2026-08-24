@@ -10,8 +10,8 @@ export default function Profile({ user }: ProfileProps) {
 		<div className="w-full">
 			<div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
 				{/* Profile */}
-				<div className="bg-[#faf7f0] p-3 sm:p-5">
-					<div className="rounded-xl border border-stone-200 bg-[#fffdf9] p-5 shadow-sm">
+				<div className="bg-brand-surface p-3 sm:p-5">
+					<div className="rounded-xl border border-stone-200 bg-brand-card p-5 shadow-sm">
 						{/* User info */}
 						<div className="flex items-center gap-4">
 							{/* Avatar */}
@@ -47,10 +47,7 @@ export default function Profile({ user }: ProfileProps) {
 
 						{/* Actions */}
 						<div className="mt-5 flex justify-end">
-							<button
-								type="button"
-								className="rounded-lg bg-[#d94b3d] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#c94034] active:scale-95"
-							>
+							<button type="button" className="btn-primary">
 								Edit profile
 							</button>
 						</div>
