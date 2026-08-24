@@ -3,6 +3,7 @@ import { format, isBefore } from "date-fns";
 import type { Plan } from "../../utils/types";
 import { useAuth } from "../../contexts/AuthContext";
 import ScrollableContainer from "../common/ScrollableContainer";
+import Avatar from "../common/Avatar";
 
 type PlansListPaneProps = {
 	plans: Plan[];
@@ -119,14 +120,7 @@ export default function PlansListPane({ plans, activePlan, onSelectPlan, onClear
 	function showPlanInfo(plan: Plan, isInactive: boolean, isPast: boolean, status: ReturnType<typeof getPlanStatus>) {
 		return (
 			<div className="flex min-w-0 items-center gap-3">
-				<img
-					src={plan.friendAvatarUrl}
-					alt={`${plan.friendName}'s avatar`}
-					className={`
-						h-11 w-11 shrink-0 rounded-full object-cover
-						${isInactive ? "opacity-70" : ""}
-					`}
-				/>
+				<Avatar rawUrl={plan.friendAvatarUrl} name={plan.friendName} isDisabled={isInactive} />
 
 				<div className="min-w-0">
 					<div className="flex items-center gap-2">

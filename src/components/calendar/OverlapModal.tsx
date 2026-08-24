@@ -4,6 +4,8 @@ import { useState } from "react";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { useSchedule } from "../../contexts/SchedulesContext";
 import { useNavigate } from "react-router-dom";
+import Avatar from "../common/Avatar";
+import ScrollableContainer from "../common/ScrollableContainer";
 
 type OverlapModalProps = {
 	noteSchedule: Schedule;
@@ -46,83 +48,82 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4" onClick={onClose}>
 			<div
-				className={`relative w-full max-w-md rounded-2xl border p-6 shadow-xl transition ${
+				className={`relative flex h-[80vh] max-h-175 w-full max-w-md flex-col overflow-hidden rounded-2xl border p-6 shadow-xl transition ${
 					hasPassed ? "border-stone-300 bg-stone-100" : "border-stone-200 bg-amber-50"
 				}`}
 				onClick={(e) => e.stopPropagation()}
 			>
-				<div className="flex items-start justify-between gap-4">
-					<div>
-						<h2 className={`text-lg font-bold ${hasPassed ? "text-brand-muted" : "text-brand-text"}`}>Who else is free?</h2>
+				{/* Header */}
+				<div className="shrink-0">
+					<div className="flex items-start justify-between gap-4">
+						<div>
+							<h2 className={`text-lg font-bold ${hasPassed ? "text-brand-muted" : "text-brand-text"}`}>Who else is free?</h2>
 
-						<p className={`mt-1 text-sm font-medium ${hasPassed ? "text-brand-muted/70" : "text-brand-muted"}`}>
-							{format(noteStartTime, "EEEE, MMMM d")}
-						</p>
+							<p className={`mt-1 text-sm font-medium ${hasPassed ? "text-brand-muted/70" : "text-brand-muted"}`}>
+								{format(noteStartTime, "EEEE, MMMM d")}
+							</p>
 
-						<p className={`text-sm font-medium ${hasPassed ? "text-brand-muted/70" : "text-brand-muted"}`}>
-							{format(noteStartTime, "p")} - {format(noteEndTime, "p")}
-						</p>
+							<p className={`text-sm font-medium ${hasPassed ? "text-brand-muted/70" : "text-brand-muted"}`}>
+								{format(noteStartTime, "p")} - {format(noteEndTime, "p")}
+							</p>
+						</div>
+
+						<button
+							type="button"
+							onClick={onClose}
+							className="rounded-lg px-2 py-1 text-brand-muted transition hover:bg-stone-200 hover:text-brand-text"
+						>
+							✕
+						</button>
 					</div>
-
-					<button
-						type="button"
-						onClick={onClose}
-						className="rounded-lg px-2 py-1 text-brand-muted transition hover:bg-stone-200 hover:text-brand-text"
-					>
-						✕
-					</button>
 				</div>
 
-				<div className="mt-5 space-y-2">
-					{overlaps.length > 0 ? (
-						overlaps.map((overlap) => (
-							<div
-								key={overlap.id}
-								className={`flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-3 py-2.5 shadow-sm transition ${
-									hasPassed ? "opacity-60" : ""
-								}`}
-							>
-								{/* Avatar */}
-								<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f3d6d1] text-sm font-bold text-[#a63c32]">
-									{overlap.friendName.charAt(0).toUpperCase()}
-								</div>
-								<img
-									src={overlap.friendAvatarUrl}
-									alt={`${overlap.friendName}'s avatar`}
-									className={"h-11 w-11 shrink-0 rounded-full object-cover"}
-								/>
-
-								{/* Friend info */}
-								{showFriendInfo(overlap)}
-
-								{/* Button */}
-								<button
-									type="button"
-									disabled={hasPassed}
-									onClick={() => {
-										navigate("/plans", {
-											state: { overlap },
-										});
-									}}
-									className={`shrink-0 rounded-lg px-3 py-2 text-sm font-bold transition ${
-										hasPassed ? "cursor-not-allowed bg-stone-200 text-brand-muted/70" : "bg-[#943b32] text-white hover:bg-[#7f2f29]"
+				{/* Scrollable overlaps */}
+				<ScrollableContainer className="mt-5">
+					<div className="space-y-2">
+						{overlaps.length > 0 ? (
+							overlaps.map((overlap) => (
+								<div
+									key={overlap.id}
+									className={`flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-3 py-2.5 shadow-sm transition ${
+										hasPassed ? "opacity-60" : ""
 									}`}
 								>
-									{hasPassed ? "Expired" : "Make plans!"}
-								</button>
-							</div>
-						))
-					) : (
-						<p className={`text-sm font-medium ${hasPassed ? "text-brand-muted/70" : "text-brand-muted"}`}>
-							None of your friends are free during this time.
-						</p>
-					)}
+									<Avatar name={overlap.friendName} rawUrl={overlap.friendAvatarUrl} />
+
+									{showFriendInfo(overlap)}
+
+									<button
+										type="button"
+										disabled={hasPassed}
+										onClick={() => {
+											navigate("/plans", {
+												state: { overlap },
+											});
+										}}
+										className={`shrink-0 rounded-lg px-3 py-2 text-sm font-bold transition ${
+											hasPassed ? "cursor-not-allowed bg-stone-200 text-brand-muted/70" : "bg-[#943b32] text-white hover:bg-[#7f2f29]"
+										}`}
+									>
+										{hasPassed ? "Expired" : "Make plans!"}
+									</button>
+								</div>
+							))
+						) : (
+							<p className={`text-sm font-medium ${hasPassed ? "text-brand-muted/70" : "text-brand-muted"}`}>
+								None of your friends are free during this time.
+							</p>
+						)}
+					</div>
+				</ScrollableContainer>
+
+				{/* Bottom */}
+				<div className="shrink-0">
+					{showLoading()}
+					{showError()}
+
+					<div className="mt-3 flex gap-2">{showDeleteButton()}</div>
 				</div>
-
-				{showLoading()}
-				{showError()}
-
-				<div className="mt-3 flex gap-2">{showDeleteButton()}</div>
 			</div>
 		</div>
 	);

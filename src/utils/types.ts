@@ -137,6 +137,9 @@ export function getUserFromParsedJson(data: unknown): User | undefined {
 export const userSearchResultSchema = z.object({
 	id: z.string(),
 	name: z.string(),
+	avatarUrl: z.string(),
+	bio: z.string(),
+	timezone: z.string(),
 });
 
 export type UserSearchResult = z.infer<typeof userSearchResultSchema>;

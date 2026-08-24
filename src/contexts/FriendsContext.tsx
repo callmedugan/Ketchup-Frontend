@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 import { useAuth } from "./AuthContext";
-import { getFriendsFromParsedJson, isPresetAvatar, type Friend } from "../utils/types";
+import { getFriendsFromParsedJson, type Friend } from "../utils/types";
 
 /* ========================================================================= */
 //                        context
@@ -57,11 +57,6 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 
 		const friendData = getFriendsFromParsedJson(data);
 		if (friendData === undefined) throw new Error("Friend data invalid");
-
-		//make avatarUrls
-		for (const f of friendData) {
-			if (isPresetAvatar(f.avatarUrl)) f.avatarUrl = `/avatars/${f.avatarUrl}.webp`;
-		}
 
 		setFriends(friendData);
 

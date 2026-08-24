@@ -51,7 +51,7 @@ export default function ScrollableContainer({ children, className = "" }: Scroll
 				ref={scrollRef}
 				onScroll={handleScroll}
 				className={`
-					h-full overflow-y-auto
+					h-full overflow-y-auto pb-5
 					scrollbar-none
 					[&::-webkit-scrollbar]:hidden
 					${className}

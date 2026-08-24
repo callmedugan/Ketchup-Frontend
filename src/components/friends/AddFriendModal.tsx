@@ -2,6 +2,7 @@ import { useState, type SubmitEvent } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { getUserSearchResultsFromParsedJson, type UserSearchResult } from "../../utils/types";
 import { useFriends } from "../../contexts/FriendsContext";
+import Avatar from "../common/Avatar";
 
 type AddFriendModalProps = {
 	onClose: () => void;
@@ -43,10 +44,7 @@ export default function AddFriendModal({ onClose }: AddFriendModalProps) {
 			})
 			.then((data) => {
 				const searchData = getUserSearchResultsFromParsedJson(data);
-
-				if (searchData == null) {
-					throw new Error("Could not find any users");
-				}
+				if (searchData == null) throw new Error("Could not find any users");
 
 				setResults(searchData);
 
@@ -158,9 +156,11 @@ export default function AddFriendModal({ onClose }: AddFriendModalProps) {
 											<div key={user.id} className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-white px-4 py-3">
 												{/* User */}
 												<div className="flex min-w-0 items-center gap-3">
-													<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f3d6d1] text-sm font-bold text-[#943b32]">
+													{/* avatar */}
+													<Avatar name={user.name} rawUrl={user.avatarUrl} />
+													{/* <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f3d6d1] text-sm font-bold text-[#943b32]">
 														{user.name.charAt(0).toUpperCase()}
-													</div>
+													</div> */}
 
 													<div className="min-w-0">
 														<p className="truncate text-sm font-bold text-stone-800">{user.name}</p>

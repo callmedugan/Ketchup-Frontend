@@ -1,13 +1,14 @@
 import { useFriends } from "../../contexts/FriendsContext";
+import Avatar from "../common/Avatar";
+import ScrollableContainer from "../common/ScrollableContainer";
 
 export default function FriendsList() {
 	const { friends } = useFriends();
 
 	return (
-		<div className="w-full">
-			<div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
-				{/* Friends */}
-				<div className="bg-[#faf7f0] p-3 sm:p-5">
+		<div className="flex h-full min-h-0 w-full flex-col">
+			<div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+				<ScrollableContainer className="bg-[#faf7f0] p-3 pb-10 sm:p-5 sm:pb-10">
 					<div className="flex flex-col gap-3">
 						{friends.map((friend) => (
 							<button
@@ -17,19 +18,16 @@ export default function FriendsList() {
 									// open friend details
 								}}
 								className="
-									group flex w-full items-center justify-between
-									rounded-xl border border-stone-200 bg-[#fffdf9]
-									p-4 text-left shadow-sm transition
-									hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-md
-									active:translate-y-0 active:shadow-sm
-								"
+								group flex w-full items-center justify-between
+								rounded-xl border border-stone-200 bg-[#fffdf9]
+								p-4 text-left shadow-sm transition
+								hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-md
+								active:translate-y-0 active:shadow-sm
+							"
 							>
 								{/* Friend info */}
 								<div className="flex min-w-0 items-center gap-3">
-									{/* Avatar */}
-									<div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f3d6d1] text-[#943b32]  text-sm font-bold ">
-										{friend.name.charAt(0).toUpperCase()}
-									</div>
+									<Avatar name={friend.name} rawUrl={friend.avatarUrl} />
 
 									<div className="min-w-0">
 										<div className="truncate text-lg font-bold text-brand-text">{friend.name}</div>
@@ -59,11 +57,11 @@ export default function FriendsList() {
 									strokeLinecap="round"
 									strokeLinejoin="round"
 									className="
-										ml-4 h-5 w-5 shrink-0
-										text-brand-muted/50 transition
-										group-hover:translate-x-0.5
-										group-hover:text-brand-muted
-									"
+									ml-4 h-5 w-5 shrink-0
+									text-brand-muted/50 transition
+									group-hover:translate-x-0.5
+									group-hover:text-brand-muted
+								"
 								>
 									<path d="M7 4l6 6-6 6" />
 								</svg>
@@ -79,7 +77,7 @@ export default function FriendsList() {
 							</div>
 						)}
 					</div>
-				</div>
+				</ScrollableContainer>
 			</div>
 		</div>
 	);

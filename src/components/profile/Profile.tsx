@@ -1,4 +1,5 @@
 import type { User } from "../../utils/types";
+import Avatar from "../common/Avatar";
 
 type ProfileProps = {
 	user: User;
@@ -14,9 +15,7 @@ export default function Profile({ user }: ProfileProps) {
 						{/* User info */}
 						<div className="flex items-center gap-4">
 							{/* Avatar */}
-							<div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#f3d6d1] text-xl font-bold text-[#a63c32]">
-								{user.name.charAt(0).toUpperCase()}
-							</div>
+							<Avatar name={user.name} rawUrl={user.avatarUrl} variant="large" />
 
 							<div className="min-w-0">
 								<h3 className="truncate text-xl font-bold text-brand-text">{user.name}</h3>

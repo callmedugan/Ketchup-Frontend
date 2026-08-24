@@ -4,6 +4,7 @@ import { InputField } from "../components/InputField";
 import Logo from "../components/Logo";
 import { useEffect, useRef, useState, type SubmitEvent } from "react";
 import { LoadingIndicator } from "../components/LoadingIndicator";
+import { presetAvatarStrings } from "../utils/types";
 
 export function RegisterPage() {
 	// for routing
@@ -42,7 +43,10 @@ export function RegisterPage() {
 		setIsLoading(true);
 
 		//used to save to user and convert all times to local
-		//const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+		const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+		//avatar
+		const avatarUrl = presetAvatarStrings[Math.floor(Math.random() * presetAvatarStrings.length)];
 
 		try {
 			const response = await fetch("http://localhost:8080/api/users", {
@@ -54,6 +58,8 @@ export function RegisterPage() {
 					name: `${firstNameRef.current?.value} ${lastNameRef.current?.value}`,
 					email: emailRef.current?.value,
 					password: passwordRef.current?.value,
+					timezone,
+					avatarUrl,
 				}),
 			});
 

@@ -29,9 +29,9 @@ export function FriendsPage() {
 
 	function getContent() {
 		return (
-			<div className="px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-9">
+			<div className="flex min-h-0 flex-1 flex-col px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-9">
 				{/* Page heading */}
-				<div className="mb-7  flex items-end justify-between gap-4">
+				<div className="mb-7 flex shrink-0 items-end justify-between gap-4">
 					<div>
 						<p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-muted">Your friends</p>
 
@@ -40,7 +40,6 @@ export function FriendsPage() {
 						<p className="mt-1 text-sm font-medium text-brand-muted">See who you're able to hang out with.</p>
 					</div>
 
-					{/* Add availability */}
 					<button
 						type="button"
 						onClick={() => {
@@ -51,8 +50,11 @@ export function FriendsPage() {
 						+ Add friend
 					</button>
 				</div>
+
 				{/* Friends */}
-				<FriendsList />
+				<div className="min-h-0 flex-1">
+					<FriendsList />
+				</div>
 			</div>
 		);
 	}
