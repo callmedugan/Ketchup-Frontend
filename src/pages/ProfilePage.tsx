@@ -10,20 +10,16 @@ export function ProfilePage() {
 
 	const { user } = useAuth();
 
-	/* ========================================================================= */
-	// page
-	/* ========================================================================= */
-
-	return <PageContainer>{getContent()}</PageContainer>;
+	return (
+		<PageContainer title="Your profile" description="Tell your friends a little bit about yourself.">
+			{getContent()}
+		</PageContainer>
+	);
 
 	function getContent() {
-		/* --------------------------------------------------------------------- */
-		// Error
-		/* --------------------------------------------------------------------- */
-
 		if (error) {
 			return (
-				<div className="flex min-h-96 items-center justify-center px-6">
+				<div className="flex min-h-96 flex-1 items-center justify-center">
 					<div className="text-center">
 						<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 font-bold text-red-600">!</div>
 
@@ -37,36 +33,16 @@ export function ProfilePage() {
 			);
 		}
 
-		/* --------------------------------------------------------------------- */
-		// Loading
-		/* --------------------------------------------------------------------- */
-
 		if (loading) {
 			return (
-				<div className="flex min-h-96 items-center justify-center">
+				<div className="flex min-h-96 flex-1 items-center justify-center">
 					<LoadingIndicator variant="Loading" />
 				</div>
 			);
 		}
 
-		/* --------------------------------------------------------------------- */
-		// Default
-		/* --------------------------------------------------------------------- */
+		if (!user) return null;
 
-		return (
-			<div className="px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-9">
-				{/* Page heading */}
-				<div className="mb-7 shrink-0">
-					<p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-muted">Your profile</p>
-
-					{user && <h1 className="mt-1 text-3xl font-bold tracking-tight text-brand-text">Hello, {user.name.split(" ")[0]}!</h1>}
-
-					<p className="mt-1 text-sm font-medium text-brand-muted">Tell your friends a little bit about yourself.</p>
-				</div>
-
-				{/* Profile */}
-				<Profile user={user!} />
-			</div>
-		);
+		return <Profile user={user} />;
 	}
 }

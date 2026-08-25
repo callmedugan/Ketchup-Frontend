@@ -5,9 +5,10 @@ import { useAuth } from "../contexts/AuthContext";
 import { format } from "date-fns";
 import { usePlans } from "../contexts/PlansContext";
 import { useFriends } from "../contexts/FriendsContext";
+import Avatar from "./common/Avatar";
 
 export default function NavBar() {
-	const { logout } = useAuth();
+	const { user, logout } = useAuth();
 	const { plansNotificationCount } = usePlans();
 	const { friendsNotificationCount } = useFriends();
 
@@ -72,6 +73,7 @@ export default function NavBar() {
 
 					<div className="mt-auto">
 						{/* Account actions */}
+						{showUserInfo()}
 						<div className="border-t border-brand-muted/35 pt-2">
 							<button
 								type="button"
@@ -95,6 +97,18 @@ export default function NavBar() {
 			</nav>
 		</>
 	);
+
+	function showUserInfo() {
+		if (!user) return null;
+		return (
+			<div className="mt-auto">
+				<div className="mb-2 flex min-w-0 items-center gap-3 rounded-xl px-2 py-2">
+					<Avatar name={user.name} rawUrl={user.avatarUrl} />
+					<p className="min-w-0 truncate text-sm font-bold text-brand-text">{user.name}</p>
+				</div>
+			</div>
+		);
+	}
 
 	function showNotificationCount(count: number) {
 		if (count === 0) return null;

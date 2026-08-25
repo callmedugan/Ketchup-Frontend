@@ -4,7 +4,7 @@ import { useAuth } from "./AuthContext";
 import { getFriendsFromParsedJson, type Friend } from "../utils/types";
 
 /* ========================================================================= */
-//                        context
+// context
 /* ========================================================================= */
 
 //#region context
@@ -12,10 +12,24 @@ import { getFriendsFromParsedJson, type Friend } from "../utils/types";
 type FriendsContextType = {
 	friends: Friend[];
 	friendsNotificationCount: number;
+
 	fetchFriends: () => Promise<Friend[]>;
 	getFriendById: (id: string) => Friend | undefined;
+
 	addFriend: (friendId: string) => Promise<Friend[]>;
 	deleteFriend: (friendId: string) => Promise<Friend[]>;
+
+	acceptFriend: (friendId: string) => Promise<Friend[]>;
+	declineFriend: (friendId: string) => Promise<Friend[]>;
+	cancelFriendRequest: (friendId: string) => Promise<Friend[]>;
+	removeFriend: (friendId: string) => Promise<Friend[]>;
+	blockFriend: (friendId: string) => Promise<Friend[]>;
+	unblockFriend: (friendId: string) => Promise<Friend[]>;
+
+	getStatusDisplay: (friend: Friend) => {
+		text: string;
+		className: string;
+	};
 };
 
 const FriendsContext = createContext<FriendsContextType | null>(null);
@@ -23,7 +37,7 @@ const FriendsContext = createContext<FriendsContextType | null>(null);
 //#endregion
 
 /* ========================================================================= */
-//                        provider
+// provider
 /* ========================================================================= */
 
 //#region provider
@@ -33,12 +47,10 @@ type FriendsProviderProps = {
 };
 
 export const FriendsProvider = ({ children }: FriendsProviderProps) => {
-	// needs to be nested inside AuthProvider
 	const { user, authFetch } = useAuth();
 
 	const [friends, setFriends] = useState<Friend[]>([]);
 
-	// fetch friends when user updates
 	useEffect(() => {
 		if (!user) {
 			setFriends([]);
@@ -58,10 +70,16 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends`);
 
 		const data = await response.json();
-		if (!response.ok) throw new Error(data.error);
+
+		if (!response.ok) {
+			throw new Error(data.error);
+		}
 
 		const friendData = getFriendsFromParsedJson(data);
-		if (friendData === undefined) throw new Error("Friend data invalid");
+
+		if (friendData === undefined) {
+			throw new Error("Friend data invalid");
+		}
 
 		setFriends(friendData);
 
@@ -71,9 +89,6 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 	async function addFriend(friendId: string): Promise<Friend[]> {
 		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends`, {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
 			body: JSON.stringify({
 				friendId,
 			}),
@@ -90,9 +105,6 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 	async function deleteFriend(friendId: string): Promise<Friend[]> {
 		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends`, {
 			method: "DELETE",
-			headers: {
-				"Content-Type": "application/json",
-			},
 			body: JSON.stringify({
 				friendId,
 			}),
@@ -106,10 +118,107 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 		return fetchFriends();
 	}
 
+	async function respondToFriendRequest(friendId: string, responseValue: "accepted" | "declined"): Promise<Friend[]> {
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends/${friendId}/respond`, {
+			method: "PATCH",
+			body: JSON.stringify({
+				response: responseValue,
+			}),
+		});
+
+		if (!response.ok) {
+			const data = await response.json();
+			throw new Error(data.error);
+		}
+
+		return fetchFriends();
+	}
+
+	async function acceptFriend(friendId: string): Promise<Friend[]> {
+		return respondToFriendRequest(friendId, "accepted");
+	}
+
+	async function declineFriend(friendId: string): Promise<Friend[]> {
+		return respondToFriendRequest(friendId, "declined");
+	}
+
+	async function cancelFriendRequest(friendId: string): Promise<Friend[]> {
+		return deleteFriend(friendId);
+	}
+
+	async function removeFriend(friendId: string): Promise<Friend[]> {
+		return deleteFriend(friendId);
+	}
+
+	async function blockFriend(friendId: string): Promise<Friend[]> {
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends/${friendId}/block`, {
+			method: "PATCH",
+		});
+
+		if (!response.ok) {
+			const data = await response.json();
+			throw new Error(data.error);
+		}
+
+		return fetchFriends();
+	}
+
+	async function unblockFriend(friendId: string): Promise<Friend[]> {
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends/${friendId}/unblock`, {
+			method: "PATCH",
+		});
+
+		if (!response.ok) {
+			const data = await response.json();
+			throw new Error(data.error);
+		}
+
+		return fetchFriends();
+	}
+
 	//#endregion
+
+	/* ========================================================================= */
+	// helpers
+	/* ========================================================================= */
 
 	function getFriendById(id: string): Friend | undefined {
 		return friends.find((friend) => friend.id === id);
+	}
+
+	function getStatusDisplay(friend: Friend) {
+		switch (friend.status) {
+			case "accepted":
+				return {
+					text: "Friends",
+					className: "bg-emerald-100 text-emerald-700",
+				};
+
+			case "requested":
+				if (friend.requestDirection === "received") {
+					return {
+						text: "New request",
+						className: "bg-blue-100 text-blue-700",
+					};
+				}
+
+				return {
+					text: "Request sent",
+					className: "bg-amber-100 text-amber-700",
+				};
+
+			case "declined":
+				return {
+					text: "Declined",
+					className: "bg-stone-200 text-brand-text",
+				};
+
+			case "blocked":
+				return {
+					text: "Blocked",
+					className: "bg-red-100 text-red-700",
+				};
+		}
 	}
 
 	return (
@@ -117,10 +226,21 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 			value={{
 				friends,
 				friendsNotificationCount,
+
 				fetchFriends,
 				getFriendById,
+
 				addFriend,
 				deleteFriend,
+
+				acceptFriend,
+				declineFriend,
+				cancelFriendRequest,
+				removeFriend,
+				blockFriend,
+				unblockFriend,
+
+				getStatusDisplay,
 			}}
 		>
 			{children}
@@ -131,7 +251,7 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 //#endregion
 
 /* ========================================================================= */
-//                        hook
+// hook
 /* ========================================================================= */
 
 //#region hook

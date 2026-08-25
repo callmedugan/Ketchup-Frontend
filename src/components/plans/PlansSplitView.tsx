@@ -14,13 +14,13 @@ export default function PlansSplitView() {
 
 	const activePlan = selectedPlan ? (plans.find((plan) => plan.id === selectedPlan.id) ?? selectedPlan) : null;
 
+	//#region handlers
 	function handleSelectPlan(plan: Plan) {
 		setSelectedPlan(plan);
 		setError(null);
 		setConfirmAction(false);
 	}
 
-	//#region handlers
 	async function handleAccept(plan: Plan) {
 		setError(null);
 		setIsSubmitting(true);

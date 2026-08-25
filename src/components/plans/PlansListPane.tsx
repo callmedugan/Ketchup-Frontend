@@ -88,22 +88,7 @@ export default function PlansListPane({ activePlan, onSelectPlan, onClearError }
 		const status = getPlanStatus(plan, lastUpdatedByName);
 
 		return (
-			<button
-				key={plan.id}
-				type="button"
-				onClick={() => onSelectPlan(plan)}
-				className={`
-					group flex w-full items-center justify-between
-					rounded-xl border p-3.5 text-left transition
-					${
-						isSelected
-							? "border-brand-red-light bg-brand-pink-light shadow-sm ring-1 ring-brand-red/10"
-							: isInactive
-								? "border-stone-200 bg-stone-100/80 opacity-60 hover:border-stone-300 hover:opacity-75"
-								: "border-stone-200 bg-brand-card hover:border-stone-300 hover:shadow-sm"
-					}
-				`}
-			>
+			<button key={plan.id} type="button" onClick={() => onSelectPlan(plan)} className={`group list-item ${isSelected ? "list-item-selected" : ""}`}>
 				{showPlanInfo(plan, isInactive, isPast, status)}
 
 				{showArrow(isSelected)}

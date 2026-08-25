@@ -6,32 +6,203 @@ import { useSchedule } from "../../contexts/SchedulesContext";
 import { LoadingIndicator } from "../LoadingIndicator";
 
 export default function Calendar() {
-	//standard
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-
-	const { fetchUserSchedules } = useSchedule();
-	const { userSchedules } = useSchedule();
-
-	//changed with buttons
 	const [weekOffset, setWeekOffset] = useState(0);
 
-	//this is an array of schedule objects built for this week
-	const weekSchedule = useMemo(buildWeekSchedule, [weekOffset, userSchedules]);
+	const { fetchUserSchedules, userSchedules } = useSchedule();
 
-	//used to draw the calendar
 	const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), {
 		weekStartsOn: 0,
 	});
+
 	const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
-	/* --------------------------------------------------------------------- */
-	// Error
-	/* --------------------------------------------------------------------- */
+	const weekSchedule = useMemo(buildWeekSchedule, [weekOffset, userSchedules]);
 
-	if (error) {
+	if (error) return showError();
+	if (loading) return showLoading();
+
+	return (
+		<div className="flex min-h-0 min-w-0 flex-1 flex-col">
+			<div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white">
+				{showCalendarHeader()}
+
+				<div className="grid min-h-0 min-w-0 flex-1 grid-cols-7">{weekDays.map(showDay)}</div>
+			</div>
+		</div>
+	);
+
+	/* ========================================================================= */
+	// Header
+	/* ========================================================================= */
+
+	function showCalendarHeader() {
 		return (
-			<div className="flex min-h-96 items-center justify-center px-6">
+			<div className="flex min-h-20 shrink-0 items-center justify-between border-b border-brand-red-dark bg-brand-red px-3 sm:px-5">
+				<button
+					type="button"
+					onClick={() => setWeekOffset((prev) => prev - 1)}
+					className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-brand-cream transition hover:bg-white/20 hover:text-white active:scale-95"
+					aria-label="Previous week"
+				>
+					<span className="mb-1 text-xl leading-none">‹</span>
+				</button>
+
+				<div className="flex min-w-0 items-center justify-center gap-3">
+					<h2 className="whitespace-nowrap text-2xl font-bold tracking-tight text-brand-cream sm:text-3xl">{format(weekDays[0], "MMMM yyyy")}</h2>
+
+					<button
+						type="button"
+						onClick={() => setWeekOffset(0)}
+						disabled={weekOffset === 0}
+						className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition ${
+							weekOffset === 0 ? "cursor-default bg-white/10 text-white/40" : "bg-brand-cream text-brand-red shadow-sm hover:bg-white active:scale-95"
+						}`}
+					>
+						This week
+					</button>
+				</div>
+
+				<button
+					type="button"
+					onClick={() => setWeekOffset((prev) => prev + 1)}
+					className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-brand-cream transition hover:bg-white/20 hover:text-white active:scale-95"
+					aria-label="Next week"
+				>
+					<span className="mb-1 text-xl leading-none">›</span>
+				</button>
+			</div>
+		);
+	}
+
+	/* ========================================================================= */
+	// Day
+	/* ========================================================================= */
+
+	function showDay(day: Date, index: number) {
+		const isToday = format(day, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
+
+		const daySchedules = weekSchedule.filter(
+			(schedule) =>
+				schedule.startTime.getFullYear() === day.getFullYear() &&
+				schedule.startTime.getMonth() === day.getMonth() &&
+				schedule.startTime.getDate() === day.getDate(),
+		);
+
+		return (
+			<div
+				key={day.toISOString()}
+				className={`min-h-0 min-w-0 border-r border-stone-200/80 last:border-r-0 ${index % 2 === 0 ? "bg-brand-card" : "bg-brand-surface"}`}
+			>
+				{showDayHeader(day, isToday)}
+				{showDaySchedules(day, daySchedules)}
+			</div>
+		);
+	}
+
+	function showDayHeader(day: Date, isToday: boolean) {
+		return (
+			<div className="border-b border-stone-200/80 bg-[#f3e4d7] px-2 py-3 text-center">
+				<div className="text-[10px] font-bold uppercase tracking-[0.15em] text-brand-muted sm:text-xs">{format(day, "EEE")}</div>
+
+				<div
+					className={`mx-auto mt-1 flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${
+						isToday ? "bg-[#d94b3d] text-white shadow-sm" : "text-brand-text"
+					}`}
+				>
+					{format(day, "d")}
+				</div>
+			</div>
+		);
+	}
+
+	function showDaySchedules(day: Date, schedules: Schedule[]) {
+		return (
+			<div className="flex flex-col gap-3 p-3">
+				{schedules.map((schedule) => (
+					<StickyNote key={schedule.id} scheduleData={schedule} noteDate={day} onDeleted={handleScheduleDeleted} />
+				))}
+			</div>
+		);
+	}
+
+	/* ========================================================================= */
+	// Schedule building
+	/* ========================================================================= */
+
+	function buildWeekSchedule() {
+		const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), {
+			weekStartsOn: 0,
+		});
+
+		const weekEnd = addWeeks(weekStart, 1);
+		const result: Schedule[] = [];
+
+		for (const schedule of userSchedules) {
+			if (schedule.repeatType === "once") {
+				addOnceSchedule(schedule, weekStart, weekEnd, result);
+			} else if (schedule.repeatType === "daily") {
+				addDailySchedule(schedule, weekStart, result);
+			} else if (schedule.repeatType === "weekly") {
+				addWeeklySchedule(schedule, weekStart, result);
+			}
+		}
+
+		return result.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+	}
+
+	function addOnceSchedule(schedule: Schedule, weekStart: Date, weekEnd: Date, result: Schedule[]) {
+		if (isAfter(schedule.startTime, weekStart) && isBefore(schedule.endTime, weekEnd)) {
+			result.push(schedule);
+		}
+	}
+
+	function addDailySchedule(schedule: Schedule, weekStart: Date, result: Schedule[]) {
+		for (let i = 0; i < 7; i++) {
+			const day = addDays(weekStart, i);
+
+			if (startOfDay(day) < startOfDay(schedule.startTime)) {
+				continue;
+			}
+
+			result.push(copyScheduleToDay(schedule, day));
+		}
+	}
+
+	function addWeeklySchedule(schedule: Schedule, weekStart: Date, result: Schedule[]) {
+		const day = addDays(weekStart, schedule.startTime.getDay());
+
+		if (startOfDay(day) < startOfDay(schedule.startTime)) {
+			return;
+		}
+
+		result.push(copyScheduleToDay(schedule, day));
+	}
+
+	function copyScheduleToDay(schedule: Schedule, day: Date): Schedule {
+		return {
+			...schedule,
+
+			startTime: set(day, {
+				hours: schedule.startTime.getHours(),
+				minutes: schedule.startTime.getMinutes(),
+			}),
+
+			endTime: set(day, {
+				hours: schedule.endTime.getHours(),
+				minutes: schedule.endTime.getMinutes(),
+			}),
+		};
+	}
+
+	/* ========================================================================= */
+	// States
+	/* ========================================================================= */
+
+	function showError() {
+		return (
+			<div className="flex min-h-96 flex-1 items-center justify-center px-6">
 				<div className="text-center">
 					<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 font-bold text-red-600">!</div>
 
@@ -45,188 +216,12 @@ export default function Calendar() {
 		);
 	}
 
-	/* --------------------------------------------------------------------- */
-	// Loading
-	/* --------------------------------------------------------------------- */
-
-	if (loading) {
+	function showLoading() {
 		return (
-			<div className="flex min-h-96 items-center justify-center">
+			<div className="flex min-h-96 flex-1 items-center justify-center">
 				<LoadingIndicator variant="Loading" />
 			</div>
 		);
-	}
-
-	/* ========================================================================= */
-	// default
-	/* ========================================================================= */
-
-	return (
-		<div className="w-full">
-			<div className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
-				{/* ========================================================= */}
-				{/* Header */}
-				{/* ========================================================= */}
-
-				<div className="flex min-h-20 items-center justify-between border-b border-brand-red-dark bg-brand-red px-3 sm:px-5">
-					{/* Previous week */}
-					<button
-						type="button"
-						onClick={() => setWeekOffset((prev) => prev - 1)}
-						className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-brand-cream transition hover:bg-white/20 hover:text-white active:scale-95"
-						aria-label="Previous week"
-					>
-						<span className="mb-1 text-xl leading-none">‹</span>
-					</button>
-
-					{/* Center */}
-					<div className="flex min-w-0 items-center justify-center gap-3">
-						<h2 className="whitespace-nowrap text-2xl font-bold tracking-tight text-brand-cream sm:text-3xl">{format(weekDays[0], "MMMM yyyy")}</h2>
-
-						<button
-							type="button"
-							onClick={() => setWeekOffset(0)}
-							disabled={weekOffset === 0}
-							className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition ${
-								weekOffset === 0
-									? "cursor-default bg-white/10 text-white/40"
-									: "bg-brand-cream text-brand-red shadow-sm hover:bg-white active:scale-95"
-							}`}
-						>
-							This week
-						</button>
-					</div>
-
-					{/* Next week */}
-					<button
-						type="button"
-						onClick={() => setWeekOffset((prev) => prev + 1)}
-						className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-brand-cream transition hover:bg-white/20 hover:text-white active:scale-95"
-						aria-label="Next week"
-					>
-						<span className="mb-1 text-xl leading-none">›</span>
-					</button>
-				</div>
-
-				{/* ========================================================= */}
-				{/* Days */}
-				{/* ========================================================= */}
-
-				<div className="grid grid-cols-7">
-					{weekDays.map((day, index) => {
-						const isToday = format(day, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
-
-						const daySchedules = weekSchedule.filter(
-							(schedule) =>
-								schedule.startTime.getFullYear() === day.getFullYear() &&
-								schedule.startTime.getMonth() === day.getMonth() &&
-								schedule.startTime.getDate() === day.getDate(),
-						);
-
-						return (
-							<div
-								key={day.toISOString()}
-								className={`min-h-72 min-w-0 border-r border-stone-200/80 last:border-r-0 ${index % 2 === 0 ? "bg-brand-card" : "bg-brand-surface"}`}
-							>
-								{/* Day header */}
-								<div className="border-b border-stone-200/80 bg-[#f3e4d7] px-2 py-3 text-center">
-									<div className="text-[10px] font-bold uppercase tracking-[0.15em] text-brand-muted sm:text-xs">{format(day, "EEE")}</div>
-
-									<div
-										className={`mx-auto mt-1 flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${
-											isToday ? "bg-[#d94b3d] text-white shadow-sm" : "text-brand-text"
-										}`}
-									>
-										{format(day, "d")}
-									</div>
-								</div>
-
-								{/* Availability */}
-								<div className="flex flex-col gap-3 p-3">
-									{daySchedules.map((schedule) => (
-										<StickyNote key={schedule.id} scheduleData={schedule} noteDate={day} onDeleted={handleScheduleDeleted} />
-									))}
-								</div>
-							</div>
-						);
-					})}
-				</div>
-			</div>
-		</div>
-	);
-
-	function buildWeekSchedule() {
-		//find the first day of the week
-		const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), {
-			weekStartsOn: 0,
-		});
-
-		const weekEnd = addWeeks(weekStart, 1);
-
-		//create an array to store
-		const result: Schedule[] = [];
-
-		for (const s of userSchedules) {
-			/* ------------------------------------------------------------- */
-			// Once
-			/* ------------------------------------------------------------- */
-
-			if (s.repeatType === "once") {
-				if (isAfter(s.startTime, weekStart) && isBefore(s.endTime, weekEnd)) {
-					result.push(s);
-				}
-			}
-
-			/* ------------------------------------------------------------- */
-			// Daily
-			/* ------------------------------------------------------------- */
-			else if (s.repeatType === "daily") {
-				for (let i = 0; i < 7; i++) {
-					const day = addDays(weekStart, i);
-
-					if (startOfDay(day) < startOfDay(s.startTime)) {
-						continue;
-					}
-
-					result.push({
-						...s,
-						startTime: set(day, {
-							hours: s.startTime.getHours(),
-							minutes: s.startTime.getMinutes(),
-						}),
-						endTime: set(day, {
-							hours: s.endTime.getHours(),
-							minutes: s.endTime.getMinutes(),
-						}),
-					});
-				}
-			}
-
-			/* ------------------------------------------------------------- */
-			// Weekly
-			/* ------------------------------------------------------------- */
-			else if (s.repeatType === "weekly") {
-				const day = addDays(weekStart, s.startTime.getDay());
-
-				if (startOfDay(day) < startOfDay(s.startTime)) {
-					continue;
-				}
-
-				result.push({
-					...s,
-					startTime: set(day, {
-						hours: s.startTime.getHours(),
-						minutes: s.startTime.getMinutes(),
-					}),
-					endTime: set(day, {
-						hours: s.endTime.getHours(),
-						minutes: s.endTime.getMinutes(),
-					}),
-				});
-			}
-		}
-
-		return result.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
 	}
 
 	function handleScheduleDeleted() {

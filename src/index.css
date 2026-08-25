@@ -64,6 +64,14 @@
 	@apply flex h-8 w-8 shrink-0 pb-1 items-center justify-center rounded-full text-xl text-brand-cream transition hover:bg-white/10 hover:text-white;
 }
 
+/* for split view pages */
+.list-item {
+	@apply flex w-full items-center justify-between rounded-xl border border-stone-200 bg-brand-card p-3.5 text-left transition hover:border-stone-300 hover:shadow-sm;
+}
+.list-item-selected {
+	@apply border-brand-red-light bg-brand-pink-light shadow-sm ring-1 ring-brand-red/10;
+}
+
 @keyframes float-notification {
 	0%,
 	100% {
