@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { useAuth } from "./AuthContext";
 import { getFriendsFromParsedJson, type Friend } from "../utils/types";
@@ -11,6 +11,7 @@ import { getFriendsFromParsedJson, type Friend } from "../utils/types";
 
 type FriendsContextType = {
 	friends: Friend[];
+	friendsNotificationCount: number;
 	fetchFriends: () => Promise<Friend[]>;
 	getFriendById: (id: string) => Friend | undefined;
 	addFriend: (friendId: string) => Promise<Friend[]>;
@@ -46,6 +47,10 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 
 		fetchFriends();
 	}, [user]);
+
+	const friendsNotificationCount = useMemo(() => {
+		return friends.filter((friend) => friend.requestDirection === "received" && friend.status === "requested").length;
+	}, [friends]);
 
 	//#region api calls
 
@@ -104,13 +109,14 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 	//#endregion
 
 	function getFriendById(id: string): Friend | undefined {
-		return friends.find((friend) => friend.userId === id);
+		return friends.find((friend) => friend.id === id);
 	}
 
 	return (
 		<FriendsContext.Provider
 			value={{
 				friends,
+				friendsNotificationCount,
 				fetchFriends,
 				getFriendById,
 				addFriend,

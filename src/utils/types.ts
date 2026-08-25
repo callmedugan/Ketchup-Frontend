@@ -54,15 +54,15 @@ export function getScheduleFromParsedJson(data: unknown): Schedule[] | undefined
 //#region friends
 
 export const friendSchema = z.object({
-	userId: z.string(),
+	id: z.string(),
 	name: z.string(),
-
+	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
-
-	status: z.enum(["requested", "accepted", "blocked"]),
+	status: z.enum(["requested", "accepted", "declined", "blocked"]),
 	bio: z.string(),
 	timezone: z.string(),
 	avatarUrl: z.string(),
+	requestDirection: z.enum(["sent", "received"]),
 });
 
 export type Friend = z.infer<typeof friendSchema>;

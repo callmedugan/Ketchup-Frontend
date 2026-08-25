@@ -12,6 +12,7 @@ import { useFriends } from "./FriendsContext";
 
 type PlansContextType = {
 	plans: Plan[];
+	plansNotificationCount: number;
 	fetchPlans: () => Promise<PlanData[]>;
 	getPlanById: (id: string) => PlanData | undefined;
 	addPlan: (friendId: string, title: string, comments: string, meetTime: Date, location: string) => Promise<PlanData[]>;
@@ -53,12 +54,13 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 
 	//only build out if the data has been changed
 	const plans: Plan[] = useMemo(() => {
+		if (friends.length === 0) return [];
 		//add other fields
 		const result = [];
 		for (const p of plansData) {
 			//find using friend in either creator or friend field
 			const foundFriend =
-				p.creatorId === user!.id ? friends.find((friend) => p.friendId === friend.userId) : friends.find((friend) => p.creatorId === friend.userId);
+				p.creatorId === user!.id ? friends.find((friend) => p.friendId === friend.id) : friends.find((friend) => p.creatorId === friend.id);
 			if (foundFriend !== undefined) {
 				result.push({
 					...p,
@@ -69,6 +71,10 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 		}
 		return result;
 	}, [plansData, friends]);
+
+	const plansNotificationCount = useMemo(() => {
+		return plans.filter((plan) => plan.friendId === user?.id && plan.status === "pending").length;
+	}, [plans]);
 
 	//#region api calls
 
@@ -156,6 +162,7 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 				addPlan,
 				cancelPlan,
 				updatePlanStatus,
+				plansNotificationCount,
 			}}
 		>
 			{children}

@@ -60,7 +60,7 @@ export default function TestDataGenerator() {
 					email: `${testName}@ketchup.test`,
 					password,
 					timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-					avatarUrl: testName,
+					avatarUrl: testUsers[i],
 				}),
 			});
 

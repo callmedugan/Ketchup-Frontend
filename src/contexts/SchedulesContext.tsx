@@ -63,7 +63,7 @@ export const ScheduleProvider = ({ children }: ScheduleProviderProps) => {
 		//add other fields
 		const result = [];
 		for (const s of matchedSchedulesData) {
-			const foundFriend = friends.find((friend) => s.userId === friend.userId);
+			const foundFriend = friends.find((friend) => s.userId === friend.id);
 			if (foundFriend !== undefined) {
 				result.push({
 					...s,

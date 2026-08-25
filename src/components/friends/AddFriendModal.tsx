@@ -148,7 +148,7 @@ export default function AddFriendModal({ onClose }: AddFriendModalProps) {
 								<div className="space-y-2">
 									{results.map((user) => {
 										//check if user is already friend
-										const friend = friends.find((friend) => friend.userId === user.id);
+										const friend = friends.find((friend) => friend.id === user.id);
 
 										const isAdding = addingFriendId === user.id;
 

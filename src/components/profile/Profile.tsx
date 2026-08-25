@@ -1,3 +1,4 @@
+import TestDataGenerator from "../../testing/TestDataGenerator";
 import type { User } from "../../utils/types";
 import Avatar from "../common/Avatar";
 
@@ -47,6 +48,7 @@ export default function Profile({ user }: ProfileProps) {
 
 						{/* Actions */}
 						<div className="mt-5 flex justify-end">
+							<TestDataGenerator />
 							<button type="button" className="btn-primary">
 								Edit profile
 							</button>

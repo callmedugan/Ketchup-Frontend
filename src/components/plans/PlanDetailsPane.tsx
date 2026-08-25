@@ -50,7 +50,7 @@ export default function PlanDetailsPane({
 	function showHeader() {
 		return (
 			<div className="shrink-0 border-b border-brand-red-dark bg-brand-red px-6 py-3">
-				<p className="text-sm font-bold uppercase tracking-[0.15em] text-[#f1c7bd]">Plan details</p>
+				<p className="text-sm font-bold uppercase tracking-wide text-brand-cream">Plan details</p>
 			</div>
 		);
 	}

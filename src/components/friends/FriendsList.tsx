@@ -12,7 +12,7 @@ export default function FriendsList() {
 					<div className="flex flex-col gap-3">
 						{friends.map((friend) => (
 							<button
-								key={friend.userId}
+								key={friend.id}
 								type="button"
 								onClick={() => {
 									// open friend details
