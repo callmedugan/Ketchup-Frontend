@@ -10,7 +10,6 @@ export default function PlansSplitView() {
 	const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [confirmAction, setConfirmAction] = useState(false);
 
 	const activePlan = selectedPlan ? (plans.find((plan) => plan.id === selectedPlan.id) ?? selectedPlan) : null;
 
@@ -18,7 +17,6 @@ export default function PlansSplitView() {
 	function handleSelectPlan(plan: Plan) {
 		setSelectedPlan(plan);
 		setError(null);
-		setConfirmAction(false);
 	}
 
 	async function handleAccept(plan: Plan) {
@@ -27,7 +25,6 @@ export default function PlansSplitView() {
 
 		try {
 			await updatePlanStatus(plan.id, "accepted");
-			setConfirmAction(false);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Something went wrong while accepting the plan.");
 		} finally {
@@ -41,7 +38,6 @@ export default function PlansSplitView() {
 
 		try {
 			await updatePlanStatus(plan.id, "declined");
-			setConfirmAction(false);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Something went wrong while declining the plan.");
 		} finally {
@@ -55,7 +51,6 @@ export default function PlansSplitView() {
 
 		try {
 			await cancelPlan(plan.id);
-			setConfirmAction(false);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Something went wrong while cancelling the plan.");
 		} finally {
@@ -72,8 +67,6 @@ export default function PlansSplitView() {
 				activePlan={activePlan}
 				error={error}
 				isSubmitting={isSubmitting}
-				confirmAction={confirmAction}
-				setConfirmAction={setConfirmAction}
 				handleAccept={handleAccept}
 				handleDecline={handleDecline}
 				handleCancel={handleCancel}
