@@ -14,6 +14,7 @@ type AuthContextType = {
 	manualLogout: () => Promise<void>;
 	isAuthenticated: boolean;
 	authFetch: (url: string, options?: RequestInit) => Promise<Response>;
+	updateProfile: (updates: { bio: string; timezone: string; avatarUrl: string }) => Promise<User>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -22,9 +23,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 //                        provider
 /* ========================================================================= */
 
-type AuthProviderProps = {
-	children: ReactNode;
-};
+type AuthProviderProps = { children: ReactNode };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
 	//declare first
@@ -98,7 +97,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		return response;
 	}
 
-	return <AuthContext.Provider value={{ token, login, logout, isAuthenticated, authFetch, manualLogout, user }}>{children}</AuthContext.Provider>;
+	async function updateProfile(updates: { bio: string; timezone: string; avatarUrl: string }): Promise<User> {
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/users`, {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(updates),
+		});
+
+		if (!response.ok) {
+			const data = await response.json();
+			throw new Error(data.error ?? "Unable to update profile");
+		}
+
+		const data = await response.json();
+		const updatedUser = getUserFromParsedJson(data);
+
+		if (!updatedUser) throw new Error("Invalid user response");
+
+		setUser(updatedUser);
+
+		return updatedUser;
+	}
+
+	return (
+		<AuthContext.Provider value={{ token, login, logout, isAuthenticated, authFetch, manualLogout, user, updateProfile }}>{children}</AuthContext.Provider>
+	);
 };
 
 /* ========================================================================= */

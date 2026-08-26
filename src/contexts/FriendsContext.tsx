@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { useAuth } from "./AuthContext";
-import { getFriendsFromParsedJson, type Friend } from "../utils/types";
+import { getFriendsFromParsedJson, getUserSearchResultsFromParsedJson, type Friend, type UserSearchResult } from "../utils/types";
 
 /* ========================================================================= */
 // context
@@ -14,6 +14,8 @@ type FriendsContextType = {
 	friendsNotificationCount: number;
 
 	fetchFriends: () => Promise<Friend[]>;
+	searchUsers: (search: string) => Promise<UserSearchResult[]>;
+
 	getFriendById: (id: string) => Friend | undefined;
 
 	addFriend: (friendId: string) => Promise<Friend[]>;
@@ -26,10 +28,7 @@ type FriendsContextType = {
 	blockFriend: (friendId: string) => Promise<Friend[]>;
 	unblockFriend: (friendId: string) => Promise<Friend[]>;
 
-	getStatusDisplay: (friend: Friend) => {
-		text: string;
-		className: string;
-	};
+	getStatusDisplay: (friend: Friend) => { text: string; className: string };
 };
 
 const FriendsContext = createContext<FriendsContextType | null>(null);
@@ -42,9 +41,7 @@ const FriendsContext = createContext<FriendsContextType | null>(null);
 
 //#region provider
 
-type FriendsProviderProps = {
-	children: ReactNode;
-};
+type FriendsProviderProps = { children: ReactNode };
 
 export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 	const { user, authFetch } = useAuth();
@@ -70,29 +67,35 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends`);
 
 		const data = await response.json();
-
-		if (!response.ok) {
-			throw new Error(data.error);
-		}
+		if (!response.ok) throw new Error(data.error);
 
 		const friendData = getFriendsFromParsedJson(data);
-
-		if (friendData === undefined) {
-			throw new Error("Friend data invalid");
-		}
+		if (friendData === undefined) throw new Error("Friend data invalid");
 
 		setFriends(friendData);
 
 		return friendData;
 	}
 
+	async function searchUsers(search: string): Promise<UserSearchResult[]> {
+		const params = new URLSearchParams({ search: search.trim() });
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/users?${params.toString()}`);
+
+		if (!response.ok) {
+			const data = await response.json();
+			throw new Error(data.error ?? "Unable to search for users.");
+		}
+
+		const data = await response.json();
+		const results = getUserSearchResultsFromParsedJson(data);
+		if (results === undefined) throw new Error("Friend data invalid");
+		if (results === null) throw new Error("Invalid user search response.");
+
+		return results;
+	}
+
 	async function addFriend(friendId: string): Promise<Friend[]> {
-		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends`, {
-			method: "POST",
-			body: JSON.stringify({
-				friendId,
-			}),
-		});
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends`, { method: "POST", body: JSON.stringify({ friendId }) });
 
 		if (!response.ok) {
 			const data = await response.json();
@@ -103,12 +106,7 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 	}
 
 	async function deleteFriend(friendId: string): Promise<Friend[]> {
-		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends`, {
-			method: "DELETE",
-			body: JSON.stringify({
-				friendId,
-			}),
-		});
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends`, { method: "DELETE", body: JSON.stringify({ friendId }) });
 
 		if (!response.ok) {
 			const data = await response.json();
@@ -121,9 +119,7 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 	async function respondToFriendRequest(friendId: string, responseValue: "accepted" | "declined"): Promise<Friend[]> {
 		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends/${friendId}/respond`, {
 			method: "PATCH",
-			body: JSON.stringify({
-				response: responseValue,
-			}),
+			body: JSON.stringify({ response: responseValue }),
 		});
 
 		if (!response.ok) {
@@ -151,29 +147,25 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 	}
 
 	async function blockFriend(friendId: string): Promise<Friend[]> {
-		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends/${friendId}/block`, {
-			method: "PATCH",
-		});
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends/${friendId}/block`, { method: "PUT" });
 
 		if (!response.ok) {
 			const data = await response.json();
 			throw new Error(data.error);
 		}
 
-		return fetchFriends();
+		return await fetchFriends();
 	}
 
 	async function unblockFriend(friendId: string): Promise<Friend[]> {
-		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends/${friendId}/unblock`, {
-			method: "PATCH",
-		});
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/friends/${friendId}/block`, { method: "DELETE" });
 
 		if (!response.ok) {
 			const data = await response.json();
-			throw new Error(data.error);
+			throw new Error(data.error ?? "Unable to unblock user");
 		}
 
-		return fetchFriends();
+		return await fetchFriends();
 	}
 
 	//#endregion
@@ -189,35 +181,20 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 	function getStatusDisplay(friend: Friend) {
 		switch (friend.status) {
 			case "accepted":
-				return {
-					text: "Friends",
-					className: "bg-emerald-100 text-emerald-700",
-				};
+				return { text: "Friends", className: "bg-emerald-100 text-emerald-700" };
 
 			case "requested":
 				if (friend.requestDirection === "received") {
-					return {
-						text: "New request",
-						className: "bg-blue-100 text-blue-700",
-					};
+					return { text: "New request", className: "bg-blue-100 text-blue-700" };
 				}
 
-				return {
-					text: "Request sent",
-					className: "bg-amber-100 text-amber-700",
-				};
+				return { text: "Request sent", className: "bg-amber-100 text-amber-700" };
 
 			case "declined":
-				return {
-					text: "Declined",
-					className: "bg-stone-200 text-brand-text",
-				};
+				return { text: "Declined", className: "bg-stone-200 text-brand-text" };
 
 			case "blocked":
-				return {
-					text: "Blocked",
-					className: "bg-red-100 text-red-700",
-				};
+				return { text: "Blocked", className: "bg-red-100 text-red-700" };
 		}
 	}
 
@@ -228,6 +205,7 @@ export const FriendsProvider = ({ children }: FriendsProviderProps) => {
 				friendsNotificationCount,
 
 				fetchFriends,
+				searchUsers,
 				getFriendById,
 
 				addFriend,

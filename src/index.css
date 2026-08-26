@@ -64,6 +64,11 @@
 	@apply flex h-8 w-8 shrink-0 pb-1 items-center justify-center rounded-full text-xl text-brand-cream transition hover:bg-white/10 hover:text-white;
 }
 
+/* friends */
+@utility friend-info-label {
+	@apply w-20 shrink-0 text-xs font-semibold uppercase tracking-wide text-brand-muted;
+}
+
 /* for split view pages */
 .list-item {
 	@apply flex w-full items-center justify-between rounded-xl border border-stone-200 bg-brand-card p-3.5 text-left transition hover:border-stone-300 hover:shadow-sm;

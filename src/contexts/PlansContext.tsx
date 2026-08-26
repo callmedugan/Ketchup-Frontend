@@ -30,9 +30,7 @@ const PlansContext = createContext<PlansContextType | null>(null);
 
 //#region provider
 
-type PlansProviderProps = {
-	children: ReactNode;
-};
+type PlansProviderProps = { children: ReactNode };
 
 export const PlansProvider = ({ children }: PlansProviderProps) => {
 	//needs to be nested inside auth provider
@@ -59,15 +57,10 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 		const result = [];
 		for (const p of plansData) {
 			//find using friend in either creator or friend field
-			const foundFriend =
-				p.creatorId === user!.id ? friends.find((friend) => p.friendId === friend.id) : friends.find((friend) => p.creatorId === friend.id);
+			const foundFriend = p.creatorId === user!.id ? friends.find((friend) => p.friendId === friend.id) : friends.find((friend) => p.creatorId === friend.id);
 			if (foundFriend !== undefined) {
-				result.push({
-					...p,
-					friendName: foundFriend.name,
-					friendAvatarUrl: foundFriend.avatarUrl,
-				});
-			} else console.error("failed to find friend data for: " + p.title);
+				result.push({ ...p, friendName: foundFriend.name, friendAvatarUrl: foundFriend.avatarUrl });
+			} //else console.error("failed to find friend data for: " + p.title);
 		}
 		return result;
 	}, [plansData, friends]);
@@ -98,16 +91,8 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 	async function addPlan(friendId: string, title: string, comments: string, meetTime: Date, location: string): Promise<PlanData[]> {
 		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/plans`, {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				friendId,
-				title,
-				comments,
-				meetTime,
-				location,
-			}),
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ friendId, title, comments, meetTime, location }),
 		});
 
 		if (!response.ok) {
@@ -119,9 +104,7 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 	}
 
 	async function cancelPlan(id: string): Promise<PlanData[]> {
-		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/plans/${id}`, {
-			method: "DELETE",
-		});
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/plans/${id}`, { method: "DELETE" });
 
 		if (!response.ok) {
 			const data = await response.json();
@@ -132,12 +115,7 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 	}
 
 	async function updatePlanStatus(id: string, response: "accepted" | "declined"): Promise<PlanData[]> {
-		const fetchResponse = await authFetch(`${import.meta.env.VITE_API_URL}/api/plans/${id}/respond`, {
-			method: "PATCH",
-			body: JSON.stringify({
-				response,
-			}),
-		});
+		const fetchResponse = await authFetch(`${import.meta.env.VITE_API_URL}/api/plans/${id}/respond`, { method: "PATCH", body: JSON.stringify({ response }) });
 
 		if (!fetchResponse.ok) {
 			const data = await fetchResponse.json();
@@ -154,17 +132,7 @@ export const PlansProvider = ({ children }: PlansProviderProps) => {
 	}
 
 	return (
-		<PlansContext.Provider
-			value={{
-				plans,
-				fetchPlans,
-				getPlanById,
-				addPlan,
-				cancelPlan,
-				updatePlanStatus,
-				plansNotificationCount,
-			}}
-		>
+		<PlansContext.Provider value={{ plans, fetchPlans, getPlanById, addPlan, cancelPlan, updatePlanStatus, plansNotificationCount }}>
 			{children}
 		</PlansContext.Provider>
 	);

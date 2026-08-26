@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useAuth } from "../contexts/AuthContext";
 import { LoadingIndicator } from "../components/LoadingIndicator";
 import Profile from "../components/profile/Profile";
 import PageContainer from "./PageContainer";
@@ -7,8 +6,6 @@ import PageContainer from "./PageContainer";
 export function ProfilePage() {
 	const [loading] = useState(false);
 	const [error] = useState<string | null>(null);
-
-	const { user } = useAuth();
 
 	return (
 		<PageContainer title="Your profile" description="Tell your friends a little bit about yourself.">
@@ -41,8 +38,6 @@ export function ProfilePage() {
 			);
 		}
 
-		if (!user) return null;
-
-		return <Profile user={user} />;
+		return <Profile />;
 	}
 }
