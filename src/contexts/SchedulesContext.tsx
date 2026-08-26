@@ -22,7 +22,7 @@ type ScheduleContextType = {
 	fetchUserSchedules: () => Promise<Schedule[]>;
 	fetchMatchedSchedules: () => Promise<MatchedScheduleData[]>;
 	deleteUserSchedule: (id: string) => Promise<Schedule[]>;
-	addUserSchedule: (userId: string, date: string, startTime: string, endTime: string, repeatType: ScheduleRepeatType) => Promise<Schedule[]>;
+	addUserSchedule: (userId: string, date: string, startTime: string, endTime: string, repeatType: ScheduleRepeatType, timezone: string) => Promise<Schedule[]>;
 };
 
 const ScheduleContext = createContext<ScheduleContextType | null>(null);
@@ -34,9 +34,7 @@ const ScheduleContext = createContext<ScheduleContextType | null>(null);
 /* ========================================================================= */
 
 //#region provider
-type ScheduleProviderProps = {
-	children: ReactNode;
-};
+type ScheduleProviderProps = { children: ReactNode };
 
 export const ScheduleProvider = ({ children }: ScheduleProviderProps) => {
 	//needs to be nested inside auth provider
@@ -65,11 +63,7 @@ export const ScheduleProvider = ({ children }: ScheduleProviderProps) => {
 		for (const s of matchedSchedulesData) {
 			const foundFriend = friends.find((friend) => s.userId === friend.id);
 			if (foundFriend !== undefined) {
-				result.push({
-					...s,
-					friendName: foundFriend.name,
-					friendAvatarUrl: foundFriend.avatarUrl,
-				});
+				result.push({ ...s, friendName: foundFriend.name, friendAvatarUrl: foundFriend.avatarUrl });
 			}
 		}
 		return result;
@@ -110,12 +104,7 @@ export const ScheduleProvider = ({ children }: ScheduleProviderProps) => {
 	}
 
 	async function deleteUserSchedule(id: string) {
-		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/schedules`, {
-			method: "DELETE",
-			body: JSON.stringify({
-				id: id,
-			}),
-		});
+		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/schedules`, { method: "DELETE", body: JSON.stringify({ id: id }) });
 		if (!response.ok) {
 			const data = await response.json();
 			throw new Error(data.error);
@@ -130,21 +119,15 @@ export const ScheduleProvider = ({ children }: ScheduleProviderProps) => {
 		startTime: string,
 		endTime: string,
 		repeatType: ScheduleRepeatType,
+		timezone: string,
 	): Promise<Schedule[]> {
 		const scheduleStart = new Date(`${date}T${startTime}`);
 		const scheduleEnd = new Date(`${date}T${endTime}`);
 
 		const response = await authFetch(`${import.meta.env.VITE_API_URL}/api/schedules`, {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				userId,
-				startTime: scheduleStart.toISOString(),
-				endTime: scheduleEnd.toISOString(),
-				repeatType,
-			}),
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ userId, startTime: scheduleStart.toISOString(), endTime: scheduleEnd.toISOString(), repeatType, timezone }),
 		});
 
 		if (!response.ok) {
@@ -162,15 +145,7 @@ export const ScheduleProvider = ({ children }: ScheduleProviderProps) => {
 
 	return (
 		<ScheduleContext.Provider
-			value={{
-				userSchedules,
-				getUserScheduleById,
-				matchedSchedules,
-				fetchUserSchedules,
-				fetchMatchedSchedules,
-				deleteUserSchedule,
-				addUserSchedule,
-			}}
+			value={{ userSchedules, getUserScheduleById, matchedSchedules, fetchUserSchedules, fetchMatchedSchedules, deleteUserSchedule, addUserSchedule }}
 		>
 			{children}
 		</ScheduleContext.Provider>

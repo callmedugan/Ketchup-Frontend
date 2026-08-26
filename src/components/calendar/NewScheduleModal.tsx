@@ -27,6 +27,7 @@ export default function NewScheduleModal({ onClose, initialDate = "" }: NewSched
 	/* ========================================================================= */
 
 	async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+		if (!user) return;
 		event.preventDefault();
 
 		setError(null);
@@ -46,7 +47,7 @@ export default function NewScheduleModal({ onClose, initialDate = "" }: NewSched
 		setIsSubmitting(true);
 		setError(null);
 
-		addUserSchedule(user!.id, date, submitStartTime, submitEndTime, repeatType)
+		addUserSchedule(user.id, date, submitStartTime, submitEndTime, repeatType, user.timezone)
 			.then(() => {
 				fetchMatchedSchedules();
 				onClose();
@@ -57,23 +58,6 @@ export default function NewScheduleModal({ onClose, initialDate = "" }: NewSched
 			.finally(() => {
 				setIsSubmitting(false);
 			});
-
-		// try {
-		// 	setIsSubmitting(true);
-
-		// 	await onSubmit({
-		// 		date,
-		// 		startTime: submitStartTime,
-		// 		endTime: submitEndTime,
-		// 		repeatType,
-		// 	});
-
-		// 	onClose();
-		// } catch {
-		// 	setError("Something went wrong while adding your availability.");
-		// } finally {
-		// 	setIsSubmitting(false);
-		// }
 	}
 
 	function setPreset(start: string, end: string) {
@@ -259,10 +243,7 @@ export default function NewScheduleModal({ onClose, initialDate = "" }: NewSched
 	);
 }
 
-type PresetButtonProps = {
-	label: string;
-	onClick: () => void;
-};
+type PresetButtonProps = { label: string; onClick: () => void };
 
 function PresetButton({ label, onClick }: PresetButtonProps) {
 	return (

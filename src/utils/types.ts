@@ -4,6 +4,24 @@ import { z } from "zod";
 //                        shared helpers
 /* ========================================================================= */
 
+export const timezoneSchema = z
+	.string()
+	.trim()
+	.refine(
+		(value) => {
+			try {
+				new Intl.DateTimeFormat("en-US", { timeZone: value });
+
+				return true;
+			} catch {
+				return false;
+			}
+		},
+		{ message: "Invalid timezone" },
+	);
+
+export type Timezone = z.infer<typeof timezoneSchema>;
+
 function parseOneOrMany<T>(schema: z.ZodType<T>, data: unknown): T[] | undefined {
 	const arrayResult = z.array(schema).safeParse(data);
 
@@ -27,13 +45,16 @@ function parseOneOrMany<T>(schema: z.ZodType<T>, data: unknown): T[] | undefined
 //#region schedules
 
 export const scheduleSchema = z.object({
-	id: z.string(),
-	userId: z.string(),
+	id: z.uuid(),
+	userId: z.uuid(),
 
 	repeatType: z.enum(["once", "daily", "weekly"]),
 
 	startTime: z.coerce.date(),
 	endTime: z.coerce.date(),
+
+	timezone: timezoneSchema,
+
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
 });
@@ -54,14 +75,21 @@ export function getScheduleFromParsedJson(data: unknown): Schedule[] | undefined
 //#region friends
 
 export const friendSchema = z.object({
-	id: z.string(),
+	id: z.uuid(),
+
 	name: z.string(),
+
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
+
 	status: z.enum(["requested", "accepted", "declined", "blocked"]),
+
 	bio: z.string(),
-	timezone: z.string(),
+
+	timezone: timezoneSchema,
+
 	avatarUrl: z.string(),
+
 	requestDirection: z.enum(["sent", "received"]),
 });
 
@@ -80,21 +108,18 @@ export function getFriendsFromParsedJson(data: unknown): Friend[] | undefined {
 
 //#region matched schedules
 
-//backend
-export const matchedScheduleDataSchema = scheduleSchema.extend({
-	userScheduleIdMatched: z.string(),
-});
+// backend
+export const matchedScheduleDataSchema = scheduleSchema.extend({ userScheduleIdMatched: z.uuid() });
 
 export type MatchedScheduleData = z.infer<typeof matchedScheduleDataSchema>;
+
 export function getMatchedSchedulesFromParsedJson(data: unknown): MatchedScheduleData[] | undefined {
 	return parseOneOrMany(matchedScheduleDataSchema, data);
 }
 
-//frontend
-export const matchedScheduleSchema = matchedScheduleDataSchema.extend({
-	friendName: z.string(),
-	friendAvatarUrl: z.string(),
-});
+// frontend
+export const matchedScheduleSchema = matchedScheduleDataSchema.extend({ friendName: z.string(), friendAvatarUrl: z.string() });
+
 export type MatchedSchedule = z.infer<typeof matchedScheduleSchema>;
 
 //#endregion
@@ -106,11 +131,15 @@ export type MatchedSchedule = z.infer<typeof matchedScheduleSchema>;
 //#region user
 
 export const userSchema = z.object({
-	id: z.string(),
+	id: z.uuid(),
+
 	name: z.string(),
-	email: z.string(),
+	email: z.email(),
+
 	bio: z.string(),
-	timezone: z.string(),
+
+	timezone: timezoneSchema,
+
 	avatarUrl: z.string(),
 });
 
@@ -135,11 +164,14 @@ export function getUserFromParsedJson(data: unknown): User | undefined {
 //#region userSearchResult
 
 export const userSearchResultSchema = z.object({
-	id: z.string(),
+	id: z.uuid(),
+
 	name: z.string(),
+
 	avatarUrl: z.string(),
 	bio: z.string(),
-	timezone: z.string(),
+
+	timezone: timezoneSchema,
 });
 
 export type UserSearchResult = z.infer<typeof userSearchResultSchema>;
@@ -154,17 +186,26 @@ export function getUserSearchResultsFromParsedJson(data: unknown): UserSearchRes
 //                        plans
 /* ========================================================================= */
 
+//#region plans
+
 export const planDataSchema = z.object({
-	id: z.string(),
-	creatorId: z.string(),
-	friendId: z.string(),
+	id: z.uuid(),
+
+	creatorId: z.uuid(),
+	friendId: z.uuid(),
+
 	status: z.enum(["declined", "pending", "confirmed", "cancelled"]),
+
 	title: z.string(),
 	comments: z.string(),
+
 	meetTime: z.coerce.date(),
+
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
-	lastUpdatedBy: z.string(),
+
+	lastUpdatedBy: z.uuid(),
+
 	location: z.string(),
 });
 
@@ -175,16 +216,19 @@ export function getPlansFromParsedJson(data: unknown): PlanData[] | undefined {
 	return parseOneOrMany(planDataSchema, data);
 }
 
-//frontend
-export const planSchema = planDataSchema.extend({
-	friendName: z.string(),
-	friendAvatarUrl: z.string(),
-});
+// frontend
+export const planSchema = planDataSchema.extend({ friendName: z.string(), friendAvatarUrl: z.string() });
+
 export type Plan = z.infer<typeof planSchema>;
+
+//#endregion
 
 /* ========================================================================= */
 //                        avatars
 /* ========================================================================= */
+
+//#region avatars
+
 export const presetAvatarStrings = [
 	"ketchup",
 	"mustard",
@@ -199,7 +243,11 @@ export const presetAvatarStrings = [
 	"whole-grain-mustard",
 	"aioli",
 ] as const;
+
 export type presetAvatarType = (typeof presetAvatarStrings)[number];
+
 export function isPresetAvatar(value: string): value is presetAvatarType {
 	return presetAvatarStrings.includes(value as presetAvatarType);
 }
+
+//#endregion
