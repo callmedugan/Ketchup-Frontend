@@ -4,6 +4,7 @@ import { type Schedule } from "../../utils/types";
 import StickyNote from "./StickyNote";
 import { useSchedule } from "../../contexts/SchedulesContext";
 import { LoadingIndicator } from "../LoadingIndicator";
+import ScrollableContainer from "../common/ScrollableContainer";
 
 export default function Calendar() {
 	const [loading, setLoading] = useState(false);
@@ -12,9 +13,7 @@ export default function Calendar() {
 
 	const { fetchUserSchedules, userSchedules } = useSchedule();
 
-	const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), {
-		weekStartsOn: 0,
-	});
+	const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), { weekStartsOn: 0 });
 
 	const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
@@ -25,13 +24,39 @@ export default function Calendar() {
 
 	return (
 		<div className="flex min-h-0 min-w-0 flex-1 flex-col">
+			<div className="hidden min-h-0 min-w-0 flex-1 md:flex">
+				<DesktopCalendar />
+			</div>
+
+			<div className="flex min-h-0 min-w-0 flex-1 md:hidden">
+				<MobileCalendar />
+			</div>
+		</div>
+	);
+
+	/* ========================================================================= */
+	//                        components
+	/* ========================================================================= */
+
+	function DesktopCalendar() {
+		return (
 			<div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white">
 				{showCalendarHeader()}
 
 				<div className="grid min-h-0 min-w-0 flex-1 grid-cols-7">{weekDays.map(showDay)}</div>
 			</div>
-		</div>
-	);
+		);
+	}
+
+	function MobileCalendar() {
+		return (
+			<div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white">
+				{showMobileHeader()}
+
+				<ScrollableContainer className="py-2">{weekDays.map(showMobileDay)}</ScrollableContainer>
+			</div>
+		);
+	}
 
 	/* ========================================================================= */
 	// Header
@@ -119,7 +144,7 @@ export default function Calendar() {
 
 	function showDaySchedules(day: Date, schedules: Schedule[]) {
 		return (
-			<div className="flex flex-col gap-3 p-3">
+			<div className="flex gap-3 overflow-x-auto p-3 md:flex-col md:overflow-visible">
 				{schedules.map((schedule) => (
 					<StickyNote key={schedule.id} scheduleData={schedule} noteDate={day} onDeleted={handleScheduleDeleted} />
 				))}
@@ -132,9 +157,7 @@ export default function Calendar() {
 	/* ========================================================================= */
 
 	function buildWeekSchedule() {
-		const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), {
-			weekStartsOn: 0,
-		});
+		const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), { weekStartsOn: 0 });
 
 		const weekEnd = addWeeks(weekStart, 1);
 		const result: Schedule[] = [];
@@ -184,15 +207,9 @@ export default function Calendar() {
 		return {
 			...schedule,
 
-			startTime: set(day, {
-				hours: schedule.startTime.getHours(),
-				minutes: schedule.startTime.getMinutes(),
-			}),
+			startTime: set(day, { hours: schedule.startTime.getHours(), minutes: schedule.startTime.getMinutes() }),
 
-			endTime: set(day, {
-				hours: schedule.endTime.getHours(),
-				minutes: schedule.endTime.getMinutes(),
-			}),
+			endTime: set(day, { hours: schedule.endTime.getHours(), minutes: schedule.endTime.getMinutes() }),
 		};
 	}
 
@@ -234,5 +251,87 @@ export default function Calendar() {
 			.finally(() => {
 				setLoading(false);
 			});
+	}
+
+	/* ========================================================================= */
+	//                        mobile
+	/* ========================================================================= */
+
+	function showMobileHeader() {
+		return (
+			<div className="flex shrink-0 items-center justify-between border-b border-brand-red-dark bg-brand-red px-3 py-3">
+				<button
+					type="button"
+					onClick={() => setWeekOffset((prev) => prev - 1)}
+					className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-brand-cream"
+					aria-label="Previous week"
+				>
+					‹
+				</button>
+
+				<div className="text-center">
+					<h2 className="text-lg font-bold text-brand-cream">{format(weekDays[0], "MMM yyyy")}</h2>
+
+					<button
+						type="button"
+						onClick={() => setWeekOffset(0)}
+						disabled={weekOffset === 0}
+						className="mt-0.5 text-[11px] font-bold text-brand-cream/80 disabled:text-brand-cream/40"
+					>
+						This week
+					</button>
+				</div>
+
+				<button
+					type="button"
+					onClick={() => setWeekOffset((prev) => prev + 1)}
+					className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-brand-cream"
+					aria-label="Next week"
+				>
+					›
+				</button>
+			</div>
+		);
+	}
+
+	function showMobileDay(day: Date) {
+		const isToday = format(day, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
+
+		const daySchedules = weekSchedule.filter(
+			(schedule) =>
+				schedule.startTime.getFullYear() === day.getFullYear() &&
+				schedule.startTime.getMonth() === day.getMonth() &&
+				schedule.startTime.getDate() === day.getDate(),
+		);
+
+		return (
+			<div key={day.toISOString()} className="mx-3 my-2 h-40 shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-brand-card shadow-sm md:h-auto">
+				{/* Day header */}
+				<div className="flex items-center justify-between border-b border-stone-200 bg-[#f3e4d7] px-4 py-2.5">
+					<div className="flex items-baseline gap-2">
+						<span className="text-sm font-bold text-brand-text">{format(day, "EEE")}</span>
+
+						<span className="text-xs font-medium text-brand-muted">{format(day, "MMM d")}</span>
+					</div>
+
+					{isToday && <span className="rounded-full bg-brand-red px-2 py-1 text-[10px] font-bold text-white">Today</span>}
+				</div>
+
+				{/* Schedules */}
+				<ScrollableContainer direction="horizontal">
+					<div className="flex h-full gap-2.5 p-3">
+						{daySchedules.length > 0 ? (
+							daySchedules.map((schedule) => (
+								<StickyNote key={`${schedule.id}-${day.toISOString()}`} scheduleData={schedule} noteDate={day} onDeleted={handleScheduleDeleted} />
+							))
+						) : (
+							<div className="flex w-full items-center justify-center">
+								<p className="text-xs font-medium text-brand-muted/70">Empty</p>
+							</div>
+						)}
+					</div>
+				</ScrollableContainer>
+			</div>
+		);
 	}
 }

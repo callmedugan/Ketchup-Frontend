@@ -4,25 +4,15 @@ import OverlapModal from "./OverlapModal";
 import { useSchedule } from "../../contexts/SchedulesContext";
 import type { MatchedSchedule, Schedule } from "../../utils/types";
 
-type StickyNoteProps = {
-	scheduleData: Schedule;
-	noteDate: Date;
-	onDeleted: () => void;
-};
+type StickyNoteProps = { scheduleData: Schedule; noteDate: Date; onDeleted: () => void };
 
 export default function StickyNote({ scheduleData, noteDate, onDeleted }: StickyNoteProps) {
 	const { matchedSchedules } = useSchedule();
 	const [isOpen, setIsOpen] = useState(false);
 
 	//create a date for the beginning and end
-	const noteStartTime = set(noteDate, {
-		hours: scheduleData.startTime.getHours(),
-		minutes: scheduleData.startTime.getMinutes(),
-	});
-	const noteEndTime = set(noteDate, {
-		hours: scheduleData.endTime.getHours(),
-		minutes: scheduleData.endTime.getMinutes(),
-	});
+	const noteStartTime = set(noteDate, { hours: scheduleData.startTime.getHours(), minutes: scheduleData.startTime.getMinutes() });
+	const noteEndTime = set(noteDate, { hours: scheduleData.endTime.getHours(), minutes: scheduleData.endTime.getMinutes() });
 	const hasPassed = noteEndTime <= new Date();
 
 	const { overlapsForThisDay, overlapCount } = getValidAndSortedOverlaps(matchedSchedules, scheduleData, noteDate);
@@ -33,34 +23,29 @@ export default function StickyNote({ scheduleData, noteDate, onDeleted }: Sticky
 				type="button"
 				onClick={() => setIsOpen(true)}
 				className={`
-				relative min-h-25 min-w-0 max-w-full -rotate-1 overflow-hidden
-				rounded-sm border border-[#e7d49b] bg-[#fff3bd]
-				px-3 py-2.5 text-left
-				shadow-[2px_3px_6px_rgba(0,0,0,0.12)]
-				transition duration-150
-				hover:-translate-y-0.5 hover:rotate-0
-				hover:shadow-[3px_5px_8px_rgba(0,0,0,0.15)]
-				${hasPassed ? "opacity-50" : "opacity-100"}
-			`}
+					relative h-24 w-28 shrink-0 -rotate-1 overflow-hidden
+					rounded-sm border border-[#e7d49b] bg-[#fff3bd]
+					px-2.5 py-2 text-left
+					shadow-[2px_3px_6px_rgba(0,0,0,0.12)]
+					transition duration-150
+					hover:-translate-y-0.5 hover:rotate-0
+					hover:shadow-[3px_5px_8px_rgba(0,0,0,0.15)]
+					md:h-auto md:min-h-25 md:w-auto md:min-w-0 md:max-w-full
+					md:px-3 md:py-2.5
+					${hasPassed ? "opacity-50" : "opacity-100"}
+				`}
 			>
 				{/* corner */}
 				<div className="absolute right-0 top-0 h-4 w-4 bg-[#e8c95b] [clip-path:polygon(0_0,100%_0,100%_100%)]" />
 
 				{/* date */}
-				<div className="absolute left-3 top-2.5 truncate text-xs font-bold text-[#66531c]">
-					{format(scheduleData.startTime, "p")} - {format(scheduleData.endTime, "p")}:
+				<div className="absolute left-2.5 top-3 text-[9px] font-bold text-[#66531c] md:left-3 md:top-2.5 md:text-xs">
+					{format(scheduleData.startTime, "p")} - {format(scheduleData.endTime, "p")}
 				</div>
-
-				{/* error */}
-				{/* {error && (
-					<p role="alert" className="mt-2 text-sm text-red-600">
-						{error}
-					</p>
-				)} */}
 
 				{/* friends free */}
 				{overlapCount > 0 && !hasPassed && (
-					<div className=" absolute inset-x-2 bottom-2 animate-float-notification truncate rounded-full border border-[#e0c96f] bg-white/70 px-2 py-1 text-center text-xs font-semibold text-[#66531c]">
+					<div className="absolute inset-x-1.5 bottom-1.5 animate-float-notification truncate rounded-full border border-[#e0c96f] bg-white/70 px-1.5 py-1 text-center text-[9px] font-semibold text-[#66531c] md:inset-x-2 md:bottom-2 md:px-2 md:text-xs">
 						{overlapCount} friend{overlapCount > 1 && "s"} free!
 					</div>
 				)}

@@ -7,7 +7,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { PlansPage } from "./pages/PlansPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { RegisterPage } from "./pages/RegisterPage";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 export default function App() {
 	return (
@@ -21,7 +21,7 @@ export default function App() {
 
 						{/* Protected Routes Wrapper */}
 						<Route element={<ProtectedRoute />}>
-							<Route path="/" element={<CalendarPage />} />
+							<Route path="/" element={<Navigate to="/calendar" replace />} />
 							<Route path="/calendar" element={<CalendarPage />} />
 							<Route path="/friends" element={<FriendsPage />} />
 							<Route path="/profile" element={<ProfilePage />} />
