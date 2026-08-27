@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { addDays, addWeeks, format, isAfter, isBefore, set, startOfDay, startOfWeek } from "date-fns";
+import { addDays, addWeeks, format, isAfter, isBefore, isSameMonth, set, startOfDay, startOfWeek } from "date-fns";
 import { type Schedule } from "../../utils/types";
 import StickyNote from "./StickyNote";
 import { useSchedule } from "../../contexts/SchedulesContext";
@@ -258,25 +258,32 @@ export default function Calendar() {
 	/* ========================================================================= */
 
 	function showMobileHeader() {
+		const weekStart = weekDays[0];
+		const weekEnd = weekDays[weekDays.length - 1];
+
+		const dateRange = isSameMonth(weekStart, weekEnd)
+			? `${format(weekStart, "MMM d")} - ${format(weekEnd, "d, yyyy")}`
+			: `${format(weekStart, "MMM d")} - ${format(weekEnd, "MMM d, yyyy")}`;
+
 		return (
 			<div className="flex shrink-0 items-center justify-between border-b border-brand-red-dark bg-brand-red px-3 py-3">
 				<button
 					type="button"
 					onClick={() => setWeekOffset((prev) => prev - 1)}
-					className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-brand-cream"
+					className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 pb-1 text-brand-cream transition active:scale-95 active:bg-white/20"
 					aria-label="Previous week"
 				>
 					‹
 				</button>
 
 				<div className="text-center">
-					<h2 className="text-lg font-bold text-brand-cream">{format(weekDays[0], "MMM yyyy")}</h2>
+					<h2 className="text-base font-bold text-brand-cream">{dateRange}</h2>
 
 					<button
 						type="button"
 						onClick={() => setWeekOffset(0)}
 						disabled={weekOffset === 0}
-						className="mt-0.5 text-[11px] font-bold text-brand-cream/80 disabled:text-brand-cream/40"
+						className="mt-1 rounded-full border border-brand-cream/30 bg-white/10 px-2.5 py-0.5 text-[10px] font-bold text-brand-cream transition active:scale-95 active:bg-white/20 disabled:border-brand-cream/10 disabled:bg-transparent disabled:text-brand-cream/40"
 					>
 						This week
 					</button>
@@ -285,7 +292,7 @@ export default function Calendar() {
 				<button
 					type="button"
 					onClick={() => setWeekOffset((prev) => prev + 1)}
-					className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-brand-cream"
+					className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 pb-1 text-brand-cream transition active:scale-95 active:bg-white/20"
 					aria-label="Next week"
 				>
 					›
@@ -325,9 +332,7 @@ export default function Calendar() {
 								<StickyNote key={`${schedule.id}-${day.toISOString()}`} scheduleData={schedule} noteDate={day} onDeleted={handleScheduleDeleted} />
 							))
 						) : (
-							<div className="flex w-full items-center justify-center">
-								<p className="text-xs font-medium text-brand-muted/70">Empty</p>
-							</div>
+							<div className="flex w-full items-center justify-center">{/* <p className="text-xs font-medium text-brand-muted/70">Empty</p> */}</div>
 						)}
 					</div>
 				</ScrollableContainer>

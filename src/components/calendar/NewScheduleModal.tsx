@@ -2,15 +2,14 @@ import { useState, type SubmitEvent } from "react";
 import type { ScheduleRepeatType } from "../../utils/types";
 import { useSchedule } from "../../contexts/SchedulesContext";
 import { useAuth } from "../../contexts/AuthContext";
+import { format } from "date-fns";
+import ModalContainer from "../common/ModalContainer";
+import ModalHeader from "../common/ModalHeader";
 
-type NewScheduleModalProps = {
-	onClose: () => void;
+type NewScheduleModalProps = { onClose: () => void };
 
-	initialDate?: string;
-};
-
-export default function NewScheduleModal({ onClose, initialDate = "" }: NewScheduleModalProps) {
-	const [date, setDate] = useState(initialDate);
+export default function NewScheduleModal({ onClose }: NewScheduleModalProps) {
+	const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
 	const [startTime, setStartTime] = useState("18:00");
 	const [endTime, setEndTime] = useState("21:00");
 	const [repeatType, setRepeatType] = useState<ScheduleRepeatType>("once");
@@ -28,6 +27,7 @@ export default function NewScheduleModal({ onClose, initialDate = "" }: NewSched
 
 	async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
 		if (!user) return;
+
 		event.preventDefault();
 
 		setError(null);
@@ -43,7 +43,6 @@ export default function NewScheduleModal({ onClose, initialDate = "" }: NewSched
 			return;
 		}
 
-		//add schedule then fetch matched schedules
 		setIsSubmitting(true);
 		setError(null);
 
@@ -67,179 +66,149 @@ export default function NewScheduleModal({ onClose, initialDate = "" }: NewSched
 	}
 
 	return (
-		<div
-			className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/40 px-4 backdrop-blur-[2px]"
-			onMouseDown={(event) => {
-				if (event.target === event.currentTarget) {
-					onClose();
-				}
-			}}
-		>
-			<div className="w-full max-w-md overflow-hidden rounded-2xl border border-stone-200 bg-[#fffdf8] shadow-2xl">
-				{/* Header */}
-				<div className="flex items-center justify-between border-b border-brand-red-dark bg-brand-red px-5 py-4">
-					<div>
-						<h2 className="text-xl font-bold text-brand-cream">Add availability</h2>
+		<ModalContainer onClose={onClose}>
+			<ModalHeader title="Add availability" onClose={onClose} />
+
+			<form onSubmit={handleSubmit} className="space-y-2.5 overflow-y-auto p-4 sm:space-y-3 sm:p-5">
+				{/* Step 1 */}
+				<section>
+					<div className="mb-2 flex items-center gap-2 sm:mb-3 sm:gap-3">
+						<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-red text-xs font-bold text-white sm:h-7 sm:w-7 sm:text-sm">
+							1
+						</div>
+
+						<div>
+							<p className="text-xs font-bold text-stone-800 sm:text-sm">Choose a date</p>
+						</div>
 					</div>
 
-					<button
-						type="button"
-						onClick={onClose}
-						className="flex h-8 w-8 items-center justify-center rounded-full text-xl text-[#f7ddd4] transition hover:bg-white/10 hover:text-white"
-						aria-label="Close"
-					>
-						×
-					</button>
-				</div>
+					<input
+						id="availability-date"
+						type="date"
+						required
+						min={format(new Date(), "yyyy-MM-dd")}
+						value={date}
+						onChange={(event) => setDate(event.target.value)}
+						className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-xs text-stone-800 outline-none transition focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20 sm:py-2.5 sm:text-sm"
+					/>
+				</section>
 
-				<form onSubmit={handleSubmit} className="space-y-6 p-5">
-					{/* Step 1 */}
-					<section>
-						<div className="mb-3 flex items-center gap-3">
-							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-red text-sm font-bold text-white">1</div>
-
-							<div>
-								<p className="text-sm font-bold text-stone-800">Choose a date</p>
-							</div>
+				{/* Step 2 */}
+				<section>
+					<div className="mb-2 flex items-center gap-2 sm:mb-3 sm:gap-3">
+						<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-red text-xs font-bold text-white sm:h-7 sm:w-7 sm:text-sm">
+							2
 						</div>
 
-						<input
-							id="availability-date"
-							type="date"
-							required
-							value={date}
-							onChange={(event) => setDate(event.target.value)}
-							className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-800 outline-none transition focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20"
-						/>
-					</section>
-
-					<div className="border-t border-stone-200" />
-
-					{/* Step 2 */}
-					<section>
-						<div className="mb-3 flex items-center gap-3">
-							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-red text-sm font-bold text-white">2</div>
-
-							<div>
-								<p className="text-sm font-bold text-stone-800">Choose a time</p>
-							</div>
+						<div>
+							<p className="text-xs font-bold text-stone-800 sm:text-sm">Choose a time</p>
 						</div>
+					</div>
 
-						{/* All day */}
-						<div className="mb-4 flex items-center justify-between rounded-xl border border-stone-200 bg-white px-4 py-3">
-							<div>
-								<p className="text-sm font-bold text-stone-800">All day</p>
-
-								<p className="text-xs text-stone-500">Available for the entire day</p>
-							</div>
-
-							<button
-								type="button"
-								onClick={() => setAllDay((prev) => !prev)}
-								aria-pressed={allDay}
-								className={`relative h-6 w-11 shrink-0 rounded-full transition ${allDay ? "bg-brand-red" : "bg-stone-300"}`}
-							>
-								<span className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${allDay ? "left-6" : "left-1"}`} />
-							</button>
+					{/* All day */}
+					<div className="mb-2 flex items-center justify-between rounded-xl border border-stone-200 bg-white px-3 py-2 sm:px-4">
+						<div>
+							<p className="text-xs font-bold text-stone-800 sm:text-sm">All day</p>
 						</div>
-
-						{/* Quick select */}
-						<div className={allDay ? "pointer-events-none opacity-40" : ""}>
-							<p className="mb-2 text-xs font-bold uppercase tracking-wide text-stone-500">Quick select</p>
-
-							<div className="grid grid-cols-3 gap-2">
-								<PresetButton label="Morning" onClick={() => setPreset("09:00", "12:00")} />
-
-								<PresetButton label="Afternoon" onClick={() => setPreset("12:00", "17:00")} />
-
-								<PresetButton label="Evening" onClick={() => setPreset("17:00", "22:00")} />
-							</div>
-						</div>
-
-						{/* Custom time */}
-						<div className="mt-4">
-							<div className="grid grid-cols-2 gap-4">
-								<div>
-									<label htmlFor="availability-start" className="mb-1.5 block text-xs font-semibold text-stone-500">
-										Start
-									</label>
-
-									<input
-										id="availability-start"
-										type="time"
-										step={900}
-										required={!allDay}
-										disabled={allDay}
-										value={startTime}
-										onChange={(event) => setStartTime(event.target.value)}
-										className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-800 outline-none transition focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-400"
-									/>
-								</div>
-
-								<div>
-									<label htmlFor="availability-end" className="mb-1.5 block text-xs font-semibold text-stone-500">
-										End
-									</label>
-
-									<input
-										id="availability-end"
-										type="time"
-										step={900}
-										required={!allDay}
-										disabled={allDay}
-										value={endTime}
-										onChange={(event) => setEndTime(event.target.value)}
-										className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-800 outline-none transition focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-400"
-									/>
-								</div>
-							</div>
-						</div>
-					</section>
-
-					<div className="border-t border-stone-200" />
-
-					{/* Step 3 */}
-					<section>
-						<div className="mb-3 flex items-center gap-3">
-							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-red text-sm font-bold text-white">3</div>
-
-							<div>
-								<p className="text-sm font-bold text-stone-800">Select frequency</p>
-							</div>
-						</div>
-
-						<select
-							id="availability-repeat"
-							value={repeatType}
-							onChange={(event) => setRepeatType(event.target.value as ScheduleRepeatType)}
-							className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-800 outline-none transition focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20"
-						>
-							<option value="once">Once</option>
-							<option value="daily">Daily</option>
-							<option value="weekly">Weekly</option>
-						</select>
-					</section>
-
-					{/* Error */}
-					{error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
-
-					{/* Actions */}
-					<div className="flex justify-end gap-2 border-t border-stone-200 pt-4">
-						<button type="button" onClick={onClose} className="rounded-xl px-4 py-2.5 text-sm font-bold text-stone-600 transition hover:bg-stone-100">
-							Cancel
-						</button>
 
 						<button
-							type="submit"
-							disabled={isSubmitting}
-							className="rounded-xl bg-brand-red px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-brand-red-dark disabled:cursor-not-allowed disabled:opacity-60"
+							type="button"
+							onClick={() => setAllDay((prev) => !prev)}
+							aria-pressed={allDay}
+							className={`relative h-6 w-11 shrink-0 rounded-full transition ${allDay ? "bg-brand-red" : "bg-stone-300"}`}
 						>
-							{isSubmitting ? "Adding..." : "Add availability"}
+							<span className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${allDay ? "left-6" : "left-1"}`} />
 						</button>
 					</div>
-				</form>
-			</div>
-		</div>
+
+					{/* Quick select */}
+					<div className={allDay ? "pointer-events-none opacity-40" : ""}>
+						<div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+							<PresetButton label="Morning" onClick={() => setPreset("09:00", "12:00")} />
+							<PresetButton label="Afternoon" onClick={() => setPreset("12:00", "17:00")} />
+							<PresetButton label="Evening" onClick={() => setPreset("17:00", "22:00")} />
+						</div>
+					</div>
+
+					{/* Custom time */}
+					<div className="mt-2">
+						<div className="grid grid-cols-2 gap-2 sm:gap-4">
+							<div>
+								<label htmlFor="availability-start" className="mb-1 block text-[11px] font-semibold text-stone-500 sm:mb-1.5 sm:text-xs">
+									Start
+								</label>
+
+								<input
+									id="availability-start"
+									type="time"
+									step={900}
+									required={!allDay}
+									disabled={allDay}
+									value={startTime}
+									onChange={(event) => setStartTime(event.target.value)}
+									className="w-full rounded-xl border border-stone-300 bg-white px-2.5 py-2 text-xs text-stone-800 outline-none transition focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-400 sm:px-3 sm:py-2.5 sm:text-sm"
+								/>
+							</div>
+
+							<div>
+								<label htmlFor="availability-end" className="mb-1 block text-[11px] font-semibold text-stone-500 sm:mb-1.5 sm:text-xs">
+									End
+								</label>
+
+								<input
+									id="availability-end"
+									type="time"
+									step={900}
+									required={!allDay}
+									disabled={allDay}
+									value={endTime}
+									onChange={(event) => setEndTime(event.target.value)}
+									className="w-full rounded-xl border border-stone-300 bg-white px-2.5 py-2 text-xs text-stone-800 outline-none transition focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-400 sm:px-3 sm:py-2.5 sm:text-sm"
+								/>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				{/* Step 3 */}
+				<section>
+					<div className="mb-2 flex items-center gap-2 sm:mb-3 sm:gap-3">
+						<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-red text-xs font-bold text-white sm:h-7 sm:w-7 sm:text-sm">
+							3
+						</div>
+
+						<div>
+							<p className="text-xs font-bold text-stone-800 sm:text-sm">Select frequency</p>
+						</div>
+					</div>
+
+					<select
+						id="availability-repeat"
+						value={repeatType}
+						onChange={(event) => setRepeatType(event.target.value as ScheduleRepeatType)}
+						className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-xs text-stone-800 outline-none transition focus:border-[#b65a4f] focus:ring-2 focus:ring-[#b65a4f]/20 sm:py-2.5 sm:text-sm"
+					>
+						<option value="once">Once</option>
+						<option value="daily">Daily</option>
+						<option value="weekly">Weekly</option>
+					</select>
+				</section>
+
+				{/* Error */}
+				{error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600 sm:text-sm">{error}</p>}
+
+				{/* Actions */}
+				<div className="flex gap-2 pt-1 sm:justify-end">
+					<button type="button" onClick={onClose} className="btn-secondary flex-1 sm:flex-none">
+						Cancel
+					</button>
+
+					<button type="submit" disabled={isSubmitting} className="btn-primary flex-1 sm:flex-none">
+						{isSubmitting ? "Adding..." : "Add availability"}
+					</button>
+				</div>
+			</form>
+		</ModalContainer>
 	);
 }
 
@@ -250,7 +219,7 @@ function PresetButton({ label, onClick }: PresetButtonProps) {
 		<button
 			type="button"
 			onClick={onClick}
-			className="rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm font-bold text-stone-700 transition hover:border-[#b65a4f] hover:bg-[#fff4ef] hover:text-brand-red"
+			className="rounded-xl border border-stone-300 bg-white px-1.5 py-2 text-xs font-bold text-stone-700 transition hover:border-[#b65a4f] hover:bg-[#fff4ef] hover:text-brand-red sm:px-3 sm:py-2.5 sm:text-sm"
 		>
 			{label}
 		</button>

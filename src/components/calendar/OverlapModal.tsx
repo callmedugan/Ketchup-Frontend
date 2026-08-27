@@ -1,11 +1,15 @@
-import { format, differenceInMinutes } from "date-fns";
-import type { MatchedSchedule, Schedule } from "../../utils/types";
+import { differenceInMinutes, format } from "date-fns";
 import { useState } from "react";
-import { LoadingIndicator } from "../LoadingIndicator";
-import { useSchedule } from "../../contexts/SchedulesContext";
 import { useNavigate } from "react-router-dom";
+
+import type { MatchedSchedule, Schedule } from "../../utils/types";
+import { useSchedule } from "../../contexts/SchedulesContext";
+
 import Avatar from "../common/Avatar";
 import ScrollableContainer from "../common/ScrollableContainer";
+import ModalContainer from "../common/ModalContainer";
+import ModalHeader from "../common/ModalHeader";
+import HoldButton from "../common/HoldButton";
 
 type OverlapModalProps = {
 	noteSchedule: Schedule;
@@ -18,115 +22,99 @@ type OverlapModalProps = {
 };
 
 export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime, noteEndTime, hasPassed, onClose, onDeleted }: OverlapModalProps) {
-	const [confirmDelete, setConfirmDelete] = useState(false);
-	const { deleteUserSchedule } = useSchedule();
-
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
-	//for the make plans button
+	const { deleteUserSchedule } = useSchedule();
 	const navigate = useNavigate();
 
-	const overlaps = noteOverlaps.sort((a, b) => a.startTime.getTime() - a.endTime.getTime() - (b.startTime.getTime() - b.endTime.getTime()));
+	const overlaps = [...noteOverlaps].sort((a, b) => differenceInMinutes(b.endTime, b.startTime) - differenceInMinutes(a.endTime, a.startTime));
 
-	//delete button
 	async function handleDeleteSchedule() {
 		setLoading(true);
+		setError(null);
 
 		deleteUserSchedule(noteSchedule.id)
 			.then(() => {
-				setLoading(false);
 				onClose();
 				onDeleted();
 			})
 			.catch((err) => {
 				setError(err.message);
+			})
+			.finally(() => {
 				setLoading(false);
 			});
 	}
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4" onClick={onClose}>
-			<div
-				className={`relative flex h-[80vh] max-h-175 w-full max-w-md flex-col overflow-hidden rounded-2xl border p-6 shadow-xl transition ${
-					hasPassed ? "border-stone-300 bg-stone-100" : "border-stone-200 bg-amber-50"
-				}`}
-				onClick={(e) => e.stopPropagation()}
-			>
-				{/* Header */}
-				<div className="shrink-0">
-					<div className="flex items-start justify-between gap-4">
-						<div>
-							<h2 className={`text-lg font-bold ${hasPassed ? "text-brand-muted" : "text-brand-text"}`}>Who else is free?</h2>
+		<ModalContainer onClose={onClose} className={hasPassed ? "bg-stone-100" : ""}>
+			<ModalHeader title="Who else is free?" onClose={onClose} />
 
-							<p className={`mt-1 text-sm font-medium ${hasPassed ? "text-brand-muted/70" : "text-brand-muted"}`}>
-								{format(noteStartTime, "EEEE, MMMM d")}
-							</p>
+			{/* Schedule info */}
+			<div className={`shrink-0 border-b border-stone-200 px-4 py-3 sm:px-5 ${hasPassed ? "bg-stone-50" : "bg-brand-surface"}`}>
+				<p className={`text-sm font-bold ${hasPassed ? "text-brand-muted/70" : "text-brand-text"}`}>{format(noteStartTime, "EEEE, MMMM d")}</p>
 
-							<p className={`text-sm font-medium ${hasPassed ? "text-brand-muted/70" : "text-brand-muted"}`}>
-								{format(noteStartTime, "p")} - {format(noteEndTime, "p")}
-							</p>
-						</div>
+				<p className={`mt-0.5 text-xs font-medium sm:text-sm ${hasPassed ? "text-brand-muted/60" : "text-brand-muted"}`}>
+					{format(noteStartTime, "p")} – {format(noteEndTime, "p")}
+				</p>
+			</div>
 
-						<button
-							type="button"
-							onClick={onClose}
-							className="rounded-lg px-2 py-1 text-brand-muted transition hover:bg-stone-200 hover:text-brand-text"
-						>
-							✕
-						</button>
-					</div>
-				</div>
-
-				{/* Scrollable overlaps */}
-				<ScrollableContainer className="mt-5">
-					<div className="space-y-2">
-						{overlaps.length > 0 ? (
-							overlaps.map((overlap) => (
-								<div
-									key={overlap.id}
-									className={`flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-3 py-2.5 shadow-sm transition ${
-										hasPassed ? "opacity-60" : ""
-									}`}
-								>
-									<Avatar name={overlap.friendName} rawUrl={overlap.friendAvatarUrl} />
-
-									{showFriendInfo(overlap)}
-
-									<button
-										type="button"
-										disabled={hasPassed}
-										onClick={() => {
-											navigate("/plans", {
-												state: { overlap },
-											});
-										}}
-										className={`shrink-0 rounded-lg px-3 py-2 text-sm font-bold transition ${
-											hasPassed ? "cursor-not-allowed bg-stone-200 text-brand-muted/70" : "bg-brand-red text-white hover:bg-brand-red-dark"
-										}`}
-									>
-										{hasPassed ? "Expired" : "Make plans!"}
-									</button>
-								</div>
-							))
-						) : (
-							<p className={`text-sm font-medium ${hasPassed ? "text-brand-muted/70" : "text-brand-muted"}`}>
+			{/* Overlaps */}
+			<ScrollableContainer className="min-h-0 flex-1 px-3 py-3 sm:px-5 sm:py-4">
+				<div className="space-y-2">
+					{overlaps.length > 0 ? (
+						overlaps.map((overlap) => showOverlap(overlap))
+					) : (
+						<div className="rounded-xl border border-stone-200 bg-white px-4 py-5 text-center">
+							<p className={`text-xs font-medium sm:text-sm ${hasPassed ? "text-brand-muted/60" : "text-brand-muted"}`}>
 								None of your friends are free during this time.
 							</p>
-						)}
-					</div>
-				</ScrollableContainer>
-
-				{/* Bottom */}
-				<div className="shrink-0">
-					{showLoading()}
-					{showError()}
-
-					<div className="mt-3 flex gap-2">{showDeleteButton()}</div>
+						</div>
+					)}
 				</div>
+			</ScrollableContainer>
+
+			{/* Error */}
+			{error && (
+				<div role="alert" className="mx-4 mb-2 rounded-lg bg-red-50 px-3 py-2 text-center text-xs font-medium text-red-700 sm:mx-5 sm:text-sm">
+					{error}
+				</div>
+			)}
+
+			{/* Footer */}
+			<div className="shrink-0 border-t border-stone-200 bg-brand-card p-3 sm:p-4">
+				<HoldButton variant="danger" onComplete={handleDeleteSchedule} disabled={loading} className="mt-3 w-full">
+					{loading ? "Deleting..." : "Delete schedule"}
+				</HoldButton>
 			</div>
-		</div>
+		</ModalContainer>
 	);
+
+	function showOverlap(overlap: MatchedSchedule) {
+		return (
+			<div key={overlap.id} className={`rounded-xl border border-stone-200 bg-white p-3 shadow-sm ${hasPassed ? "opacity-60" : ""}`}>
+				<div className="flex items-center gap-2.5 sm:gap-3">
+					<Avatar name={overlap.friendName} rawUrl={overlap.friendAvatarUrl} />
+
+					{showFriendInfo(overlap)}
+				</div>
+
+				<button
+					type="button"
+					disabled={hasPassed}
+					onClick={() => {
+						navigate("/plans", { state: { overlap } });
+					}}
+					className={`mt-2.5 w-full rounded-lg px-3 py-2 text-xs font-bold transition active:scale-[0.98] sm:text-sm ${
+						hasPassed ? "cursor-not-allowed bg-stone-200 text-brand-muted/70" : "bg-brand-red text-white hover:bg-brand-red-dark active:bg-brand-red-dark"
+					}`}
+				>
+					{hasPassed ? "Expired" : "Make plans!"}
+				</button>
+			</div>
+		);
+	}
 
 	function showFriendInfo(overlap: MatchedSchedule) {
 		const minutes = differenceInMinutes(overlap.endTime, overlap.startTime);
@@ -144,7 +132,6 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 			duration = `${hours} hr${hours !== 1 ? "s" : ""} ${remainingMinutes} min${remainingMinutes !== 1 ? "s" : ""}`;
 		}
 
-		// Keep semantic duration colors
 		let durationStyle = "text-brand-muted";
 
 		if (minutes >= 180) {
@@ -155,103 +142,10 @@ export default function OverlapModal({ noteSchedule, noteOverlaps, noteStartTime
 
 		return (
 			<div className="min-w-0 flex-1">
-				<div className="truncate font-semibold text-brand-text">{overlap.friendName}</div>
+				<div className="truncate text-sm font-semibold text-brand-text">{overlap.friendName}</div>
 
-				<p className={`mt-0.5 text-sm font-bold ${durationStyle}`}>{duration}</p>
+				<p className={`mt-0.5 text-xs font-bold sm:text-sm ${durationStyle}`}>{duration}</p>
 			</div>
-		);
-	}
-
-	function showLoading() {
-		if (loading) {
-			return (
-				<div className="flex min-h-96 items-center justify-center">
-					<LoadingIndicator variant="Loading" />
-				</div>
-			);
-		}
-	}
-
-	function showError() {
-		if (error) {
-			return (
-				<div role="alert" className="mt-3 px-4 py-3 text-center text-sm font-medium text-red-700">
-					{error}
-				</div>
-			);
-		}
-	}
-
-	function showDeleteButton() {
-		return (
-			<>
-				{/* Delete action */}
-				<button
-					type="button"
-					onClick={() => setConfirmDelete(true)}
-					className="
-						mt-3 w-full rounded-xl
-						border border-red-200 bg-[#fffdf8]
-						px-4 py-2.5
-						font-bold text-red-600
-						shadow-sm transition
-						hover:border-red-300 hover:bg-brand-surface hover:text-red-700
-						active:bg-[#f3e9df]
-					"
-				>
-					Delete schedule
-				</button>
-
-				{/* Confirmation overlay */}
-				{confirmDelete && (
-					<div className="absolute inset-0 z-20 flex items-center justify-center bg-brand-text/20 px-5 backdrop-blur-[1px]">
-						<div className="w-full max-w-xs rounded-2xl border border-stone-200 bg-brand-card p-5 shadow-xl">
-							{/* Confirmation text */}
-							<div className="text-center">
-								<p className="text-sm font-bold text-brand-text">Delete this schedule?</p>
-
-								<p className="mt-1 text-xs font-medium text-brand-muted">This action cannot be undone.</p>
-							</div>
-
-							{/* Actions */}
-							<div className="mt-4 flex gap-2">
-								<button
-									type="button"
-									onClick={() => setConfirmDelete(false)}
-									disabled={loading}
-									className="
-						flex-1 rounded-xl
-						border border-stone-200 bg-brand-surface
-						px-3 py-2
-						text-sm font-bold text-brand-text
-						transition
-						hover:bg-[#f3e9df]
-						disabled:opacity-60
-					"
-								>
-									Go back
-								</button>
-
-								<button
-									type="button"
-									onClick={handleDeleteSchedule}
-									disabled={loading}
-									className="
-						flex-1 rounded-xl bg-red-600
-						px-3 py-2
-						text-sm font-bold text-white
-						transition
-						hover:bg-red-700
-						disabled:cursor-not-allowed disabled:opacity-60
-					"
-								>
-									{loading ? "Deleting..." : "Delete"}
-								</button>
-							</div>
-						</div>
-					</div>
-				)}
-			</>
 		);
 	}
 }
