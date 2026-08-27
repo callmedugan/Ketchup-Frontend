@@ -17,10 +17,8 @@ export default function FriendsSplitView() {
 		const currentFriend = friends.find((friend) => friend.id === selectedUser.data.id);
 
 		if (currentFriend) {
-			// this user currently has a relationship
 			activeUser = { type: "friend", data: currentFriend };
 		} else if (selectedUser.type === "friend") {
-			// relationship was removed, keep showing their public profile
 			activeUser = {
 				type: "search",
 				data: {
@@ -34,10 +32,49 @@ export default function FriendsSplitView() {
 		}
 	}
 
+	function handleSelectUser(user: SelectedFriendUser) {
+		setSelectedUser(user);
+	}
+
+	function handleBack() {
+		setSelectedUser(null);
+	}
+
 	return (
-		<div className="grid min-h-0 flex-1 grid-cols-[minmax(300px,0.85fr)_minmax(0,1.35fr)] gap-4">
-			<FriendsListPane activeUser={activeUser} onSelectUser={setSelectedUser} onClearSelection={() => setSelectedUser(null)} />
-			<FriendDetailsPane activeUser={activeUser} />
+		<div className="min-h-0 flex-1">
+			{/* Mobile */}
+			<div className="relative h-full md:hidden">
+				{/* Keep list mounted so its internal state is preserved */}
+				<div className={activeUser ? "hidden h-full" : "h-full"}>
+					<FriendsListPane activeUser={activeUser} onSelectUser={handleSelectUser} onClearSelection={() => setSelectedUser(null)} />
+				</div>
+
+				{/* Details */}
+				{activeUser && (
+					<div className="flex h-full min-h-0 flex-col">
+						<div className="shrink-0 pb-3">
+							<button
+								type="button"
+								onClick={handleBack}
+								className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs font-bold text-brand-text transition active:scale-[0.97] active:bg-brand-surface"
+							>
+								&lt; Back
+							</button>
+						</div>
+
+						<div className="min-h-0 flex-1">
+							<FriendDetailsPane activeUser={activeUser} />
+						</div>
+					</div>
+				)}
+			</div>
+
+			{/* Desktop */}
+			<div className="hidden h-full min-h-0 grid-cols-[minmax(300px,0.85fr)_minmax(0,1.35fr)] gap-4 md:grid">
+				<FriendsListPane activeUser={activeUser} onSelectUser={handleSelectUser} onClearSelection={() => setSelectedUser(null)} />
+
+				<FriendDetailsPane activeUser={activeUser} />
+			</div>
 		</div>
 	);
 }

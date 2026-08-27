@@ -3,6 +3,7 @@ import type { Plan } from "../../utils/types";
 import { useAuth } from "../../contexts/AuthContext";
 import ScrollableContainer from "../common/ScrollableContainer";
 import HoldButton from "../common/HoldButton";
+import Avatar from "../common/Avatar";
 
 type PlanDetailsPaneProps = {
 	activePlan: Plan | null;
@@ -17,10 +18,9 @@ export default function PlanDetailsPane({ activePlan, error, isSubmitting, handl
 	const { user } = useAuth();
 
 	if (!activePlan) {
-		return <div className="relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-[#fffdf8] shadow-sm">{showEmptyState()}</div>;
+		return <div className="relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-brand-card shadow-sm">{showEmptyState()}</div>;
 	}
 
-	// used to avoid having to use plan! everywhere
 	const plan = activePlan;
 
 	const isCreator = plan.creatorId === user?.id;
@@ -35,8 +35,8 @@ export default function PlanDetailsPane({ activePlan, error, isSubmitting, handl
 
 	function showHeader() {
 		return (
-			<div className="shrink-0 border-b border-brand-red-dark bg-brand-red px-6 py-3">
-				<p className="text-sm font-bold uppercase tracking-wide text-brand-cream">Plan details</p>
+			<div className="shrink-0 border-b border-brand-red-dark bg-brand-red px-4 py-3 sm:px-6">
+				<p className="text-xs font-bold uppercase tracking-wide text-brand-cream sm:text-sm">Plan details</p>
 			</div>
 		);
 	}
@@ -44,7 +44,7 @@ export default function PlanDetailsPane({ activePlan, error, isSubmitting, handl
 	function showDetails() {
 		return (
 			<section className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
-				<div className="space-y-4 p-5">
+				<div className="space-y-4 p-4 sm:p-5">
 					{showWhen()}
 					{showWith()}
 					{showWhere()}
@@ -57,20 +57,24 @@ export default function PlanDetailsPane({ activePlan, error, isSubmitting, handl
 
 	function showWhen() {
 		return (
-			<div className="flex items-start gap-5">
+			<div className="flex items-start gap-3 sm:gap-5">
 				<p className="plan-label">When</p>
 
-				<p className="text-sm font-bold text-brand-text">{format(plan.meetTime, "EEEE, MMMM d 'at' h:mm a")}</p>
+				<p className="min-w-0 text-xs font-bold leading-relaxed text-brand-text sm:text-sm">{format(plan.meetTime, "EEEE, MMMM d 'at' h:mm a")}</p>
 			</div>
 		);
 	}
 
 	function showWith() {
 		return (
-			<div className="flex items-start gap-5">
+			<div className="flex items-center gap-3 sm:gap-5">
 				<p className="plan-label">With</p>
 
-				<p className="text-sm font-bold text-brand-text">{plan.friendName}</p>
+				<div className="flex min-w-0 items-center gap-2.5">
+					<Avatar name={plan.friendName} rawUrl={plan.friendAvatarUrl} />
+
+					<p className="truncate text-xs font-bold text-brand-text sm:text-sm">{plan.friendName}</p>
+				</div>
 			</div>
 		);
 	}
@@ -79,23 +83,23 @@ export default function PlanDetailsPane({ activePlan, error, isSubmitting, handl
 		if (!plan.location) return null;
 
 		return (
-			<div className="flex items-start gap-5">
+			<div className="flex items-start gap-3 sm:gap-5">
 				<p className="plan-label">Where</p>
 
-				<p className="text-sm font-bold text-brand-text">{plan.location}</p>
+				<p className="min-w-0 wrap-break-word text-xs font-bold text-brand-text sm:text-sm">{plan.location}</p>
 			</div>
 		);
 	}
 
 	function showWhat() {
 		return (
-			<div className="flex items-start gap-5">
+			<div className="flex items-start gap-3 sm:gap-5">
 				<p className="plan-label">What</p>
 
-				<div className="min-w-0">
-					<p className="text-sm font-bold text-brand-text">{plan.title}</p>
+				<div className="min-w-0 flex-1">
+					<p className="wrap-break-word text-xs font-bold text-brand-text sm:text-sm">{plan.title}</p>
 
-					{plan.comments && <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-brand-muted">{plan.comments}</p>}
+					{plan.comments && <p className="mt-1 whitespace-pre-wrap wrap-break-word text-xs leading-relaxed text-brand-muted sm:text-sm">{plan.comments}</p>}
 				</div>
 			</div>
 		);
@@ -103,10 +107,10 @@ export default function PlanDetailsPane({ activePlan, error, isSubmitting, handl
 
 	function showStatus() {
 		return (
-			<div className="flex items-start gap-3">
-				<p className="plan-label mt-1.5">status</p>
+			<div className="flex items-start gap-3 sm:gap-5">
+				<p className="plan-label mt-1">Status</p>
 
-				<span className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold ${status.className}`}>{status.text}</span>
+				<span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold sm:px-3 sm:py-1.5 sm:text-xs ${status.className}`}>{status.text}</span>
 			</div>
 		);
 	}
@@ -114,18 +118,18 @@ export default function PlanDetailsPane({ activePlan, error, isSubmitting, handl
 	function showError() {
 		if (!error) return null;
 
-		return <p className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">{error}</p>;
+		return <p className="rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-xs font-medium text-red-600 sm:px-4 sm:py-3 sm:text-sm">{error}</p>;
 	}
 
 	function showActions() {
 		if (canRespond) {
 			return (
-				<div className="flex justify-end gap-3">
-					<HoldButton variant="secondary" onComplete={() => handleDecline(plan)} disabled={isSubmitting}>
+				<div className="flex gap-2 sm:justify-end sm:gap-3">
+					<HoldButton variant="secondary" onComplete={() => handleDecline(plan)} disabled={isSubmitting} className="flex-1 sm:flex-none">
 						Decline
 					</HoldButton>
 
-					<button type="button" onClick={() => handleAccept(plan)} disabled={isSubmitting} className="btn-primary">
+					<button type="button" onClick={() => handleAccept(plan)} disabled={isSubmitting} className="btn-primary flex-1 sm:flex-none">
 						{isSubmitting ? "Accepting..." : "Accept plan"}
 					</button>
 				</div>
@@ -134,9 +138,9 @@ export default function PlanDetailsPane({ activePlan, error, isSubmitting, handl
 
 		if (canCancel) {
 			return (
-				<div className="flex justify-end">
-					<HoldButton variant="danger" onComplete={() => handleCancel(plan)} disabled={isSubmitting}>
-						Cancel
+				<div className="flex sm:justify-end">
+					<HoldButton variant="danger" onComplete={() => handleCancel(plan)} disabled={isSubmitting} className="w-full sm:w-auto">
+						Cancel plan
 					</HoldButton>
 				</div>
 			);
@@ -146,11 +150,15 @@ export default function PlanDetailsPane({ activePlan, error, isSubmitting, handl
 	}
 
 	return (
-		<div className="relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-[#fffdf8] shadow-sm">
+		<div
+			className={`relative flex min-h-0 flex-col overflow-hidden rounded-2xl border shadow-sm ${
+				isPast ? "border-stone-300 bg-stone-100" : "border-stone-200 bg-brand-card"
+			}`}
+		>
 			{showHeader()}
 
-			<ScrollableContainer className="p-5 sm:p-6">
-				<div className="mx-auto max-w-2xl space-y-5">
+			<ScrollableContainer className="p-3 sm:p-6">
+				<div className="mx-auto max-w-2xl space-y-3 sm:space-y-5">
 					{showDetails()}
 					{showError()}
 					{showActions()}
@@ -186,11 +194,11 @@ export default function PlanDetailsPane({ activePlan, error, isSubmitting, handl
 
 function showEmptyState() {
 	return (
-		<div className="flex h-full min-h-100 items-center justify-center p-8">
+		<div className="flex h-full min-h-80 items-center justify-center p-5 sm:min-h-100 sm:p-8">
 			<div className="max-w-sm text-center">
-				<h2 className="mt-4 text-lg font-bold text-brand-text">Select a plan</h2>
+				<h2 className="text-base font-bold text-brand-text sm:text-lg">Select a plan</h2>
 
-				<p className="mt-1 text-sm font-medium text-brand-muted">Choose a plan from the list to see details, status, and available actions.</p>
+				<p className="mt-1 text-xs font-medium text-brand-muted sm:text-sm">Choose a plan from the list to see details, status, and available actions.</p>
 			</div>
 		</div>
 	);

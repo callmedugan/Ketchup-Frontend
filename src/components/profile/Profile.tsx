@@ -1,10 +1,9 @@
 import { useState, type SubmitEvent } from "react";
-import TestDataGenerator from "../../testing/TestDataGenerator";
 import Avatar from "../common/Avatar";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function Profile() {
-	const { user, updateProfile } = useAuth();
+	const { user, updateProfile, logout } = useAuth();
 	if (!user) return;
 
 	const [bio, setBio] = useState(user.bio ?? "");
@@ -96,18 +95,22 @@ export default function Profile() {
 						{error && <p className="mt-5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">{error}</p>}
 
 						{/* Actions */}
-						<div className="mt-5 flex items-center justify-end gap-3 border-t border-stone-200 pt-4">
-							<TestDataGenerator />
-
-							{isEditingBio && (
-								<button type="button" onClick={handleCancelEdit} disabled={isSubmitting} className="btn-secondary">
-									Cancel
-								</button>
-							)}
-
-							<button type="submit" disabled={!hasChanges || isSubmitting} className="btn-primary">
-								{isSubmitting ? "Saving..." : "Save profile"}
+						<div className="mt-5 flex items-center justify-between gap-3 border-t border-stone-200 pt-4">
+							<button type="button" onClick={logout} className="btn-danger">
+								Log out
 							</button>
+
+							<div className="flex items-center gap-3">
+								{isEditingBio && (
+									<button type="button" onClick={handleCancelEdit} disabled={isSubmitting} className="btn-secondary">
+										Cancel
+									</button>
+								)}
+
+								<button type="submit" disabled={!hasChanges || isSubmitting} className="btn-primary">
+									{isSubmitting ? "Saving..." : "Save profile"}
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>

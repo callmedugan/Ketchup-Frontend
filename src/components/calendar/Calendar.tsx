@@ -311,10 +311,15 @@ export default function Calendar() {
 				schedule.startTime.getDate() === day.getDate(),
 		);
 
+		const hasSchedules = daySchedules.length > 0;
+
 		return (
-			<div key={day.toISOString()} className="mx-3 my-2 h-40 shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-brand-card shadow-sm md:h-auto">
+			<div
+				key={day.toISOString()}
+				className={`mx-3 my-2 shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-brand-card shadow-sm ${hasSchedules ? "h-40" : "h-auto"}`}
+			>
 				{/* Day header */}
-				<div className="flex items-center justify-between border-b border-stone-200 bg-[#f3e4d7] px-4 py-2.5">
+				<div className={`flex items-center justify-between bg-[#f3e4d7] px-4 py-2 ${hasSchedules ? "border-b border-stone-200" : ""}`}>
 					<div className="flex items-baseline gap-2">
 						<span className="text-sm font-bold text-brand-text">{format(day, "EEE")}</span>
 
@@ -324,18 +329,16 @@ export default function Calendar() {
 					{isToday && <span className="rounded-full bg-brand-red px-2 py-1 text-[10px] font-bold text-white">Today</span>}
 				</div>
 
-				{/* Schedules */}
-				<ScrollableContainer direction="horizontal">
-					<div className="flex h-full gap-2.5 p-3">
-						{daySchedules.length > 0 ? (
-							daySchedules.map((schedule) => (
+				{/* Only render schedule area when schedules exist */}
+				{hasSchedules && (
+					<ScrollableContainer direction="horizontal">
+						<div className="flex h-full gap-2.5 p-3">
+							{daySchedules.map((schedule) => (
 								<StickyNote key={`${schedule.id}-${day.toISOString()}`} scheduleData={schedule} noteDate={day} onDeleted={handleScheduleDeleted} />
-							))
-						) : (
-							<div className="flex w-full items-center justify-center">{/* <p className="text-xs font-medium text-brand-muted/70">Empty</p> */}</div>
-						)}
-					</div>
-				</ScrollableContainer>
+							))}
+						</div>
+					</ScrollableContainer>
+				)}
 			</div>
 		);
 	}

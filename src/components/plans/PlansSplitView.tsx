@@ -14,8 +14,14 @@ export default function PlansSplitView() {
 	const activePlan = selectedPlan ? (plans.find((plan) => plan.id === selectedPlan.id) ?? selectedPlan) : null;
 
 	//#region handlers
+
 	function handleSelectPlan(plan: Plan) {
 		setSelectedPlan(plan);
+		setError(null);
+	}
+
+	function handleBack() {
+		setSelectedPlan(null);
 		setError(null);
 	}
 
@@ -57,20 +63,58 @@ export default function PlansSplitView() {
 			setIsSubmitting(false);
 		}
 	}
+
 	//#endregion
 
 	return (
-		<div className="grid min-h-0 flex-1 grid-cols-[minmax(300px,0.85fr)_minmax(0,1.35fr)] gap-4">
-			<PlansListPane activePlan={activePlan} onSelectPlan={handleSelectPlan} onClearError={() => setError(null)} />
+		<div className="min-h-0 flex-1">
+			{/* Mobile */}
+			<div className="relative h-full md:hidden">
+				{/* Keep list mounted so its internal state is preserved */}
+				<div className={activePlan ? "hidden h-full" : "h-full"}>
+					<PlansListPane activePlan={activePlan} onSelectPlan={handleSelectPlan} onClearError={() => setError(null)} />
+				</div>
 
-			<PlanDetailsPane
-				activePlan={activePlan}
-				error={error}
-				isSubmitting={isSubmitting}
-				handleAccept={handleAccept}
-				handleDecline={handleDecline}
-				handleCancel={handleCancel}
-			/>
+				{/* Details */}
+				{activePlan && (
+					<div className="flex h-full min-h-0 flex-col">
+						<div className="shrink-0 pb-3">
+							<button
+								type="button"
+								onClick={handleBack}
+								className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs font-bold text-brand-text transition active:scale-[0.97] active:bg-brand-surface"
+							>
+								&lt; Back
+							</button>
+						</div>
+
+						<div className="min-h-0 flex-1">
+							<PlanDetailsPane
+								activePlan={activePlan}
+								error={error}
+								isSubmitting={isSubmitting}
+								handleAccept={handleAccept}
+								handleDecline={handleDecline}
+								handleCancel={handleCancel}
+							/>
+						</div>
+					</div>
+				)}
+			</div>
+
+			{/* Desktop */}
+			<div className="hidden h-full min-h-0 grid-cols-[minmax(300px,0.85fr)_minmax(0,1.35fr)] gap-4 md:grid">
+				<PlansListPane activePlan={activePlan} onSelectPlan={handleSelectPlan} onClearError={() => setError(null)} />
+
+				<PlanDetailsPane
+					activePlan={activePlan}
+					error={error}
+					isSubmitting={isSubmitting}
+					handleAccept={handleAccept}
+					handleDecline={handleDecline}
+					handleCancel={handleCancel}
+				/>
+			</div>
 		</div>
 	);
 }
