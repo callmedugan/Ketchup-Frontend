@@ -5,7 +5,6 @@ import PageContainer from "./PageContainer";
 
 export function CalendarPage() {
 	const [showScheduleForm, setShowScheduleForm] = useState(false);
-	const [date] = useState("");
 
 	return (
 		<PageContainer title="Your calendar" description="Check out what's going on this week.">
@@ -17,7 +16,7 @@ export function CalendarPage() {
 				</button>
 			</div>
 
-			{showScheduleForm && <NewScheduleModal initialDate={date} onClose={() => setShowScheduleForm(false)} />}
+			{showScheduleForm && <NewScheduleModal onClose={() => setShowScheduleForm(false)} />}
 		</PageContainer>
 	);
 }
